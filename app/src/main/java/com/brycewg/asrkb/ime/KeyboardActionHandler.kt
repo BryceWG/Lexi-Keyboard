@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import com.brycewg.asrkb.store.debug.DebugLogManager
 
 /**
  * 键盘动作处理器：作为控制器/ViewModel 管理键盘的核心状态和业务逻辑
@@ -64,16 +65,21 @@ class KeyboardActionHandler(
     private var dropPendingFinal: Boolean = false
     // 操作序列号：用于取消在途处理（强制停止/新会话开始都会递增）
     private var opSeq: Long = 0L
+    // 长按期间的“按住状态”和自动重启计数（用于应对录音被系统提前中断的设备差异）
+    private var micHoldActive: Boolean = false
+    private var micHoldRestartCount: Int = 0
 
     private fun scheduleProcessingTimeout() {
-        try { processingTimeoutJob?.cancel() } catch (_: Throwable) {}
+        try { processingTimeoutJob?.cancel() } catch (t: Throwable) { Log.w(TAG, "Cancel previous processingTimeoutJob failed", t) }
         processingTimeoutJob = scope.launch {
             delay(8000)
             // 若仍处于 Processing，则回到 Idle
             if (currentState is KeyboardState.Processing) {
+                try { DebugLogManager.log("ime", "processing_timeout_fired", mapOf("opSeq" to opSeq)) } catch (_: Throwable) { }
                 transitionToIdle()
             }
         }
+        try { DebugLogManager.log("ime", "processing_timeout_scheduled", mapOf("opSeq" to opSeq)) } catch (_: Throwable) { }
     }
 
     fun setUiListener(listener: UiListener) {
@@ -89,10 +95,22 @@ class KeyboardActionHandler(
      * 处理麦克风点击（点按切换模式）
      */
     fun handleMicTapToggle() {
+        try {
+            DebugLogManager.log(
+                category = "ime",
+                event = "mic_tap_toggle",
+                data = mapOf(
+                    "state" to currentState::class.java.simpleName,
+                    "opSeq" to opSeq,
+                    "dropPendingFinal" to dropPendingFinal
+                )
+            )
+        } catch (_: Throwable) { }
         when (currentState) {
             is KeyboardState.Idle -> {
                 // 开始录音
                 startNormalListening()
+                try { DebugLogManager.log("ime", "mic_tap_action", mapOf("action" to "start_listening", "opSeq" to opSeq)) } catch (_: Throwable) { }
             }
             is KeyboardState.Listening -> {
                 // 停止录音：统一进入 Processing，显示“识别中”直到最终结果（即使未开启后处理）
@@ -100,18 +118,21 @@ class KeyboardActionHandler(
                 transitionToState(KeyboardState.Processing)
                 scheduleProcessingTimeout()
                 uiListener?.onStatusMessage(context.getString(R.string.status_recognizing))
+                try { DebugLogManager.log("ime", "mic_tap_action", mapOf("action" to "stop_and_process", "opSeq" to opSeq)) } catch (_: Throwable) { }
             }
             is KeyboardState.Processing -> {
                 // 强制停止：立即回到 Idle，并忽略本会话迟到的 onFinal/onStopped
-                try { processingTimeoutJob?.cancel() } catch (_: Throwable) {}
+                try { processingTimeoutJob?.cancel() } catch (t: Throwable) { Log.w(TAG, "Cancel timeout on force stop failed", t) }
                 processingTimeoutJob = null
                 dropPendingFinal = true
                 transitionToIdle(keepMessage = true)
                 uiListener?.onStatusMessage(context.getString(R.string.status_cancelled))
+                try { DebugLogManager.log("ime", "mic_tap_action", mapOf("action" to "force_stop", "opSeq" to opSeq)) } catch (_: Throwable) { }
             }
             else -> {
                 // 其他状态忽略
                 Log.w(TAG, "handleMicTapToggle: ignored in state $currentState")
+                try { DebugLogManager.log("ime", "mic_tap_action", mapOf("action" to "ignored", "state" to currentState::class.java.simpleName)) } catch (_: Throwable) { }
             }
         }
     }
@@ -120,29 +141,43 @@ class KeyboardActionHandler(
      * 处理麦克风按下（长按模式）
      */
     fun handleMicPressDown() {
+        micHoldActive = true
+        micHoldRestartCount = 0
+        try {
+            DebugLogManager.log(
+                category = "ime",
+                event = "mic_down_dispatch",
+                data = mapOf(
+                    "state" to currentState::class.java.simpleName,
+                    "opSeq" to opSeq,
+                    "dropPendingFinal" to dropPendingFinal
+                )
+            )
+        } catch (_: Throwable) { }
         when (currentState) {
             is KeyboardState.Idle -> startNormalListening()
             is KeyboardState.Processing -> {
                 // 强制停止：根据模式决定后续动作
                 try {
                     processingTimeoutJob?.cancel()
-                } catch (t: Throwable) {
-                    Log.w(TAG, "Cancel processing timeout on press", t)
-                }
+                } catch (t: Throwable) { Log.w(TAG, "Cancel processing timeout on press", t) }
                 processingTimeoutJob = null
                 // 标记忽略上一会话的迟到回调
                 dropPendingFinal = true
                 if (!prefs.micTapToggleEnabled) {
                     // 长按模式：直接开始新一轮录音
                     startNormalListening()
+                    try { DebugLogManager.log("ime", "mic_down_action", mapOf("action" to "force_stop_and_restart", "opSeq" to opSeq)) } catch (_: Throwable) { }
                 } else {
                     // 点按切换模式：仅取消并回到空闲
                     transitionToIdle(keepMessage = true)
                     uiListener?.onStatusMessage(context.getString(R.string.status_cancelled))
+                    try { DebugLogManager.log("ime", "mic_down_action", mapOf("action" to "force_stop_to_idle", "opSeq" to opSeq)) } catch (_: Throwable) { }
                 }
             }
             else -> {
                 Log.w(TAG, "handleMicPressDown: ignored in state $currentState")
+                try { DebugLogManager.log("ime", "mic_down_action", mapOf("action" to "ignored", "state" to currentState::class.java.simpleName)) } catch (_: Throwable) { }
             }
         }
     }
@@ -159,12 +194,35 @@ class KeyboardActionHandler(
      */
     fun handleMicPressUp(autoEnterAfterFinal: Boolean) {
         autoEnterOnce = autoEnterAfterFinal
+        micHoldActive = false
+        try {
+            DebugLogManager.log(
+                category = "ime",
+                event = "mic_up_dispatch",
+                data = mapOf(
+                    "autoEnter" to autoEnterAfterFinal,
+                    "state" to currentState::class.java.simpleName,
+                    "opSeq" to opSeq
+                )
+            )
+        } catch (_: Throwable) { }
         if (asrManager.isRunning()) {
             asrManager.stopRecording()
             // 进入处理阶段（无论是否开启后处理）
             transitionToState(KeyboardState.Processing)
             scheduleProcessingTimeout()
             uiListener?.onStatusMessage(context.getString(R.string.status_recognizing))
+            try { DebugLogManager.log("ime", "mic_up_action", mapOf("action" to "stop_and_process", "autoEnter" to autoEnterAfterFinal, "opSeq" to opSeq)) } catch (_: Throwable) { }
+        } else {
+            // 异常：UI 处于 Listening，但引擎未在运行（例如启动失败/被系统打断）。
+            // 为避免卡住“正在聆听”，直接归位到 Idle 并提示“已取消”。
+            if (currentState is KeyboardState.Listening || currentState is KeyboardState.AiEditListening) {
+                // 确保释放音频焦点/路由（即使引擎未在运行）
+                try { asrManager.stopRecording() } catch (_: Throwable) { }
+                transitionToIdle(keepMessage = true)
+                uiListener?.onStatusMessage(context.getString(R.string.status_cancelled))
+                try { DebugLogManager.log("ime", "mic_up_action", mapOf("action" to "not_running_cancel", "opSeq" to opSeq)) } catch (_: Throwable) { }
+            }
         }
     }
 
@@ -617,29 +675,47 @@ class KeyboardActionHandler(
 
     override fun onAsrStopped() {
         scope.launch {
+            // 若仍在长按且为非点按模式，并且上一轮录音时长极短，则判定为系统提前中断，自动重启一次录音
+            // 这样用户的“持续按住说话”不会因为系统打断而直接被判定为取消
+            val earlyMs = try { asrManager.popLastAudioMsForStats() } catch (t: Throwable) { 0L }
+            if (!prefs.micTapToggleEnabled && micHoldActive && earlyMs in 1..250) {
+                if (micHoldRestartCount < 1) {
+                    micHoldRestartCount += 1
+                    try { DebugLogManager.log("ime", "auto_restart_after_early_stop", mapOf("audioMs" to earlyMs, "count" to micHoldRestartCount, "opSeq" to opSeq)) } catch (_: Throwable) { }
+                    startNormalListening()
+                    return@launch
+                } else {
+                    try { DebugLogManager.log("ime", "auto_restart_skip", mapOf("audioMs" to earlyMs, "count" to micHoldRestartCount, "opSeq" to opSeq)) } catch (_: Throwable) { }
+                }
+            }
             // 若强制停止，忽略迟到的 onStopped
             if (dropPendingFinal) return@launch
             // 若此时已经开始了新的录音（引擎运行中），则将本次 onStopped 视为上一会话的迟到事件并忽略。
             if (asrManager.isRunning()) {
                 try { asrManager.popLastAudioMsForStats() } catch (_: Throwable) { }
+                try { DebugLogManager.log("ime", "asr_stopped_ignored", mapOf("reason" to "new_session_running", "opSeq" to opSeq)) } catch (_: Throwable) { }
                 return@launch
             }
             // 误触极短录音：直接取消，避免进入“识别中…”阻塞后续长按
-            val audioMs = try { asrManager.popLastAudioMsForStats() } catch (t: Throwable) {
+            val audioMs = earlyMs
+            // 若前面 earlyMs==0（例如未知或异常），再尝试一次以兼容既有逻辑
+            val audioMsVal = if (audioMs != 0L) audioMs else try { asrManager.popLastAudioMsForStats() } catch (t: Throwable) {
                 Log.w(TAG, "popLastAudioMsForStats failed", t)
                 0L
             }
-            if (audioMs in 1..250) {
+            if (audioMsVal in 1..250) {
                 // 将后续迟到回调丢弃并归位
                 dropPendingFinal = true
                 transitionToIdle()
                 uiListener?.onStatusMessage(context.getString(R.string.status_cancelled))
+                try { DebugLogManager.log("ime", "asr_stopped", mapOf("audioMs" to audioMsVal, "action" to "cancel_short", "opSeq" to opSeq)) } catch (_: Throwable) { }
                 return@launch
             }
             // 正常流程：进入 Processing，等待最终结果或兜底
             transitionToState(KeyboardState.Processing)
             scheduleProcessingTimeout()
             uiListener?.onStatusMessage(context.getString(R.string.status_recognizing))
+            try { DebugLogManager.log("ime", "asr_stopped", mapOf("audioMs" to audioMs, "action" to "enter_processing", "opSeq" to opSeq)) } catch (_: Throwable) { }
         }
     }
 
@@ -660,7 +736,19 @@ class KeyboardActionHandler(
 
     private fun transitionToState(newState: KeyboardState) {
         // 不在进入 Processing 时主动 finishComposing，保留预览供最终结果做差量合并
+        val prev = currentState
         currentState = newState
+        try {
+            DebugLogManager.log(
+                category = "ime",
+                event = "state_transition",
+                data = mapOf(
+                    "from" to prev::class.java.simpleName,
+                    "to" to newState::class.java.simpleName,
+                    "opSeq" to opSeq
+                )
+            )
+        } catch (_: Throwable) { }
         // 仅在携带文本上下文的状态下同步到 AsrSessionManager，
         // 避免切到 Processing 后丢失 partialText 影响最终合并
         when (newState) {
@@ -677,7 +765,8 @@ class KeyboardActionHandler(
     private fun transitionToIdle(keepMessage: Boolean = false) {
         // 新的显式归位：递增操作序列，取消在途处理
         opSeq++
-        try { processingTimeoutJob?.cancel() } catch (_: Throwable) {}
+        try { DebugLogManager.log("ime", "opseq_inc", mapOf("at" to "to_idle", "opSeq" to opSeq)) } catch (_: Throwable) { }
+        try { processingTimeoutJob?.cancel() } catch (t: Throwable) { Log.w(TAG, "Cancel timeout on toIdle failed", t) }
         processingTimeoutJob = null
         autoEnterOnce = false
         transitionToState(KeyboardState.Idle)
@@ -689,7 +778,8 @@ class KeyboardActionHandler(
     private fun startNormalListening() {
         // 开启新一轮录音：递增操作序列，取消在途处理
         opSeq++
-        try { processingTimeoutJob?.cancel() } catch (_: Throwable) {}
+        try { DebugLogManager.log("ime", "opseq_inc", mapOf("at" to "start_listening", "opSeq" to opSeq)) } catch (_: Throwable) { }
+        try { processingTimeoutJob?.cancel() } catch (t: Throwable) { Log.w(TAG, "Cancel timeout on startNormalListening failed", t) }
         processingTimeoutJob = null
         dropPendingFinal = false
         autoEnterOnce = false

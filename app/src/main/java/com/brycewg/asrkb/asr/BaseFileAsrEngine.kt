@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.atomic.AtomicBoolean
+import com.brycewg.asrkb.store.debug.DebugLogManager
 
 /**
  * 基础的文件识别 ASR 引擎，封装了麦克风采集、静音判停等通用逻辑，
@@ -33,6 +34,8 @@ abstract class BaseFileAsrEngine(
     }
 
     private val running = AtomicBoolean(false)
+    @Volatile private var stopRequested: Boolean = false
+    @Volatile private var stoppedDelivered: Boolean = false
     private var audioJob: Job? = null
     private var processingJob: Job? = null
     private var segmentChan: Channel<ByteArray>? = null
@@ -55,6 +58,8 @@ abstract class BaseFileAsrEngine(
         if (running.get()) return
         if (!ensureReady()) return
         running.set(true)
+        stopRequested = false
+        stoppedDelivered = false
         audioJob?.cancel()
         processingJob?.cancel()
         // 使用有界队列并在溢出时丢弃最旧的数据，避免内存溢出
@@ -92,6 +97,20 @@ abstract class BaseFileAsrEngine(
                 recordAndEnqueueSegments(chan)
             } finally {
                 running.set(false)
+                try { DebugLogManager.log("asr", "engine_run_end", mapOf("reason" to "audio_job_end")) } catch (_: Throwable) { }
+                // 若录音流意外结束且未显式通知 onStopped，则补发一次，确保上层释放音频焦点与路由。
+                if (!stoppedDelivered) {
+                    try {
+                        DebugLogManager.log("asr", "engine_stop_implied")
+                    } catch (_: Throwable) { }
+                    try {
+                        listener.onStopped()
+                    } catch (t: Throwable) {
+                        Log.e(TAG, "Failed to notify implied onStopped", t)
+                    } finally {
+                        stoppedDelivered = true
+                    }
+                }
                 try {
                     chan.close()
                 } catch (t: Throwable) {
@@ -104,6 +123,7 @@ abstract class BaseFileAsrEngine(
 
     override fun stop() {
         val wasRunning = running.getAndSet(false)
+        stopRequested = true
         // 主动停止采集：取消录音协程以触发 finally 冲刷尾段并关闭通道
         try {
             audioJob?.cancel()
@@ -114,6 +134,7 @@ abstract class BaseFileAsrEngine(
         if (wasRunning) {
             try {
                 listener.onStopped()
+                stoppedDelivered = true
             } catch (t: Throwable) {
                 Log.e(TAG, "Failed to notify onStopped on stop", t)
             }
@@ -183,6 +204,7 @@ abstract class BaseFileAsrEngine(
                     Log.d(TAG, "Silence detected, stopping recording")
                     try {
                         listener.onStopped()
+                        stoppedDelivered = true
                     } catch (t: Throwable) {
                         Log.e(TAG, "Failed to notify stopped", t)
                     }

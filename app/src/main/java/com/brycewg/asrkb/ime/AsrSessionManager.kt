@@ -11,6 +11,7 @@ import android.media.AudioAttributes
 import com.brycewg.asrkb.asr.*
 import com.brycewg.asrkb.asr.BluetoothRouteManager
 import com.brycewg.asrkb.store.Prefs
+import com.brycewg.asrkb.store.debug.DebugLogManager
 import kotlinx.coroutines.CoroutineScope
 import java.util.Locale
 
@@ -224,6 +225,19 @@ class AsrSessionManager(
             Log.w(TAG, "Failed to get uptime for session start", t)
             sessionStartUptimeMs = 0L
         }
+        try {
+            val eng = ensureEngineMatchesMode()
+            DebugLogManager.log(
+                category = "asr",
+                event = "start",
+                data = mapOf(
+                    "vendor" to prefs.asrVendor.name,
+                    "engine" to (eng?.javaClass?.simpleName ?: "null"),
+                    "state" to state::class.java.simpleName,
+                    "duckMedia" to prefs.duckMediaOnRecordEnabled
+                )
+            )
+        } catch (_: Throwable) { }
         // 开始录音前根据设置决定是否请求短时独占音频焦点（音频避让）
         if (prefs.duckMediaOnRecordEnabled) {
             requestTransientAudioFocus()
@@ -258,6 +272,16 @@ class AsrSessionManager(
             Log.e(TAG, "Local model preload guard failed", t)
         }
         asrEngine?.start()
+        try {
+            DebugLogManager.log(
+                category = "asr",
+                event = "start_state",
+                data = mapOf(
+                    "engine" to (asrEngine?.javaClass?.simpleName ?: "null"),
+                    "running" to (asrEngine?.isRunning == true)
+                )
+            )
+        } catch (_: Throwable) { }
         // 录音期间保持耳机路由
         try { BluetoothRouteManager.onRecordingStarted(context) } catch (t: Throwable) { Log.w(TAG, "BluetoothRouteManager onRecordingStarted", t) }
     }
@@ -267,6 +291,16 @@ class AsrSessionManager(
      */
     fun stopRecording() {
         asrEngine?.stop()
+        try {
+            DebugLogManager.log(
+                category = "asr",
+                event = "stop",
+                data = mapOf(
+                    "state" to currentState::class.java.simpleName,
+                    "engineRunning" to (asrEngine?.isRunning == true)
+                )
+            )
+        } catch (_: Throwable) { }
         // 归还音频焦点
         try {
             abandonAudioFocusIfNeeded()
@@ -348,6 +382,16 @@ class AsrSessionManager(
                 Log.w(TAG, "Failed to compute audio duration on onFinal", t)
             }
         }
+        try {
+            DebugLogManager.log(
+                category = "asr",
+                event = "final",
+                data = mapOf(
+                    "len" to text.length,
+                    "state" to currentState::class.java.simpleName
+                )
+            )
+        } catch (_: Throwable) { }
         listener?.onAsrFinal(text, currentState)
     }
 
@@ -364,6 +408,16 @@ class AsrSessionManager(
     override fun onError(message: String) {
         Log.e(TAG, "onError: message='$message', state=$currentState")
         val friendlyMessage = mapErrorToFriendlyMessage(message)
+        try {
+            DebugLogManager.log(
+                category = "asr",
+                event = "error",
+                data = mapOf(
+                    "state" to currentState::class.java.simpleName,
+                    "msgType" to if (friendlyMessage != null) "friendly" else "raw"
+                )
+            )
+        } catch (_: Throwable) { }
         listener?.onAsrError(friendlyMessage ?: message)
     }
 
@@ -386,6 +440,17 @@ class AsrSessionManager(
         } catch (t: Throwable) {
             Log.w(TAG, "abandonAudioFocusIfNeeded failed on onStopped", t)
         }
+        try {
+            val ms = lastAudioMsForStats
+            DebugLogManager.log(
+                category = "asr",
+                event = "stopped",
+                data = mapOf(
+                    "audioMs" to ms,
+                    "state" to currentState::class.java.simpleName
+                )
+            )
+        } catch (_: Throwable) { }
         listener?.onAsrStopped()
     }
 

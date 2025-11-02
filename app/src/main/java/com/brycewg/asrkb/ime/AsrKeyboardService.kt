@@ -606,6 +606,17 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
             if (!prefs.micTapToggleEnabled) return@setOnClickListener
             performKeyHaptic(v)
             if (!checkAsrReady()) return@setOnClickListener
+            try {
+                DebugLogManager.log(
+                    category = "ime",
+                    event = "mic_click",
+                    data = mapOf(
+                        "tapToggle" to true,
+                        "state" to actionHandler.getCurrentState()::class.java.simpleName,
+                        "running" to asrManager.isRunning()
+                    )
+                )
+            } catch (_: Throwable) { }
             actionHandler.handleMicTapToggle()
         }
 
@@ -615,10 +626,32 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                 MotionEvent.ACTION_DOWN -> {
                     performKeyHaptic(v)
                     if (!checkAsrReady()) {
+                        try {
+                            DebugLogManager.log(
+                                category = "ime",
+                                event = "mic_down_blocked",
+                                data = mapOf(
+                                    "tapToggle" to false,
+                                    "state" to actionHandler.getCurrentState()::class.java.simpleName
+                                )
+                            )
+                        } catch (_: Throwable) { }
                         v.performClick()
                         return@setOnTouchListener true
                     }
                     micDownRawY = try { event.rawY } catch (_: Throwable) { event.y }
+                    try {
+                        DebugLogManager.log(
+                            category = "ime",
+                            event = "mic_down",
+                            data = mapOf(
+                                "tapToggle" to false,
+                                "y" to micDownRawY,
+                                "state" to actionHandler.getCurrentState()::class.java.simpleName,
+                                "running" to asrManager.isRunning()
+                            )
+                        )
+                    } catch (_: Throwable) { }
                     actionHandler.handleMicPressDown()
                     true
                 }
@@ -627,11 +660,36 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                     val upY = try { event.rawY } catch (_: Throwable) { event.y }
                     val dy = (micDownRawY - upY)
                     val autoEnter = prefs.micSwipeUpAutoEnterEnabled && dy > slop
+                    try {
+                        DebugLogManager.log(
+                            category = "ime",
+                            event = "mic_up",
+                            data = mapOf(
+                                "tapToggle" to false,
+                                "dy" to dy,
+                                "slop" to slop,
+                                "autoEnter" to autoEnter,
+                                "state" to actionHandler.getCurrentState()::class.java.simpleName,
+                                "running" to asrManager.isRunning()
+                            )
+                        )
+                    } catch (_: Throwable) { }
                     actionHandler.handleMicPressUp(autoEnter)
                     v.performClick()
                     true
                 }
                 MotionEvent.ACTION_CANCEL -> {
+                    try {
+                        DebugLogManager.log(
+                            category = "ime",
+                            event = "mic_cancel",
+                            data = mapOf(
+                                "tapToggle" to false,
+                                "state" to actionHandler.getCurrentState()::class.java.simpleName,
+                                "running" to asrManager.isRunning()
+                            )
+                        )
+                    } catch (_: Throwable) { }
                     actionHandler.handleMicPressUp(false)
                     v.performClick()
                     true
@@ -1204,10 +1262,12 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
     private fun checkAsrReady(): Boolean {
         if (!hasRecordAudioPermission()) {
             refreshPermissionUi()
+            try { DebugLogManager.log("ime", "asr_not_ready", mapOf("reason" to "perm")) } catch (_: Throwable) { }
             return false
         }
         if (!prefs.hasAsrKeys()) {
             refreshPermissionUi()
+            try { DebugLogManager.log("ime", "asr_not_ready", mapOf("reason" to "keys")) } catch (_: Throwable) { }
             return false
         }
         if (prefs.asrVendor == AsrVendor.SenseVoice) {

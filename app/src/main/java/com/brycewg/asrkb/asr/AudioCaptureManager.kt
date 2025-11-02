@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
+import com.brycewg.asrkb.store.debug.DebugLogManager
 
 /**
  * 音频采集管理器
@@ -85,10 +86,21 @@ class AudioCaptureManager(
      * @throws IllegalStateException 如果 AudioRecord 初始化失败
      */
     fun startCapture(): Flow<ByteArray> = flow {
+        try {
+            DebugLogManager.log(
+                category = "audio",
+                event = "acm_start",
+                data = mapOf(
+                    "sr" to sampleRate,
+                    "chunkMs" to chunkMillis
+                )
+            )
+        } catch (_: Throwable) { }
         // 1. 权限检查
         if (!hasPermission()) {
             val error = SecurityException("Missing RECORD_AUDIO permission")
             Log.e(TAG, "Permission check failed", error)
+            try { DebugLogManager.log("audio", "acm_error", mapOf("stage" to "perm", "msg" to error.message)) } catch (_: Throwable) { }
             throw error
         }
 
@@ -228,11 +240,14 @@ class AudioCaptureManager(
             try {
                 activeRecorder.startRecording()
                 Log.d(TAG, "AudioRecord started successfully")
+                try { DebugLogManager.log("audio", "recorder_started") } catch (_: Throwable) { }
             } catch (se: SecurityException) {
                 Log.e(TAG, "SecurityException during startRecording", se)
+                try { DebugLogManager.log("audio", "acm_error", mapOf("stage" to "start", "type" to "security", "msg" to se.message)) } catch (_: Throwable) { }
                 throw se
             } catch (t: Throwable) {
                 Log.e(TAG, "Failed to start recording", t)
+                try { DebugLogManager.log("audio", "acm_error", mapOf("stage" to "start", "type" to "start_fail", "msg" to t.message)) } catch (_: Throwable) { }
                 throw IllegalStateException("Failed to start recording", t)
             }
 
@@ -253,6 +268,7 @@ class AudioCaptureManager(
                     activeRecorder.read(buf, 0, buf.size)
                 } catch (t: Throwable) {
                     Log.e(TAG, "Error reading audio data", t)
+                    try { DebugLogManager.log("audio", "acm_error", mapOf("stage" to "read", "msg" to t.message)) } catch (_: Throwable) { }
                     throw IllegalStateException("Error reading audio data", t)
                 }
 
@@ -280,6 +296,12 @@ class AudioCaptureManager(
             } catch (t: Throwable) {
                 Log.e(TAG, "Error releasing AudioRecord", t)
             }
+            try {
+                DebugLogManager.log(
+                    category = "audio",
+                    event = "acm_cleanup"
+                )
+            } catch (_: Throwable) { }
             // 清理通信设备与 SCO / 恢复模式
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && commDeviceSet) {
