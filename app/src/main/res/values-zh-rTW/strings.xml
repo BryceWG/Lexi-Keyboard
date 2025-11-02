@@ -504,6 +504,7 @@
     <string name="sv_keep_alive_30m">30 分鐘</string>
     <string name="sv_keep_alive_always">永遠保持 (直到參數變更)</string>
     <string name="label_sv_pseudo_streaming">擬串流 (錄音時即時處理)</string>
+    <string name="hint_sv_pseudo_streaming_warning">擬串流為了保證識別效果，持續轉錄時會增加 CPU 壓力，非常不建議使用擬串流進行長時間錄音</string>
     <string name="label_sv_threads">執行緒數 (1-8)</string>
     <string name="label_sv_language">識別語言</string>
     <string name="sv_lang_auto">自動</string>

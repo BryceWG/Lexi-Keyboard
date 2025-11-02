@@ -504,6 +504,7 @@
     <string name="sv_keep_alive_30m">30 minutes</string>
     <string name="sv_keep_alive_always">Always keep (until parameters change)</string>
     <string name="label_sv_pseudo_streaming">Pseudo-streaming (real-time while recording)</string>
+    <string name="hint_sv_pseudo_streaming_warning">Pseudo-streaming increases CPU usage during continuous transcription to ensure accuracy. Not recommended for long recordings</string>
     <string name="label_sv_threads">Threads (1-8)</string>
     <string name="label_sv_language">Recognition language</string>
     <string name="sv_lang_auto">Auto</string>

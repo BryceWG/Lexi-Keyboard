@@ -504,6 +504,7 @@
     <string name="sv_keep_alive_30m">30分</string>
     <string name="sv_keep_alive_always">常に保持（パラメータが変更されるまで）</string>
     <string name="label_sv_pseudo_streaming">疑似ストリーミング（録音中にリアルタイム）</string>
+    <string name="hint_sv_pseudo_streaming_warning">疑似ストリーミングは認識精度を保つため、継続的な文字起こし中にCPU負荷が増加します。長時間の録音には推奨されません</string>
     <string name="label_sv_threads">スレッド（1-8）</string>
     <string name="label_sv_language">認識言語</string>
     <string name="sv_lang_auto">自動</string>

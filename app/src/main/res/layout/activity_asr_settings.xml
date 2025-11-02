@@ -844,7 +844,15 @@
           android:text="@string/label_sv_pseudo_streaming" />
 
         <TextView
-            android:layout_width="match_parent"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="4dp"
+          android:textColor="?attr/colorOnSurfaceVariant"
+          android:textSize="12sp"
+          android:text="@string/hint_sv_pseudo_streaming_warning" />
+
+        <TextView
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginTop="8dp"
           android:textColor="?attr/colorOnSurface"

@@ -382,6 +382,7 @@
     <string name="sv_keep_alive_30m">30 分钟</string>
     <string name="sv_keep_alive_always">始终保持（直到参数变更）</string>
     <string name="label_sv_pseudo_streaming">伪流式识别（录音中实时转写）</string>
+    <string name="hint_sv_pseudo_streaming_warning">伪流式为了保证识别效果，持续转录时会增加 CPU 压力，非常不建议使用伪流式进行长时间录音</string>
 
     <!-- User-facing ASR error toasts (floating + keyboard) -->
     <string name="asr_error_empty_result">未识别到内容，请再说一遍</string>

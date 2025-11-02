@@ -21,7 +21,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 基于 sherpa-onnx OfflineRecognizer 的"伪流式"本地识别：
- * - 录音中每 ~200ms 投送一帧 PCM -> Float 到离线流，并调用 decode 获取当前转写，回调 onPartial。
+ * - 录音中每 200ms 投送一帧 PCM -> Float 到离线流，并动态调整解码间隔。
+ * - 动态处理间隔：随录音时长增加而增加，每录音 4 秒增加 200ms（一帧）处理间隔。
+ *   例如：0-4s -> 200ms, 4-8s -> 400ms, 8-12s -> 600ms，依此类推。
  * - 停止录音后进行一次最终 decode 并回调 onFinal。
  * - 依赖 LocalModelOnnxBridge 以反射方式调用，避免编译期耦合。
  */
@@ -34,6 +36,10 @@ class LocalModelPseudoStreamAsrEngine(
 
     companion object {
         private const val TAG = "LocalModelPseudoStreamAsrEngine"
+        // 基准帧长：200ms（对应一次完整的音频帧）
+        private const val FRAME_MS = 200L
+        // 动态调整参数：每经过多少秒增加一帧的处理间隔
+        private const val INTERVAL_INCREASE_PER_SECONDS = 4
     }
 
     private val running = AtomicBoolean(false)
@@ -44,11 +50,10 @@ class LocalModelPseudoStreamAsrEngine(
     private val streamMutex = Mutex()
     private var lastDecodeUptimeMs: Long = 0L
     private var lastEmitUptimeMs: Long = 0L
-    // 基准分片时长（ms），改为 200ms；窗口按其倍数推导。
-    @Volatile private var chunkMillis: Int = 200
-    // 解码/预览节流：decode=2×chunk（约 400ms），emit=chunk（与采集对齐）。
-    @Volatile private var decodeIntervalMs: Long = (chunkMillis * 2).toLong()
-    @Volatile private var emitIntervalMs: Long = chunkMillis.toLong()
+    // 录音开始时间戳，用于计算动态处理间隔
+    private var recordingStartTimeMs: Long = 0L
+    // 基准分片时长（ms），固定为 200ms（一帧）
+    @Volatile private var chunkMillis: Int = FRAME_MS.toInt()
     private var lastEmittedText: String? = null
 
     private val sampleRate = 16000
@@ -84,7 +89,8 @@ class LocalModelPseudoStreamAsrEngine(
         }
         // 将引擎标记为运行中，以便开始采集和静音判停
         running.set(true)
-        // 重置节流窗口与上次文本，确保每次会话“同步起步”。
+        // 重置节流窗口与上次文本，确保每次会话"同步起步"。
+        recordingStartTimeMs = SystemClock.uptimeMillis()
         lastDecodeUptimeMs = 0L
         lastEmitUptimeMs = 0L
         lastEmittedText = null
@@ -247,11 +253,8 @@ class LocalModelPseudoStreamAsrEngine(
     private fun startCapture() {
         audioJob?.cancel()
         audioJob = scope.launch(Dispatchers.IO) {
-            // 分片时长：200ms；可后续暴露为设置项。
+            // 分片时长：固定为 200ms（一帧）
             val targetChunkMs = chunkMillis
-            // 统一时序基准：decode=2×chunk，emit=chunk
-            decodeIntervalMs = (targetChunkMs * 2).toLong()
-            emitIntervalMs = targetChunkMs.toLong()
             val audioManager = AudioCaptureManager(
                 context = context,
                 sampleRate = sampleRate,
@@ -273,7 +276,7 @@ class LocalModelPseudoStreamAsrEngine(
             else null
 
             try {
-                Log.d(TAG, "Starting audio capture with chunk=${targetChunkMs}ms, decode=${decodeIntervalMs}ms, emit=${emitIntervalMs}ms")
+                Log.d(TAG, "Starting audio capture with chunk=${targetChunkMs}ms (dynamic interval adjustment enabled)")
                 audioManager.startCapture().collect { audioChunk ->
                     if (!running.get() && currentStream == null) return@collect
 
@@ -313,6 +316,15 @@ class LocalModelPseudoStreamAsrEngine(
         val floats = pcmToFloatArray(bytes, len)
         if (floats.isEmpty()) return
         val now = SystemClock.uptimeMillis()
+
+        // 动态计算处理间隔：随录音时长增加而增加
+        // 算法：每经过 INTERVAL_INCREASE_PER_SECONDS 秒，增加 FRAME_MS 的处理间隔
+        val elapsedMs = now - recordingStartTimeMs
+        val elapsedSeconds = elapsedMs / 1000
+        val additionalFrames = elapsedSeconds / INTERVAL_INCREASE_PER_SECONDS
+        val currentDecodeInterval = FRAME_MS * (1 + additionalFrames)
+        val currentEmitInterval = FRAME_MS  // 发射间隔保持为一帧
+
         var text: String? = null
         try {
             streamMutex.withLock {
@@ -323,7 +335,7 @@ class LocalModelPseudoStreamAsrEngine(
                 } catch (t: Throwable) {
                     Log.e(TAG, "Failed to accept waveform", t)
                 }
-                val shouldDecode = closing.get() || (now - lastDecodeUptimeMs) >= decodeIntervalMs
+                val shouldDecode = closing.get() || (now - lastDecodeUptimeMs) >= currentDecodeInterval
                 if (shouldDecode) {
                     text = try {
                         svManager.decodeAndGetText(stream)
@@ -332,6 +344,10 @@ class LocalModelPseudoStreamAsrEngine(
                         null
                     }
                     lastDecodeUptimeMs = now
+                    // 打印动态间隔调试信息
+                    if (elapsedSeconds % 4 == 0L && elapsedSeconds > 0L) {
+                        Log.d(TAG, "Dynamic interval adjusted: elapsed=${elapsedSeconds}s, decodeInterval=${currentDecodeInterval}ms")
+                    }
                 }
             }
         } catch (t: Throwable) {
@@ -339,7 +355,7 @@ class LocalModelPseudoStreamAsrEngine(
         }
         if (!text.isNullOrBlank() && running.get() && !closing.get()) {
             val trimmed = text!!.trim()
-            val needEmit = (now - lastEmitUptimeMs) >= emitIntervalMs && trimmed != lastEmittedText
+            val needEmit = (now - lastEmitUptimeMs) >= currentEmitInterval && trimmed != lastEmittedText
             if (needEmit) {
                 try {
                     listener.onPartial(trimmed)
