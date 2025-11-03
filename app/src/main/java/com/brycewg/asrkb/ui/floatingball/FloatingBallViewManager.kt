@@ -135,6 +135,12 @@ class FloatingBallViewManager(
     /** 隐藏悬浮球 */
     fun hideBall() {
         val v = ballView ?: return
+        // 在移除视图前停止动画
+        try {
+            cleanup()
+        } catch (e: Throwable) {
+            Log.w(TAG, "Failed to cleanup before hide", e)
+        }
         try {
             persistBallPosition()
         } catch (e: Throwable) {
@@ -145,7 +151,13 @@ class FloatingBallViewManager(
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to remove ball view", e)
         }
+        // 释放所有与旧视图树绑定的引用，确保下次 show 时重新创建/挂载
         ballView = null
+        ballIcon = null
+        processingSpinner = null
+        ripple1 = null
+        ripple2 = null
+        ripple3 = null
         lp = null
     }
 
@@ -477,15 +489,27 @@ class FloatingBallViewManager(
 
     private fun setupProcessingSpinner(ballContainer: android.widget.FrameLayout?, color: Int) {
         try {
-            if (processingSpinner == null && ballContainer != null) {
-                processingSpinner = ProcessingSpinnerView(context).apply {
-                    isClickable = false
-                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                    setSpinnerColor(applyAlpha(color, 0.6f))
-                    setStrokeWidth(dp(4).toFloat())
-                    setSweepAngle(110f)
-                    visibility = View.GONE
-                }
+            if (ballContainer == null) return
+
+            // 若为首次或已释放，则创建新实例
+            if (processingSpinner == null) {
+                processingSpinner = ProcessingSpinnerView(context)
+            }
+
+            // 统一进行属性配置
+            processingSpinner?.apply {
+                isClickable = false
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                setSpinnerColor(applyAlpha(color, 0.6f))
+                setStrokeWidth(dp(4).toFloat())
+                setSweepAngle(110f)
+                // 初始化时保持隐藏，待 Processing 态再显现
+                visibility = View.GONE
+            }
+
+            // 若当前未挂载到新的容器，则挂载
+            val parent = processingSpinner?.parent
+            if (parent == null) {
                 val lpSpinner = android.widget.FrameLayout.LayoutParams(
                     android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
                     android.widget.FrameLayout.LayoutParams.MATCH_PARENT
