@@ -120,11 +120,13 @@ class ZipformerStreamAsrEngine(
             val keepMs = if (keepMinutes <= 0) 0L else keepMinutes.toLong() * 60_000L
             val alwaysKeep = keepMinutes < 0
 
+            val ruleFsts = try { if (prefs.zfUseItn) ItnAssets.ensureItnFstPath(context) else null } catch (_: Throwable) { null }
             val ok = mgr.prepare(
                 tokens = tokensPath,
                 encoder = enc.absolutePath,
                 decoder = dec.absolutePath,
                 joiner = join.absolutePath,
+                ruleFsts = ruleFsts,
                 numThreads = prefs.zfNumThreads,
                 modelingUnit = modelingUnit,
                 bpeVocab = bpeVocab,
@@ -579,6 +581,7 @@ class ZipformerOnnxManager private constructor() {
         val encoder: String,
         val decoder: String,
         val joiner: String,
+        val ruleFsts: String?,
         val numThreads: Int,
         val provider: String = "cpu",
         val sampleRate: Int = 16000,
@@ -619,6 +622,10 @@ class ZipformerOnnxManager private constructor() {
         trySetField(rec, "decodingMethod", "greedy_search")
         trySetField(rec, "enableEndpoint", true)
         trySetField(rec, "maxActivePaths", 4)
+        // ITN：若给定 ruleFsts 路径，则直接设置（资产文件已由调用方拷贝到 files/itn）。
+        if (!config.ruleFsts.isNullOrBlank()) {
+            trySetField(rec, "ruleFsts", config.ruleFsts)
+        }
         return rec
     }
 
@@ -635,6 +642,7 @@ class ZipformerOnnxManager private constructor() {
         encoder: String,
         decoder: String,
         joiner: String,
+        ruleFsts: String?,
         numThreads: Int,
         modelingUnit: String,
         bpeVocab: String,
@@ -645,7 +653,7 @@ class ZipformerOnnxManager private constructor() {
     ): Boolean = mutex.withLock {
         try {
             initClasses()
-            val config = RecognizerConfig(tokens, encoder, decoder, joiner, numThreads, modelingUnit = modelingUnit, bpeVocab = bpeVocab)
+            val config = RecognizerConfig(tokens, encoder, decoder, joiner, ruleFsts, numThreads, modelingUnit = modelingUnit, bpeVocab = bpeVocab)
             val same = (cachedConfig == config)
             if (!same || cachedRecognizer == null) {
                 try { onLoadStart?.invoke() } catch (t: Throwable) { Log.e(TAG, "onLoadStart failed", t) }
@@ -770,11 +778,13 @@ fun preloadZipformerIfConfigured(
 
         kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).launch {
             val t0 = try { android.os.SystemClock.uptimeMillis() } catch (_: Throwable) { 0L }
+            val ruleFsts = try { if (prefs.zfUseItn) ItnAssets.ensureItnFstPath(context) else null } catch (_: Throwable) { null }
             val ok = manager.prepare(
                 tokens = tokensPath,
                 encoder = enc.absolutePath,
                 decoder = dec.absolutePath,
                 joiner = join.absolutePath,
+                ruleFsts = ruleFsts,
                 numThreads = prefs.zfNumThreads,
                 modelingUnit = modelingUnit,
                 bpeVocab = bpeVocab,

@@ -71,6 +71,7 @@ class AsrSettingsViewModel : ViewModel() {
             pfNumThreads = prefs.pfNumThreads,
             pfKeepAliveMinutes = prefs.pfKeepAliveMinutes,
             pfPreloadEnabled = prefs.pfPreloadEnabled,
+            pfUseItn = prefs.pfUseItn,
             // Zipformer settings
             zfModelVariant = prefs.zfModelVariant,
             zfNumThreads = prefs.zfNumThreads,
@@ -263,6 +264,15 @@ class AsrSettingsViewModel : ViewModel() {
         }
     }
 
+    fun updatePfUseItn(enabled: Boolean) {
+        if (prefs.pfUseItn != enabled) {
+            prefs.pfUseItn = enabled
+            _uiState.value = _uiState.value.copy(pfUseItn = enabled)
+            try { com.brycewg.asrkb.asr.unloadParaformerRecognizer() } catch (e: Throwable) { Log.e(TAG, "Failed to unload Paraformer recognizer after ITN change", e) }
+            triggerPfPreloadIfEnabledAndActive("pf ITN change")
+        }
+    }
+
     fun updateSvPreload(enabled: Boolean) {
         prefs.svPreloadEnabled = enabled
         _uiState.value = _uiState.value.copy(svPreloadEnabled = enabled)
@@ -402,8 +412,12 @@ class AsrSettingsViewModel : ViewModel() {
     }
 
     fun updateZfUseItn(enabled: Boolean) {
-        prefs.zfUseItn = enabled
-        _uiState.value = _uiState.value.copy(zfUseItn = enabled)
+        if (prefs.zfUseItn != enabled) {
+            prefs.zfUseItn = enabled
+            _uiState.value = _uiState.value.copy(zfUseItn = enabled)
+            try { com.brycewg.asrkb.asr.unloadZipformerRecognizer() } catch (e: Throwable) { Log.e(TAG, "Failed to unload Zipformer recognizer after ITN change", e) }
+            triggerZfPreloadIfEnabledAndActive("zf ITN change")
+        }
     }
 
     fun checkPfModelDownloaded(context: Context): Boolean {
@@ -508,6 +522,7 @@ data class AsrSettingsUiState(
     val pfNumThreads: Int = 2,
     val pfKeepAliveMinutes: Int = -1,
     val pfPreloadEnabled: Boolean = false,
+    val pfUseItn: Boolean = false,
     // Zipformer settings
     val zfModelVariant: String = "zh-xl-int8-20250630",
     val zfNumThreads: Int = 2,

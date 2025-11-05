@@ -548,6 +548,7 @@
     <string name="pf_loading_model">本地模型加载中…</string>
     <string name="error_paraformer_model_missing">缺少 Paraformer 模型文件，请稍后在设置中配置或下载</string>
     <string name="label_pf_preload">首次显示时加载模型</string>
+    <string name="label_pf_use_itn">启用 ITN（数字/标点规范化）</string>
     <string name="pf_model_info">注：\n1. Paraformer 模型拥有两个版本（中英和中英粤），其中中文还另支持部分方言\n2. 每个版本的下载包都为 1GB，其中都包含 int8 和 fp32 两个量化版本的模型文件，在同版本的 int8 和 fp32 之间切换无需重新下载</string>
 
     <!-- Zipformer (Local streaming) -->

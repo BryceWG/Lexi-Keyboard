@@ -639,6 +639,11 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_PF_PRELOAD_ENABLED, false)
         set(value) = sp.edit { putBoolean(KEY_PF_PRELOAD_ENABLED, value) }
 
+    // Paraformer: ITN 开关（反向文本规范化）
+    var pfUseItn: Boolean
+        get() = sp.getBoolean(KEY_PF_USE_ITN, false)
+        set(value) = sp.edit { putBoolean(KEY_PF_USE_ITN, value) }
+
     // Zipformer（本地 ASR，流式）
     var zfModelVariant: String
         get() = sp.getString(KEY_ZF_MODEL_VARIANT, "zh-xl-int8-20250630") ?: "zh-xl-int8-20250630"
@@ -1055,6 +1060,7 @@ class Prefs(context: Context) {
         private const val KEY_PF_NUM_THREADS = "pf_num_threads"
         private const val KEY_PF_KEEP_ALIVE_MINUTES = "pf_keep_alive_minutes"
         private const val KEY_PF_PRELOAD_ENABLED = "pf_preload_enabled"
+        private const val KEY_PF_USE_ITN = "pf_use_itn"
         // Zipformer（本地 ASR，流式）
         private const val KEY_ZF_MODEL_VARIANT = "zf_model_variant"
         private const val KEY_ZF_NUM_THREADS = "zf_num_threads"
@@ -1261,6 +1267,7 @@ class Prefs(context: Context) {
         o.put(KEY_PF_NUM_THREADS, pfNumThreads)
         o.put(KEY_PF_KEEP_ALIVE_MINUTES, pfKeepAliveMinutes)
         o.put(KEY_PF_PRELOAD_ENABLED, pfPreloadEnabled)
+        o.put(KEY_PF_USE_ITN, pfUseItn)
         // Zipformer（本地 ASR，流式）
         o.put(KEY_ZF_MODEL_VARIANT, zfModelVariant)
         o.put(KEY_ZF_NUM_THREADS, zfNumThreads)
@@ -1396,6 +1403,7 @@ class Prefs(context: Context) {
             optInt(KEY_PF_NUM_THREADS)?.let { pfNumThreads = it.coerceIn(1, 8) }
             optInt(KEY_PF_KEEP_ALIVE_MINUTES)?.let { pfKeepAliveMinutes = it }
             optBool(KEY_PF_PRELOAD_ENABLED)?.let { pfPreloadEnabled = it }
+            optBool(KEY_PF_USE_ITN)?.let { pfUseItn = it }
             // Zipformer（本地 ASR，流式）
             optString(KEY_ZF_MODEL_VARIANT)?.let { zfModelVariant = it }
             optInt(KEY_ZF_NUM_THREADS)?.let { zfNumThreads = it.coerceIn(1, 8) }

@@ -112,10 +112,12 @@ class ParaformerStreamAsrEngine(
             val keepMs = if (keepMinutes <= 0) 0L else keepMinutes.toLong() * 60_000L
             val alwaysKeep = keepMinutes < 0
 
+            val ruleFsts = try { if (prefs.pfUseItn) ItnAssets.ensureItnFstPath(context) else null } catch (_: Throwable) { null }
             val ok = mgr.prepare(
                 tokens = tokensPath,
                 encoder = enc.absolutePath,
                 decoder = dec.absolutePath,
+                ruleFsts = ruleFsts,
                 numThreads = prefs.pfNumThreads,
                 keepAliveMs = keepMs,
                 alwaysKeep = alwaysKeep,
@@ -523,13 +525,14 @@ class ParaformerOnnxManager private constructor() {
         val tokens: String,
         val encoder: String,
         val decoder: String,
+        val ruleFsts: String?,
         val numThreads: Int,
         val provider: String = "cpu",
         val sampleRate: Int = 16000,
         val featureDim: Int = 80,
         val debug: Boolean = false
     ) {
-        fun toCacheKey(): String = listOf(tokens, encoder, decoder, numThreads, provider, sampleRate, featureDim, debug).joinToString("|")
+        fun toCacheKey(): String = listOf(tokens, encoder, decoder, ruleFsts.orEmpty(), numThreads, provider, sampleRate, featureDim, debug).joinToString("|")
     }
 
     private fun buildModelConfig(tokens: String, encoder: String, decoder: String, numThreads: Int, provider: String, debug: Boolean): Any {
@@ -562,6 +565,10 @@ class ParaformerOnnxManager private constructor() {
         trySetField(rec, "decodingMethod", "greedy_search")
         trySetField(rec, "enableEndpoint", true)
         trySetField(rec, "maxActivePaths", 4)
+        // ITN：若给定 ruleFsts 路径，则直接设置。资产文件已由调用方拷贝到 files/itn。
+        if (!config.ruleFsts.isNullOrBlank()) {
+            trySetField(rec, "ruleFsts", config.ruleFsts)
+        }
         return rec
     }
 
@@ -577,6 +584,7 @@ class ParaformerOnnxManager private constructor() {
         tokens: String,
         encoder: String,
         decoder: String,
+        ruleFsts: String?,
         numThreads: Int,
         keepAliveMs: Long,
         alwaysKeep: Boolean,
@@ -585,7 +593,7 @@ class ParaformerOnnxManager private constructor() {
     ): Boolean = mutex.withLock {
         try {
             initClasses()
-            val config = RecognizerConfig(tokens, encoder, decoder, numThreads)
+            val config = RecognizerConfig(tokens, encoder, decoder, ruleFsts, numThreads)
             val same = (cachedConfig == config)
             if (!same || cachedRecognizer == null) {
                 try { onLoadStart?.invoke() } catch (t: Throwable) { Log.e(TAG, "onLoadStart failed", t) }
@@ -702,10 +710,12 @@ fun preloadParaformerIfConfigured(
 
         kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).launch {
             val t0 = try { android.os.SystemClock.uptimeMillis() } catch (_: Throwable) { 0L }
+            val ruleFsts = try { if (prefs.pfUseItn) ItnAssets.ensureItnFstPath(context) else null } catch (_: Throwable) { null }
             val ok = manager.prepare(
                 tokens = tokensPath,
                 encoder = enc.absolutePath,
                 decoder = dec.absolutePath,
+                ruleFsts = ruleFsts,
                 numThreads = prefs.pfNumThreads,
                 keepAliveMs = keepMs,
                 alwaysKeep = alwaysKeep,

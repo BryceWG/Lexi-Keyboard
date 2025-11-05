@@ -638,5 +638,6 @@
     <string name="pf_loading_model">正在載入本機模型…</string>
     <string name="error_paraformer_model_missing">Paraformer 模型缺失，請稍後在設定中配置或下載</string>
     <string name="label_pf_preload">首次顯示時載入模型</string>
+    <string name="label_pf_use_itn">啟用 ITN (反向文字正規化)</string>
     <string name="pf_model_info">注：\n1. Paraformer 模型擁有兩個版本（中英和中英粵），其中中文還另支援部分方言\n2. 每個版本的下載包都為 1GB，其中都包含 int8 和 fp32 兩個量化版本的模型檔案，在同版本的 int8 和 fp32 之間切換無需重新下載</string>
 </resources>

@@ -181,6 +181,7 @@
     <string name="pf_loading_model">Loading local model…</string>
     <string name="error_paraformer_model_missing">Paraformer model files are missing. Please configure or download in Settings</string>
     <string name="label_pf_preload">Load model on first show</string>
+    <string name="label_pf_use_itn">Enable ITN (inverse text normalization)</string>
     <string name="pf_model_info">Note:\n1. Paraformer has two model variants (Zh+En and Zh+Yue+En). The Chinese model also supports some dialects\n2. Each variant download is 1GB and contains both int8 and fp32 quantized versions. Switching between int8 and fp32 of the same variant requires no re-download</string>
 
     <!-- Zipformer (Local streaming) -->

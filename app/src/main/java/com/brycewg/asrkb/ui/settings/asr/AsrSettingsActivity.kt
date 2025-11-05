@@ -871,6 +871,15 @@ class AsrSettingsActivity : AppCompatActivity() {
             }
         }
 
+        // ITN 开关
+        findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchPfItn).apply {
+            isChecked = try { prefs.pfUseItn } catch (_: Throwable) { false }
+            setOnCheckedChangeListener { btn, isChecked ->
+                hapticTapIfEnabled(btn)
+                viewModel.updatePfUseItn(isChecked)
+            }
+        }
+
         // 下载/清理
         setupPfDownloadButtons()
     }

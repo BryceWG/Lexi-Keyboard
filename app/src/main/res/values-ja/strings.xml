@@ -228,6 +228,7 @@
     <string name="pf_loading_model">ローカルモデルを読み込み中…</string>
     <string name="error_paraformer_model_missing">Paraformer モデルが見つかりません。設定で構成またはダウンロードしてください</string>
     <string name="label_pf_preload">初回表示時にモデルを読み込み</string>
+    <string name="label_pf_use_itn">ITNを有効化（逆テキスト正規化）</string>
     <string name="pf_model_info">注：\n1. Paraformer モデルには2つのバリアント（中英と中英+広東語）があります。中国語モデルは一部の方言もサポートしています\n2. 各バリアントのダウンロードは1GBで、int8とfp32の両方の量子化バージョンが含まれています。同じバリアントのint8とfp32間の切り替えは再ダウンロードを必要としません</string>
 
     <!-- Floating radial menu -->
