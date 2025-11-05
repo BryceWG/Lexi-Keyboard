@@ -588,6 +588,11 @@
     <string name="label_zf_use_itn">啟用 ITN（反向文字正規化）</string>
     <string name="btn_zf_download_model">下載 Zipformer 模型</string>
     <string name="btn_zf_clear_model">清除 Zipformer 模型</string>
+    <string name="zf_model_info">Zipformer 提供 4 類模型共 8 個版本：\n
+1. 中文 XL 版：僅支援中文和部分方言，擁有 int8（570MB）和 fp16（1.25GB）兩個版本，需要分別下載\n
+2. 中文標準版：僅支援中文和部分方言，擁有 int8（125MB）和 fp16（270MB）兩個版本，需要分別下載\n
+3. 中英標準版：支援中文與英語，擁有 int8 和 fp32 兩個版本。兩個量化版本只需下載一次，總體積 490MB\n
+4. 小型中英版：支援中文與英語，擁有 int8 和 fp32 兩個版本。兩個量化版本只需下載一次，總體積 440MB</string>
     <string name="zf_download_status_done">模型已安裝</string>
     <string name="zf_download_status_downloading">下載中… %1$d%%</string>
     <string name="zf_download_status_extracting">解壓中…可能需要一段時間</string>

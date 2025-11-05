@@ -193,6 +193,11 @@
     <string name="label_zf_use_itn">Enable ITN (inverse text normalization)</string>
     <string name="btn_zf_download_model">Download Zipformer model</string>
     <string name="btn_zf_clear_model">Clear Zipformer model</string>
+    <string name="zf_model_info">Zipformer offers 4 model types with 8 versions:\n
+1. Chinese XL: Chinese and some dialects only. int8 (570MB) and fp16 (1.25GB) versions require separate downloads\n
+2. Chinese Standard: Chinese and some dialects only. int8 (125MB) and fp16 (270MB) versions require separate downloads\n
+3. Chinese-English Standard: Chinese and English support. int8 and fp32 versions. Both quantization versions require only one download, total size 490MB\n
+4. Small Chinese-English: Chinese and English support. int8 and fp32 versions. Both quantization versions require only one download, total size 440MB</string>
     <string name="zf_download_status_done">Model installed</string>
     <string name="zf_download_status_downloading">Downloading… %1$d%%</string>
     <string name="zf_download_status_extracting">Extracting… It may take a while</string>

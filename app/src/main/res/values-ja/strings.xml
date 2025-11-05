@@ -616,6 +616,11 @@
     <string name="label_zf_use_itn">ITN を有効化（逆正規化）</string>
     <string name="btn_zf_download_model">Zipformer モデルをダウンロード</string>
     <string name="btn_zf_clear_model">Zipformer モデルを削除</string>
+    <string name="zf_model_info">Zipformer は 4 種類のモデル（計 8 バージョン）を提供：\n
+1. 中国語 XL 版：中国語と一部の方言のみサポート。int8（570MB）と fp16（1.25GB）の 2 つのバージョンがあり、個別にダウンロードが必要\n
+2. 中国語標準版：中国語と一部の方言のみサポート。int8（125MB）と fp16（270MB）の 2 つのバージョンがあり、個別にダウンロードが必要\n
+3. 中英標準版：中国語と英語をサポート。int8 と fp32 の 2 つのバージョン。両量子化バージョンは 1 回のダウンロードのみ必要、合計サイズ 490MB\n
+4. 小型中英版：中国語と英語をサポート。int8 と fp32 の 2 つのバージョン。両量子化バージョンは 1 回のダウンロードのみ必要、合計サイズ 440MB</string>
     <string name="zf_download_status_done">モデルをインストールしました</string>
     <string name="zf_download_status_downloading">ダウンロード中… %1$d%%</string>
     <string name="zf_download_status_extracting">展開中…時間がかかる場合があります</string>

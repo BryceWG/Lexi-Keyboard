@@ -1167,6 +1167,14 @@
           android:textColor="?attr/colorOnSurfaceVariant"
           android:text="" />
 
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:textColor="?attr/colorOnSurfaceVariant"
+          android:textSize="12sp"
+          android:lineSpacingMultiplier="1.2"
+          android:text="@string/zf_model_info" />
       </LinearLayout>
 
     </LinearLayout>
