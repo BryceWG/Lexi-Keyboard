@@ -1,10 +1,10 @@
 {
-  "version": "3.4.8",
-  "version_code": 94,
-  "download_url": "https://github.com/BryceWG/LexiSharp-Keyboard/releases/tag/v3.4.8",
-  "release_notes": "本次更新包含 5 个提交:\n- feat(asr): 添加非流式识别请求耗时统计与展示\n- fix(asr): 修改录音时长统计读取方式\n- refactor(asr): DashScope流式识别改为使用Fun-ASR模型，并迁移到SDK实现\n- feat(asr): 添加DashScope地域选择支持\n- feat(asr): 集成DashScope Java SDK实现本地文件直传,优化Qwen模型非流式识别速度",
+  "version": "3.5.0",
+  "version_code": 95,
+  "download_url": "https://github.com/BryceWG/LexiSharp-Keyboard/releases/tag/v3.5.0",
+  "release_notes": "本次更新包含 5 个提交:\n- build: 升级版本号至 3.5.0 并优化 Lombok 配置\n- feat(about): 添加开源项目致谢与许可证展示\n- refactor(android): 升级到 Android 15 targetSDK\n- build: 添加压缩混淆规则,优化打包体积\n- pro(feat(asr): 为火山引擎流式识别添加双重识别占位支持",
   "important_notice": "对Dashscope渠道进行了耗时优化以及流式模式更好的支持,欢迎体验",
   "notice_level": "info",
   "min_supported_version": "2.6.5",
-  "update_time": "2025-11-04T03:42:31Z"
+  "update_time": "2025-11-05T06:28:47Z"
 }
