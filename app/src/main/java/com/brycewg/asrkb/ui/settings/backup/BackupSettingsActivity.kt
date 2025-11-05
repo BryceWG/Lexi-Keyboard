@@ -37,6 +37,11 @@ class BackupSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_backup_settings)
 
+        // 应用 Window Insets 以适配 Android 15 边缘到边缘显示
+        findViewById<android.view.View>(android.R.id.content).let { rootView ->
+            com.brycewg.asrkb.ui.WindowInsetsHelper.applySystemBarsInsets(rootView)
+        }
+
         prefs = Prefs(this)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)

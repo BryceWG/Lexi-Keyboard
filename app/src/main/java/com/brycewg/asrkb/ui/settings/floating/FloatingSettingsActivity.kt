@@ -47,6 +47,11 @@ class FloatingSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_floating_settings)
 
+        // 应用 Window Insets 以适配 Android 15 边缘到边缘显示
+        findViewById<android.view.View>(android.R.id.content).let { rootView ->
+            com.brycewg.asrkb.ui.WindowInsetsHelper.applySystemBarsInsets(rootView)
+        }
+
         // 初始化工具类
         viewModel = ViewModelProvider(this)[FloatingSettingsViewModel::class.java]
         serviceManager = FloatingServiceManager(this)

@@ -90,6 +90,11 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
+        // 应用 Window Insets 以适配 Android 15 边缘到边缘显示
+        findViewById<android.view.View>(android.R.id.content).let { rootView ->
+            WindowInsetsHelper.applySystemBarsInsets(rootView)
+        }
+
         // 初始化状态机和工具类
         setupStateMachine = SetupStateMachine(this)
         updateChecker = UpdateChecker(this)

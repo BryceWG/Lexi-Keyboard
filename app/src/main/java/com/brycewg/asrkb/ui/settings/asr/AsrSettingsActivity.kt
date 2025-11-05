@@ -77,6 +77,11 @@ class AsrSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_asr_settings)
 
+        // 应用 Window Insets 以适配 Android 15 边缘到边缘显示
+        findViewById<View>(android.R.id.content).let { rootView ->
+            com.brycewg.asrkb.ui.WindowInsetsHelper.applySystemBarsInsets(rootView)
+        }
+
         prefs = Prefs(this)
         viewModel = ViewModelProvider(this)[AsrSettingsViewModel::class.java]
         viewModel.initialize(this)

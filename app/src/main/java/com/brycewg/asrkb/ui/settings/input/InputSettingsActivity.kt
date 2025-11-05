@@ -32,6 +32,11 @@ class InputSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_input_settings)
 
+        // 应用 Window Insets 以适配 Android 15 边缘到边缘显示
+        findViewById<View>(android.R.id.content).let { rootView ->
+            com.brycewg.asrkb.ui.WindowInsetsHelper.applySystemBarsInsets(rootView)
+        }
+
         val prefs = Prefs(this)
 
         val switchTrimTrailingPunct = findViewById<MaterialSwitch>(R.id.switchTrimTrailingPunct)

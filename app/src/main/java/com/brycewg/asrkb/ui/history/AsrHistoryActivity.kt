@@ -74,6 +74,11 @@ class AsrHistoryActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_asr_history)
 
+    // 应用 Window Insets 以适配 Android 15 边缘到边缘显示
+    findViewById<android.view.View>(android.R.id.content).let { rootView ->
+      com.brycewg.asrkb.ui.WindowInsetsHelper.applySystemBarsInsets(rootView)
+    }
+
     store = AsrHistoryStore(this)
 
     val tb = findViewById<MaterialToolbar>(R.id.toolbar)

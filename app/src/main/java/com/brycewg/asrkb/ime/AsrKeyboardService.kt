@@ -132,6 +132,8 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
     // 光标左右移动长按连发
     private var repeatLeftRunnable: Runnable? = null
     private var repeatRightRunnable: Runnable? = null
+    // 系统导航栏底部高度（用于适配 Android 15 边缘到边缘显示）
+    private var systemNavBarBottomInset: Int = 0
 
     // ========== 生命周期 ==========
 
@@ -209,6 +211,9 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         val dynamicContext = com.google.android.material.color.DynamicColors.wrapContextIfAvailable(themedContext)
         val view = LayoutInflater.from(dynamicContext).inflate(R.layout.keyboard_view, null, false)
         rootView = view
+
+        // 应用 Window Insets 以适配 Android 15 边缘到边缘显示
+        applyKeyboardInsets(view)
 
         // 查找所有视图
         bindViews(view)
@@ -1517,6 +1522,19 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         } catch (_: Throwable) { }
     }
 
+    /**
+     * 应用 Window Insets 以适配 Android 15 边缘到边缘显示
+     */
+    private fun applyKeyboardInsets(view: View) {
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(view) { v, windowInsets ->
+            val insets = windowInsets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            systemNavBarBottomInset = insets.bottom
+            // 重新应用键盘高度缩放以更新底部 padding
+            applyKeyboardHeightScale(v)
+            windowInsets
+        }
+    }
+
     private fun applyKeyboardHeightScale(view: View?) {
         if (view == null) return
         val tier = try {
@@ -1549,7 +1567,8 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                 } catch (_: Throwable) {
                     0
                 }
-                val pb = basePb + extraPadding
+                // 添加系统导航栏高度以适配 Android 15 边缘到边缘显示
+                val pb = basePb + extraPadding + systemNavBarBottomInset
                 fl.setPaddingRelative(ps, pt, pe, pb)
             }
         } catch (_: Throwable) { }
