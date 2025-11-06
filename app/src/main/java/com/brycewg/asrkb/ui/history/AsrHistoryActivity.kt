@@ -439,20 +439,7 @@ class AsrHistoryActivity : AppCompatActivity() {
     updateToolbarTitleWithSelection()
   }
 
-  private fun getVendorName(v: AsrVendor): String {
-    return when (v) {
-      AsrVendor.Volc -> getString(R.string.vendor_volc)
-      AsrVendor.SiliconFlow -> getString(R.string.vendor_sf)
-      AsrVendor.ElevenLabs -> getString(R.string.vendor_eleven)
-      AsrVendor.OpenAI -> getString(R.string.vendor_openai)
-      AsrVendor.DashScope -> getString(R.string.vendor_dashscope)
-      AsrVendor.Gemini -> getString(R.string.vendor_gemini)
-      AsrVendor.Soniox -> getString(R.string.vendor_soniox)
-      AsrVendor.SenseVoice -> getString(R.string.vendor_sensevoice)
-      AsrVendor.Paraformer -> getString(R.string.vendor_paraformer)
-      AsrVendor.Zipformer -> getString(R.string.vendor_zipformer)
-    }
-  }
+  private fun getVendorName(v: AsrVendor): String = com.brycewg.asrkb.ui.AsrVendorUi.name(this, v)
 
   private fun buildRows(list: List<AsrHistoryStore.AsrHistoryRecord>, selected: Set<String> = emptySet()): List<Row> {
     val now = System.currentTimeMillis()
@@ -643,18 +630,7 @@ class AsrHistoryActivity : AppCompatActivity() {
 
       private fun mapVendorName(id: String): String = try {
         val v = AsrVendor.fromId(id)
-        when (v) {
-          AsrVendor.Volc -> itemView.context.getString(R.string.vendor_volc)
-          AsrVendor.SiliconFlow -> itemView.context.getString(R.string.vendor_sf)
-          AsrVendor.ElevenLabs -> itemView.context.getString(R.string.vendor_eleven)
-          AsrVendor.OpenAI -> itemView.context.getString(R.string.vendor_openai)
-          AsrVendor.DashScope -> itemView.context.getString(R.string.vendor_dashscope)
-          AsrVendor.Gemini -> itemView.context.getString(R.string.vendor_gemini)
-          AsrVendor.Soniox -> itemView.context.getString(R.string.vendor_soniox)
-          AsrVendor.SenseVoice -> itemView.context.getString(R.string.vendor_sensevoice)
-          AsrVendor.Paraformer -> itemView.context.getString(R.string.vendor_paraformer)
-          AsrVendor.Zipformer -> itemView.context.getString(R.string.vendor_zipformer)
-        }
+        com.brycewg.asrkb.ui.AsrVendorUi.name(itemView.context, v)
       } catch (e: Exception) {
         id
       }

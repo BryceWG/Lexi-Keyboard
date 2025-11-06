@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.brycewg.asrkb.R
 import com.brycewg.asrkb.asr.AsrVendor
+import com.brycewg.asrkb.ui.AsrVendorUi
 import com.brycewg.asrkb.store.Prefs
 import com.brycewg.asrkb.asr.VadDetector
 import com.google.android.material.appbar.MaterialToolbar
@@ -156,17 +157,8 @@ class AsrSettingsActivity : AppCompatActivity() {
     }
 
     private fun setupVendorSelection() {
-        val vendorOrder = listOf(
-            AsrVendor.Volc, AsrVendor.SiliconFlow, AsrVendor.ElevenLabs,
-            AsrVendor.OpenAI, AsrVendor.DashScope, AsrVendor.Gemini,
-            AsrVendor.Soniox, AsrVendor.SenseVoice, AsrVendor.Paraformer, AsrVendor.Zipformer
-        )
-        val vendorItems = listOf(
-            getString(R.string.vendor_volc), getString(R.string.vendor_sf),
-            getString(R.string.vendor_eleven), getString(R.string.vendor_openai),
-            getString(R.string.vendor_dashscope), getString(R.string.vendor_gemini),
-            getString(R.string.vendor_soniox), getString(R.string.vendor_sensevoice), getString(R.string.vendor_paraformer), getString(R.string.vendor_zipformer)
-        )
+        val vendorOrder = AsrVendorUi.ordered()
+        val vendorItems = AsrVendorUi.names(this)
 
         tvAsrVendor.setOnClickListener { v ->
             hapticTapIfEnabled(v)
@@ -1369,17 +1361,8 @@ class AsrSettingsActivity : AppCompatActivity() {
     }
 
     private fun updateVendorSummary(vendor: AsrVendor) {
-        val vendorOrder = listOf(
-            AsrVendor.Volc, AsrVendor.SiliconFlow, AsrVendor.ElevenLabs,
-            AsrVendor.OpenAI, AsrVendor.DashScope, AsrVendor.Gemini,
-            AsrVendor.Soniox, AsrVendor.SenseVoice, AsrVendor.Paraformer, AsrVendor.Zipformer
-        )
-        val vendorItems = listOf(
-            getString(R.string.vendor_volc), getString(R.string.vendor_sf),
-            getString(R.string.vendor_eleven), getString(R.string.vendor_openai),
-            getString(R.string.vendor_dashscope), getString(R.string.vendor_gemini),
-            getString(R.string.vendor_soniox), getString(R.string.vendor_sensevoice), getString(R.string.vendor_paraformer), getString(R.string.vendor_zipformer)
-        )
+        val vendorOrder = AsrVendorUi.ordered()
+        val vendorItems = AsrVendorUi.names(this)
         val idx = vendorOrder.indexOf(vendor).coerceAtLeast(0)
         tvAsrVendor.text = vendorItems[idx]
     }

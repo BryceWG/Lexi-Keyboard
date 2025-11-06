@@ -235,18 +235,7 @@ class AboutActivity : AppCompatActivity() {
     renderDailyBars(last7Container, stats, 7)
   }
 
-  private fun vendorDisplayName(v: AsrVendor): String = when (v) {
-    AsrVendor.Volc -> getString(R.string.vendor_volc)
-    AsrVendor.SiliconFlow -> getString(R.string.vendor_sf)
-    AsrVendor.ElevenLabs -> getString(R.string.vendor_eleven)
-    AsrVendor.OpenAI -> getString(R.string.vendor_openai)
-    AsrVendor.DashScope -> getString(R.string.vendor_dashscope)
-    AsrVendor.Gemini -> getString(R.string.vendor_gemini)
-    AsrVendor.Soniox -> getString(R.string.vendor_soniox)
-    AsrVendor.SenseVoice -> getString(R.string.vendor_sensevoice)
-    AsrVendor.Paraformer -> getString(R.string.vendor_paraformer)
-    AsrVendor.Zipformer -> getString(R.string.vendor_zipformer)
-  }
+  private fun vendorDisplayName(v: AsrVendor): String = com.brycewg.asrkb.ui.AsrVendorUi.name(this, v)
 
   private fun addInfoLine(container: android.view.ViewGroup, text: String) {
     val tv = TextView(this)

@@ -22,6 +22,7 @@ import com.brycewg.asrkb.store.Prefs
 import com.brycewg.asrkb.ui.floatingball.*
 import com.brycewg.asrkb.ui.floating.FloatingImeHints
 import com.brycewg.asrkb.ui.AsrAccessibilityService
+import com.brycewg.asrkb.ui.AsrVendorUi
 import com.brycewg.asrkb.ui.SettingsActivity
 import com.brycewg.asrkb.store.debug.DebugLogManager
 import kotlinx.coroutines.CoroutineScope
@@ -808,17 +809,7 @@ class FloatingAsrService : Service(),
             1.0f
         }
 
-        val vendors = listOf(
-            AsrVendor.Volc to getString(R.string.vendor_volc),
-            AsrVendor.SiliconFlow to getString(R.string.vendor_sf),
-            AsrVendor.ElevenLabs to getString(R.string.vendor_eleven),
-            AsrVendor.OpenAI to getString(R.string.vendor_openai),
-            AsrVendor.DashScope to getString(R.string.vendor_dashscope),
-            AsrVendor.Gemini to getString(R.string.vendor_gemini),
-            AsrVendor.Soniox to getString(R.string.vendor_soniox),
-            AsrVendor.SenseVoice to getString(R.string.vendor_sensevoice),
-            AsrVendor.Paraformer to getString(R.string.vendor_paraformer)
-        )
+        val vendors = AsrVendorUi.pairs(this)
         val cur = try {
             prefs.asrVendor
         } catch (e: Throwable) {
@@ -837,17 +828,49 @@ class FloatingAsrService : Service(),
                     }
                     if (v != old) {
                         prefs.asrVendor = v
+                        // 离开本地引擎时卸载缓存识别器，释放内存
                         if (old == AsrVendor.SenseVoice && v != AsrVendor.SenseVoice) {
                             try {
                                 com.brycewg.asrkb.asr.unloadSenseVoiceRecognizer()
                             } catch (e: Throwable) {
                                 Log.e(TAG, "Failed to unload SenseVoice", e)
                             }
-                        } else if (v == AsrVendor.SenseVoice && prefs.svPreloadEnabled) {
+                        }
+                        if (old == AsrVendor.Paraformer && v != AsrVendor.Paraformer) {
+                            try {
+                                com.brycewg.asrkb.asr.unloadParaformerRecognizer()
+                            } catch (e: Throwable) {
+                                Log.e(TAG, "Failed to unload Paraformer", e)
+                            }
+                        }
+                        if (old == AsrVendor.Zipformer && v != AsrVendor.Zipformer) {
+                            try {
+                                com.brycewg.asrkb.asr.unloadZipformerRecognizer()
+                            } catch (e: Throwable) {
+                                Log.e(TAG, "Failed to unload Zipformer", e)
+                            }
+                        }
+
+                        // 切换到本地引擎且启用预加载时，触发预加载以降低首次等待
+                        if (v == AsrVendor.SenseVoice && prefs.svPreloadEnabled) {
                             try {
                                 com.brycewg.asrkb.asr.preloadSenseVoiceIfConfigured(this, prefs)
                             } catch (e: Throwable) {
                                 Log.e(TAG, "Failed to preload SenseVoice", e)
+                            }
+                        }
+                        if (v == AsrVendor.Paraformer && prefs.pfPreloadEnabled) {
+                            try {
+                                com.brycewg.asrkb.asr.preloadParaformerIfConfigured(this, prefs)
+                            } catch (e: Throwable) {
+                                Log.e(TAG, "Failed to preload Paraformer", e)
+                            }
+                        }
+                        if (v == AsrVendor.Zipformer && prefs.zfPreloadEnabled) {
+                            try {
+                                com.brycewg.asrkb.asr.preloadZipformerIfConfigured(this, prefs)
+                            } catch (e: Throwable) {
+                                Log.e(TAG, "Failed to preload Zipformer", e)
                             }
                         }
                     }
