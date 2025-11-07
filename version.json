@@ -1,10 +1,10 @@
 {
-  "version": "3.6.0",
-  "version_code": 98,
-  "download_url": "https://github.com/BryceWG/LexiSharp-Keyboard/releases/tag/v3.6.0",
-  "release_notes": "本次更新包含 10 个提交:\n- feat(ime): 更新扩展按钮默认配置和默认值处理\n- feat(clipboard): 添加剪贴板历史管理面板功能\n- feat(ime): 优化拓展按钮的数字面板按钮返回逻辑和选择模式功能\n- feat(ime): 增加可自定义的键盘按钮\n- refactor(ui): 移除设置页面按钮色块样式\n- feat(clipboard): 增强剪贴板同步提示和面板信息预览体验\n- feat(ui): 增加键盘空格文本显示\n- feat(ui): 添加实时音频波形动画功能\n- feat(ui): 添加键盘扩展按钮行并重构状态显示区域\n- pro(feat): 添加Pro功能-繁体中文转换占位",
+  "version": "3.6.1",
+  "version_code": 99,
+  "download_url": "https://github.com/BryceWG/LexiSharp-Keyboard/releases/tag/v3.6.1",
+  "release_notes": "本次更新包含 4 个提交:\n- feat(privacy): 新增隐私控制开关支持禁用识别历史和使用统计\n- feat(ui): 优化更新对话框中的发布页面跳转交互\n- feat(asr): 过滤LLM响应中的think标签内容\n- feat(ui): 更新剪贴板和撤销按钮图标",
   "important_notice": "本次更新优化了键盘界面UI，增加了四个可以自选的按钮，可在输入设置最下方配置。此外还初步支持了粘贴板管理功能",
   "notice_level": "info",
   "min_supported_version": "2.6.5",
-  "update_time": "2025-11-07T09:01:20Z"
+  "update_time": "2025-11-07T12:30:01Z"
 }
