@@ -20,6 +20,14 @@
     <string name="cd_punct_btn_3">カスタムキー3</string>
     <string name="cd_punct_btn_4">カスタムキー4</string>
 
+    <!-- Extension buttons content descriptions -->
+    <string name="desc_extension_button_1">拡張ボタン1</string>
+    <string name="desc_extension_button_2">拡張ボタン2</string>
+    <string name="desc_extension_button_3">拡張ボタン3</string>
+    <string name="desc_extension_button_4">拡張ボタン4</string>
+    <string name="desc_extension_center_button_1">拡張中央ボタン1</string>
+    <string name="desc_extension_center_button_2">拡張中央ボタン2</string>
+
     <!-- Edit panel content descriptions -->
     <string name="cd_return_main">メインキーボードに戻る</string>
     <string name="cd_apply_preset_prompt">プリセットプロンプトを適用</string>

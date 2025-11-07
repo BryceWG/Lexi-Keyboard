@@ -16,6 +16,14 @@
     <string name="cd_punct_btn_3">Custom key 3</string>
     <string name="cd_punct_btn_4">Custom key 4</string>
 
+    <!-- Extension buttons content descriptions -->
+    <string name="desc_extension_button_1">Extension Button 1</string>
+    <string name="desc_extension_button_2">Extension Button 2</string>
+    <string name="desc_extension_button_3">Extension Button 3</string>
+    <string name="desc_extension_button_4">Extension Button 4</string>
+    <string name="desc_extension_center_button_1">Extension Center Button 1</string>
+    <string name="desc_extension_center_button_2">Extension Center Button 2</string>
+
     <!-- Edit panel content descriptions -->
     <string name="cd_return_main">Back to main keyboard</string>
     <string name="cd_apply_preset_prompt">Apply preset prompt</string>

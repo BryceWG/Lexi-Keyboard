@@ -16,6 +16,14 @@
     <string name="cd_punct_btn_3">自定義按鍵 3</string>
     <string name="cd_punct_btn_4">自定義按鍵 4</string>
 
+    <!-- Extension buttons content descriptions -->
+    <string name="desc_extension_button_1">擴展按鈕 1</string>
+    <string name="desc_extension_button_2">擴展按鈕 2</string>
+    <string name="desc_extension_button_3">擴展按鈕 3</string>
+    <string name="desc_extension_button_4">擴展按鈕 4</string>
+    <string name="desc_extension_center_button_1">擴展中央按鈕 1</string>
+    <string name="desc_extension_center_button_2">擴展中央按鈕 2</string>
+
     <!-- Edit panel content descriptions -->
     <string name="cd_return_main">返回主鍵盤</string>
     <string name="cd_apply_preset_prompt">套用預設提示詞</string>

@@ -20,6 +20,104 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+    <!-- 扩展按钮行 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rowExtension"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <!-- 左侧按钮组 -->
+        <ImageButton
+            android:id="@+id/btnExt1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_key_button"
+            android:contentDescription="@string/desc_extension_button_1"
+            android:clipToOutline="true"
+            android:padding="6dp"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:stateListAnimator="@animator/key_button_state_list"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:tint="?attr/colorOnSurfaceVariant" />
+
+        <ImageButton
+            android:id="@+id/btnExt2"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_key_button"
+            android:contentDescription="@string/desc_extension_button_2"
+            android:clipToOutline="true"
+            android:padding="6dp"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:stateListAnimator="@animator/key_button_state_list"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnExt1"
+            app:layout_constraintTop_toTopOf="parent"
+            android:tint="?attr/colorOnSurfaceVariant" />
+
+        <!-- 右侧按钮组 -->
+        <ImageButton
+            android:id="@+id/btnExt4"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_key_button"
+            android:contentDescription="@string/desc_extension_button_4"
+            android:clipToOutline="true"
+            android:padding="6dp"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:stateListAnimator="@animator/key_button_state_list"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:tint="?attr/colorOnSurfaceVariant" />
+
+        <ImageButton
+            android:id="@+id/btnExt3"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_key_button"
+            android:contentDescription="@string/desc_extension_button_3"
+            android:clipToOutline="true"
+            android:padding="6dp"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:stateListAnimator="@animator/key_button_state_list"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnExt4"
+            app:layout_constraintTop_toTopOf="parent"
+            android:tint="?attr/colorOnSurfaceVariant" />
+
+        <!-- 中央按钮 - 状态显示区域 -->
+        <TextView
+            android:id="@+id/btnExtCenter1"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_key_rect_button"
+            android:contentDescription="@string/desc_extension_center_button_1"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:stateListAnimator="@animator/key_button_state_list"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurface"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            app:layout_constraintStart_toEndOf="@id/btnExt2"
+            app:layout_constraintEnd_toStartOf="@id/btnExt3"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/rowTop"
         android:layout_width="match_parent"
@@ -185,6 +283,23 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- 中央按钮 -->
+        <Button
+            android:id="@+id/btnExtCenter2"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_key_rect_button"
+            android:contentDescription="@string/desc_extension_center_button_2"
+            android:clipToOutline="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:stateListAnimator="@animator/key_button_state_list"
+            app:layout_constraintStart_toEndOf="@id/btnPunct2"
+            app:layout_constraintEnd_toStartOf="@id/btnPunct3"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
@@ -290,7 +405,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:translationY="3dp">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnMic"
@@ -320,7 +436,8 @@
             android:text="@string/status_idle"
             android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"
-            android:includeFontPadding="false" />
+            android:includeFontPadding="false"
+            android:visibility="gone" />
     </LinearLayout>
 
     <!-- Pro 注入插槽：IME 额外功能（如光标滑动）-->

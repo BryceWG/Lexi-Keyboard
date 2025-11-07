@@ -16,6 +16,14 @@
     <string name="cd_punct_btn_3">自定义按键 3</string>
     <string name="cd_punct_btn_4">自定义按键 4</string>
 
+    <!-- Extension buttons content descriptions -->
+    <string name="desc_extension_button_1">扩展按钮 1</string>
+    <string name="desc_extension_button_2">扩展按钮 2</string>
+    <string name="desc_extension_button_3">扩展按钮 3</string>
+    <string name="desc_extension_button_4">扩展按钮 4</string>
+    <string name="desc_extension_center_button_1">扩展中央按钮 1</string>
+    <string name="desc_extension_center_button_2">扩展中央按钮 2</string>
+
     <!-- Edit panel content descriptions -->
     <string name="cd_return_main">返回主键盘</string>
     <string name="cd_apply_preset_prompt">应用预设 Prompt</string>

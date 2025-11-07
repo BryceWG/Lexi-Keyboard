@@ -14,12 +14,14 @@ import android.graphics.Color
 import android.view.MotionEvent
 import android.view.HapticFeedbackConstants
 import android.view.View
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.view.inputmethod.InputMethodManager
 import android.view.ViewConfiguration
 import android.view.inputmethod.EditorInfo
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsControllerCompat
@@ -112,7 +114,14 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
     private var btnPunct2: TextView? = null
     private var btnPunct3: TextView? = null
     private var btnPunct4: TextView? = null
-    private var txtStatus: TextView? = null
+    private var rowExtension: ConstraintLayout? = null
+    private var btnExt1: ImageButton? = null
+    private var btnExt2: ImageButton? = null
+    private var btnExt3: ImageButton? = null
+    private var btnExt4: ImageButton? = null
+    private var btnExtCenter1: TextView? = null  // 改为TextView用于显示状态
+    private var btnExtCenter2: Button? = null
+    private var txtStatus: TextView? = null  // 已隐藏，状态改用btnExtCenter1显示
     private var groupMicStatus: View? = null
     // 记录麦克风按下的原始Y坐标，用于检测上滑手势
     private var micDownRawY: Float = 0f
@@ -403,7 +412,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     override fun onStatusMessage(message: String) {
         clearStatusTextStyle()
-        txtStatus?.text = message
+        btnExtCenter1?.text = message
     }
 
     override fun onVibrate() {
@@ -512,6 +521,13 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         btnPunct2 = view.findViewById(R.id.btnPunct2)
         btnPunct3 = view.findViewById(R.id.btnPunct3)
         btnPunct4 = view.findViewById(R.id.btnPunct4)
+        rowExtension = view.findViewById<ConstraintLayout>(R.id.rowExtension)
+        btnExt1 = view.findViewById(R.id.btnExt1)
+        btnExt2 = view.findViewById(R.id.btnExt2)
+        btnExt3 = view.findViewById(R.id.btnExt3)
+        btnExt4 = view.findViewById(R.id.btnExt4)
+        btnExtCenter1 = view.findViewById(R.id.btnExtCenter1)
+        btnExtCenter2 = view.findViewById(R.id.btnExtCenter2)
         txtStatus = view.findViewById(R.id.txtStatus)
         groupMicStatus = view.findViewById(R.id.groupMicStatus)
 
@@ -740,12 +756,12 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
             }
             if (!prefs.hasAsrKeys()) {
                 clearStatusTextStyle()
-                txtStatus?.text = getString(R.string.hint_need_keys)
+                btnExtCenter1?.text = getString(R.string.hint_need_keys)
                 return@setOnClickListener
             }
             if (!prefs.hasLlmKeys()) {
                 clearStatusTextStyle()
-                txtStatus?.text = getString(R.string.hint_need_llm_keys)
+                btnExtCenter1?.text = getString(R.string.hint_need_llm_keys)
                 return@setOnClickListener
             }
             showAiEditPanel()
@@ -856,6 +872,34 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
             performKeyHaptic(v)
             actionHandler.commitText(currentInputConnection, prefs.punct4)
         }
+
+        // 扩展按钮（占位，暂无功能）
+        btnExt1?.setOnClickListener { v ->
+            performKeyHaptic(v)
+            // TODO: 添加具体功能
+        }
+        btnExt2?.setOnClickListener { v ->
+            performKeyHaptic(v)
+            // TODO: 添加具体功能
+        }
+        btnExt3?.setOnClickListener { v ->
+            performKeyHaptic(v)
+            // TODO: 添加具体功能
+        }
+        btnExt4?.setOnClickListener { v ->
+            performKeyHaptic(v)
+            // TODO: 添加具体功能
+        }
+
+        // 中央扩展按钮（占位，暂无功能）
+        btnExtCenter1?.setOnClickListener { v ->
+            performKeyHaptic(v)
+            // TODO: 添加具体功能
+        }
+        btnExtCenter2?.setOnClickListener { v ->
+            performKeyHaptic(v)
+            // TODO: 添加具体功能
+        }
     }
 
     private fun showAiEditPanel() {
@@ -924,7 +968,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiIdle() {
         clearStatusTextStyle()
-        txtStatus?.text = getString(R.string.status_idle)
+        btnExtCenter1?.text = getString(R.string.status_idle)
         btnMic?.isSelected = false
         try { btnMic?.setImageResource(R.drawable.microphone) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (idle)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (idle)", e) }
@@ -933,7 +977,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiListening() {
         clearStatusTextStyle()
-        txtStatus?.text = getString(R.string.status_listening)
+        btnExtCenter1?.text = getString(R.string.status_listening)
         btnMic?.isSelected = true
         try { btnMic?.setImageResource(R.drawable.microphone_fill) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (listening)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (listening)", e) }
@@ -941,7 +985,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiProcessing() {
         clearStatusTextStyle()
-        txtStatus?.text = getString(R.string.status_recognizing)
+        btnExtCenter1?.text = getString(R.string.status_recognizing)
         btnMic?.isSelected = false
         try { btnMic?.setImageResource(R.drawable.microphone) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (processing)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (processing)", e) }
@@ -949,7 +993,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiAiProcessing() {
         clearStatusTextStyle()
-        txtStatus?.text = getString(R.string.status_ai_processing)
+        btnExtCenter1?.text = getString(R.string.status_ai_processing)
         btnMic?.isSelected = false
         try { btnMic?.setImageResource(R.drawable.microphone) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (ai processing)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (ai processing)", e) }
@@ -957,7 +1001,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiAiEditListening() {
         clearStatusTextStyle()
-        txtStatus?.text = getString(R.string.status_ai_edit_listening)
+        btnExtCenter1?.text = getString(R.string.status_ai_edit_listening)
         btnMic?.isSelected = false
         try { btnMic?.setImageResource(R.drawable.microphone_fill) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (ai edit listening)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line_fill) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (ai edit listening)", e) }
@@ -965,7 +1009,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiAiEditProcessing() {
         clearStatusTextStyle()
-        txtStatus?.text = getString(R.string.status_ai_editing)
+        btnExtCenter1?.text = getString(R.string.status_ai_editing)
         btnMic?.isSelected = false
         try { btnMic?.setImageResource(R.drawable.microphone) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (ai edit processing)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line_fill) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (ai edit processing)", e) }
@@ -1330,7 +1374,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                     ?: com.brycewg.asrkb.asr.findSvModelDir(probeRoot)
                 if (found == null) {
                     clearStatusTextStyle()
-                    txtStatus?.text = getString(R.string.error_sensevoice_model_missing)
+                    btnExtCenter1?.text = getString(R.string.error_sensevoice_model_missing)
                     return false
                 }
             }
@@ -1346,13 +1390,13 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         val hasKeys = prefs.hasAsrKeys()
         if (!granted) {
             btnMic?.isEnabled = false
-            txtStatus?.text = getString(R.string.hint_need_permission)
+            btnExtCenter1?.text = getString(R.string.hint_need_permission)
         } else if (!hasKeys) {
             btnMic?.isEnabled = false
-            txtStatus?.text = getString(R.string.hint_need_keys)
+            btnExtCenter1?.text = getString(R.string.hint_need_keys)
         } else {
             btnMic?.isEnabled = true
-            txtStatus?.text = getString(R.string.status_idle)
+            btnExtCenter1?.text = getString(R.string.status_idle)
         }
     }
 
@@ -1425,7 +1469,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                 val preset = presets.getOrNull(position) ?: return@setOnMenuItemClickListener false
                 prefs.activePromptId = preset.id
                 clearStatusTextStyle()
-                txtStatus?.text = getString(R.string.switched_preset, preset.title)
+                btnExtCenter1?.text = getString(R.string.switched_preset, preset.title)
                 true
             }
             popup.show()
@@ -1447,7 +1491,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         // 信息栏显示“加载中…”，完成后回退状态
         rootView?.post {
             clearStatusTextStyle()
-            txtStatus?.text = getString(R.string.sv_loading_model)
+            btnExtCenter1?.text = getString(R.string.sv_loading_model)
         }
         localPreloadTriggered = true
 
@@ -1461,10 +1505,10 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                     val dt = (android.os.SystemClock.uptimeMillis() - t0).coerceAtLeast(0)
                     rootView?.post {
                         clearStatusTextStyle()
-                        txtStatus?.text = getString(R.string.sv_model_ready_with_ms, dt)
+                        btnExtCenter1?.text = getString(R.string.sv_model_ready_with_ms, dt)
                         rootView?.postDelayed({
                             clearStatusTextStyle()
-                            txtStatus?.text = if (asrManager.isRunning()) getString(R.string.status_listening) else getString(R.string.status_idle)
+                            btnExtCenter1?.text = if (asrManager.isRunning()) getString(R.string.status_listening) else getString(R.string.status_idle)
                         }, 1200)
                     }
                 },
@@ -1492,7 +1536,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                                 try {
                                     rootView?.post {
                                         clearStatusTextStyle()
-                                        txtStatus?.text = getString(R.string.sc_status_uploaded)
+                                        btnExtCenter1?.text = getString(R.string.sc_status_uploaded)
                                     }
                                 } catch (_: Throwable) { }
                             }
@@ -1577,16 +1621,25 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
             }
         } catch (_: Throwable) { }
 
+        // 扩展按钮行高度缩放
+        try {
+            val extRow = view.findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.rowExtension)
+            if (extRow != null) {
+                val lp = extRow.layoutParams
+                lp.height = dp(50f * scale)
+                extRow.layoutParams = lp
+            }
+        } catch (_: Throwable) { }
+
         // 使主键盘功能行（overlay）从顶部锚定，避免垂直居中导致的像素舍入抖动
-        // 计算规则：将原本居中位置换算为等效的顶部边距
-        // 总高约为 80s(top) + 12(margin) + 40s(punct)，中心到顶部距离为 (总高/2 - overlayHalf)
-        // overlayHalf=20s，化简后顶边距=40s + 6
+        // 计算规则：rowExtension 完整高度 + rowTop 高度的一半 + 固定偏移
+        // = 50s(rowExtension完整) + 40s(rowTop的一半) + 6 = 90s + 6
         try {
             val overlay = view.findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.rowOverlay)
             if (overlay != null) {
                 val lp = overlay.layoutParams as? android.widget.FrameLayout.LayoutParams
                 if (lp != null) {
-                    lp.topMargin = dp(40f * scale + 6f)
+                    lp.topMargin = dp(90f * scale + 6f)
                     lp.gravity = android.view.Gravity.TOP
                     overlay.layoutParams = lp
                 }
@@ -1599,6 +1652,15 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                 val lp = v.layoutParams
                 lp.width = dp(40f * scale)
                 lp.height = dp(40f * scale)
+                v.layoutParams = lp
+            } catch (_: Throwable) { }
+        }
+        fun scaleRectButton(id: Int, widthDp: Float, heightDp: Float) {
+            try {
+                val v = view.findViewById<View>(id) ?: return
+                val lp = v.layoutParams
+                lp.width = dp(widthDp * scale)
+                lp.height = dp(heightDp * scale)
                 v.layoutParams = lp
             } catch (_: Throwable) { }
         }
@@ -1625,6 +1687,8 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
             R.id.btnHide, R.id.btnPostproc, R.id.btnBackspace, R.id.btnPromptPicker,
             R.id.btnSettings, R.id.btnImeSwitcher, R.id.btnEnter, R.id.btnAiEdit,
             R.id.btnPunct1, R.id.btnPunct2, R.id.btnPunct3, R.id.btnPunct4,
+            // 扩展按钮
+            R.id.btnExt1, R.id.btnExt2, R.id.btnExt3, R.id.btnExt4,
             // AI 编辑面板按钮
             R.id.btnAiPanelBack, R.id.btnAiPanelApplyPreset,
             R.id.btnAiPanelCursorLeft, R.id.btnAiPanelCursorRight,
@@ -1635,6 +1699,27 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         )
         ids40.forEach { scaleSquareButton(it) }
 
+        // 缩放中央按钮（仅高度，宽度由约束控制）
+        try {
+            val v1 = view.findViewById<View>(R.id.btnExtCenter1)
+            if (v1 != null) {
+                val lp = v1.layoutParams
+                lp.height = dp(40f * scale)
+                // 宽度由约束控制，不设置
+                v1.layoutParams = lp
+            }
+        } catch (_: Throwable) { }
+
+        try {
+            val v2 = view.findViewById<View>(R.id.btnExtCenter2)
+            if (v2 != null) {
+                val lp = v2.layoutParams
+                lp.height = dp(40f * scale)
+                // 宽度由约束控制，不设置
+                v2.layoutParams = lp
+            }
+        } catch (_: Throwable) { }
+
         // 数字/标点小键盘的方形按键（通过 tag="key40" 统一缩放高度）
         try {
             scaleChildrenByTag(layoutNumpadPanel, "key40")
@@ -1644,15 +1729,12 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
             btnMic?.customSize = dp(72f * scale)
         } catch (_: Throwable) { }
 
+        // 调整麦克风容器的 translationY 以保持与上下中央按钮等距
         try {
-            val tv = view.findViewById<TextView>(R.id.txtStatus)
-            val lp = tv?.layoutParams as? android.widget.LinearLayout.LayoutParams
-            if (lp != null) {
-                lp.marginStart = dp(90f * scale)
-                lp.marginEnd = dp(90f * scale)
-                tv.layoutParams = lp
-            }
+            groupMicStatus?.translationY = dp(3f * scale).toFloat()
         } catch (_: Throwable) { }
+
+        // txtStatus 已移除，状态文本现在显示在 btnExtCenter1 中
     }
 
     private fun resolveKeyboardSurfaceColor(from: View? = null): Int {
