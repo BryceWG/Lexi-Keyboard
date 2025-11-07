@@ -105,6 +105,8 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
     private var btnNumpadPunctToggle: ImageButton? = null
     private var isAiEditPanelVisible: Boolean = false
     private var isNumpadPanelVisible: Boolean = false
+    // 数字/符号面板返回目标：true 表示返回到 AI 编辑面板；false 表示返回到主键盘
+    private var numpadReturnToAiPanel: Boolean = false
     private var btnSettings: ImageButton? = null
     private var btnEnter: ImageButton? = null
     private var btnPostproc: ImageButton? = null
@@ -658,14 +660,22 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         // AI 编辑面板：数字小键盘（占位）
         btnAiPanelNumpad?.setOnClickListener { v ->
             performKeyHaptic(v)
-            showNumpadPanel()
+            // 从 AI 编辑面板进入数字/符号面板，返回时应回到 AI 面板
+            showNumpadPanel(returnToAiPanel = true)
         }
 
-        // 数字小键盘：返回编辑面板
+        // 数字小键盘：返回到来源面板
         btnNumpadBack?.setOnClickListener { v ->
             performKeyHaptic(v)
             hideNumpadPanel()
-            showAiEditPanel()
+            if (numpadReturnToAiPanel) {
+                showAiEditPanel()
+            } else {
+                // 直接回到主键盘
+                layoutMainKeyboard?.visibility = View.VISIBLE
+                isAiEditPanelVisible = false
+                isNumpadPanelVisible = false
+            }
         }
 
         // 数字小键盘：回车
@@ -946,6 +956,8 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         layoutMainKeyboard?.visibility = View.GONE
         layoutAiEditPanel?.visibility = View.VISIBLE
         isAiEditPanelVisible = true
+        // 从 AI 面板进入数字面板时应返回到 AI 面板
+        numpadReturnToAiPanel = true
         // 进入面板时重置选择模式
         aiSelectMode = false
         aiSelectAnchor = null
@@ -953,6 +965,8 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
             btnAiPanelSelect?.isSelected = false
             btnAiPanelSelect?.setImageResource(R.drawable.selection_toggle)
         } catch (_: Throwable) { }
+        // 同步主界面扩展按钮的选择图标
+        updateSelectExtButtonsUi()
     }
 
     private fun hideAiEditPanel() {
@@ -968,13 +982,18 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         } catch (_: Throwable) { }
         // 释放可能仍在队列中的光标连发回调，避免隐藏后仍触发
         releaseCursorRepeatCallbacks()
+        // 同步主界面扩展按钮的选择图标
+        updateSelectExtButtonsUi()
     }
 
-    private fun showNumpadPanel() {
+    private fun showNumpadPanel(returnToAiPanel: Boolean = false) {
         if (isNumpadPanelVisible) return
-        // 隐藏编辑面板但不显示主键盘
+        // 记录返回目标
+        numpadReturnToAiPanel = returnToAiPanel
+        // 隐藏其他面板，避免叠盖
         layoutAiEditPanel?.visibility = View.GONE
         isAiEditPanelVisible = false
+        layoutMainKeyboard?.visibility = View.GONE
         // 取消编辑面板可能仍在的光标连续回调
         releaseCursorRepeatCallbacks()
         layoutNumpadPanel?.visibility = View.VISIBLE
@@ -1143,18 +1162,35 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun moveCursorBy(delta: Int) {
         val ic = currentInputConnection ?: return
-        val pos = currentCursorPosition() ?: return
-        val newPos = (pos + delta).coerceAtLeast(0)
+        if (delta == 0) return
+        val maxLen = totalTextLength() ?: Int.MAX_VALUE
 
-        if (aiSelectMode) {
-            ensureAnchorForSelection()
-            val anchor = aiSelectAnchor ?: 0
-            val start = minOf(anchor, newPos)
-            val end = maxOf(anchor, newPos)
-            inputHelper.setSelection(ic, start, end)
-        } else {
+        // 非选择模式：直接移动光标
+        if (!aiSelectMode) {
+            val pos = currentCursorPosition() ?: return
+            val newPos = (pos + delta).coerceIn(0, maxLen)
             inputHelper.setSelection(ic, newPos, newPos)
+            return
         }
+
+        // 选择模式：固定锚点，移动“活动端”。方向切换时，从当前活动端向相反方向移动一格，先逐步收缩到锚点，再向另一侧扩展。
+        ensureAnchorForSelection()
+        val anchor = aiSelectAnchor ?: 0
+        val selStart = lastSelStart
+        val selEnd = lastSelEnd
+
+        // 活动端：若锚点在 start，活动端为 end；否则为 start。无选区时用当前光标。
+        val activeNow: Int = if (selStart >= 0 && selEnd >= 0 && selStart != selEnd) {
+            if (anchor == selStart) selEnd else selStart
+        } else {
+            currentCursorPosition() ?: anchor
+        }
+
+        val step = if (delta < 0) -1 else 1
+        val newActive = (activeNow + step).coerceIn(0, maxLen)
+        val start = minOf(anchor, newActive)
+        val end = maxOf(anchor, newActive)
+        inputHelper.setSelection(ic, start, end)
     }
 
     private fun moveCursorToEdge(toStart: Boolean) {
@@ -1185,6 +1221,24 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
             // 退出选择模式清除锚点
             aiSelectAnchor = null
         }
+        // 主界面扩展按钮也需要反映选择模式的选中态
+        updateSelectExtButtonsUi()
+    }
+
+    /**
+     * 同步主界面扩展按钮（配置为 SELECT 的按钮）图标为选中/未选中态。
+     */
+    private fun updateSelectExtButtonsUi() {
+        fun updateBtn(btn: ImageButton?, action: ExtensionButtonAction) {
+            if (action == ExtensionButtonAction.SELECT) {
+                try { btn?.setImageResource(if (aiSelectMode) R.drawable.selection_fill else R.drawable.selection_toggle) } catch (_: Throwable) { }
+                try { btn?.isSelected = aiSelectMode } catch (_: Throwable) { }
+            }
+        }
+        updateBtn(btnExt1, prefs.extBtn1)
+        updateBtn(btnExt2, prefs.extBtn2)
+        updateBtn(btnExt3, prefs.extBtn3)
+        updateBtn(btnExt4, prefs.extBtn4)
     }
 
     private fun selectAllText() {
@@ -1510,6 +1564,10 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
             android.util.Log.w("AsrKeyboardService", "Failed to set extension button icon", t)
         }
 
+        // 清理旧监听，避免切换功能后残留触摸/点击逻辑导致误触发
+        try { btn.setOnClickListener(null) } catch (_: Throwable) { }
+        try { btn.setOnTouchListener(null) } catch (_: Throwable) { }
+
         // 根据动作类型设置行为
         when (action) {
             ExtensionButtonAction.NONE -> {
@@ -1545,13 +1603,14 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                 // 失败，已在 actionHandler 中处理
             }
             KeyboardActionHandler.ExtensionButtonActionResult.NEED_TOGGLE_SELECTION -> {
-                // 切换选择模式（需要显示 AI 编辑面板）
-                showAiEditPanel()
+                // 在主界面直接切换选择模式（不进入 AI 编辑面板）
                 toggleSelectionMode()
+                // 同步扩展按钮（若配置为 SELECT）
+                updateSelectExtButtonsUi()
             }
             KeyboardActionHandler.ExtensionButtonActionResult.NEED_SHOW_NUMPAD -> {
-                // 显示数字键盘
-                showNumpadPanel()
+                // 从主界面进入数字/符号面板
+                showNumpadPanel(returnToAiPanel = false)
             }
             KeyboardActionHandler.ExtensionButtonActionResult.NEED_CURSOR_LEFT,
             KeyboardActionHandler.ExtensionButtonActionResult.NEED_CURSOR_RIGHT -> {
@@ -1605,6 +1664,8 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         setupExtensionButton(btnExt2, prefs.extBtn2)
         setupExtensionButton(btnExt3, prefs.extBtn3)
         setupExtensionButton(btnExt4, prefs.extBtn4)
+        // 初始应用时同步选择按钮的选中态
+        updateSelectExtButtonsUi()
     }
 
     private fun vibrateTick() {
