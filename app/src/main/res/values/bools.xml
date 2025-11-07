@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 是否启用内置更新检查/下载逻辑（主渠道默认开启） -->
+    <bool name="enable_update_checker">true</bool>
+</resources>
+

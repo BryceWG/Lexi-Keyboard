@@ -68,8 +68,11 @@ class SettingsActivity : AppCompatActivity() {
     // 一键设置状态机
     private lateinit var setupStateMachine: SetupStateMachine
 
-    // 更新检查器
-    private lateinit var updateChecker: UpdateChecker
+    // 更新检查器（可按渠道禁用）
+    private var updateChecker: UpdateChecker? = null
+    private val updatesEnabled: Boolean by lazy {
+        try { resources.getBoolean(R.bool.enable_update_checker) } catch (_: Throwable) { true }
+    }
 
     // 无障碍服务状态（用于检测服务刚刚被启用）
     private var wasAccessibilityEnabled = false
@@ -97,7 +100,7 @@ class SettingsActivity : AppCompatActivity() {
 
         // 初始化状态机和工具类
         setupStateMachine = SetupStateMachine(this)
-        updateChecker = UpdateChecker(this)
+        if (updatesEnabled) updateChecker = UpdateChecker(this)
 
         // 记录初始无障碍服务状态
         wasAccessibilityEnabled = isAccessibilityServiceEnabled()
@@ -112,14 +115,18 @@ class SettingsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        // 授权返回后：若已下载APK且具备安装权限，自动继续安装
-        maybeResumePendingApkInstall()
+        // 授权返回后：若已下载APK且具备安装权限，自动继续安装（仅非 Pro 渠道）
+        if (updatesEnabled) {
+            maybeResumePendingApkInstall()
+        }
 
         // 检查无障碍服务是否刚刚被启用，给予用户反馈
         checkAccessibilityServiceJustEnabled()
 
-        // 每天首次进入设置页时，静默检查一次更新（仅在有新版本时弹窗提示）
-        maybeAutoCheckUpdatesDaily()
+        // 每天首次进入设置页时，静默检查一次更新（仅在有新版本时弹窗提示，非 Pro 渠道）
+        if (updatesEnabled) {
+            maybeAutoCheckUpdatesDaily()
+        }
 
         // 更新识别字数统计
         updateAsrTotalChars()
@@ -205,9 +212,13 @@ class SettingsActivity : AppCompatActivity() {
             showQuickGuide()
         }
 
-        // 检查更新
-        findViewById<Button>(R.id.btnCheckUpdate)?.setOnClickListener {
-            checkForUpdates()
+        // 检查更新（Pro 渠道隐藏）
+        findViewById<Button>(R.id.btnCheckUpdate)?.let { btn ->
+            if (updatesEnabled) {
+                btn.setOnClickListener { checkForUpdates() }
+            } else {
+                btn.visibility = android.view.View.GONE
+            }
         }
 
         // 测试输入
@@ -412,6 +423,7 @@ class SettingsActivity : AppCompatActivity() {
      * 检查更新（主动触发，显示进度对话框）
      */
     private fun checkForUpdates() {
+        if (!updatesEnabled) return
         Log.d(TAG, "User initiated update check")
 
         // 清理旧的安装包
@@ -425,9 +437,8 @@ class SettingsActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                val result = withContext(Dispatchers.IO) {
-                    updateChecker.checkGitHubRelease()
-                }
+                val checker = updateChecker ?: return@launch
+                val result = withContext(Dispatchers.IO) { checker.checkGitHubRelease() }
                 progressDialog.dismiss()
 
                 if (result.hasUpdate) {
@@ -469,11 +480,10 @@ class SettingsActivity : AppCompatActivity() {
             return
         }
 
+        val checker = updateChecker ?: return
         lifecycleScope.launch {
             try {
-                val result = withContext(Dispatchers.IO) {
-                    updateChecker.checkGitHubRelease()
-                }
+                val result = withContext(Dispatchers.IO) { checker.checkGitHubRelease() }
 
                 if (result.hasUpdate) {
                     Log.d(TAG, "Auto check found update: ${result.latestVersion}")
@@ -747,6 +757,7 @@ class SettingsActivity : AppCompatActivity() {
      * 显示下载源选择对话框
      */
     private fun showDownloadSourceDialog(originalUrl: String, version: String) {
+        if (!updatesEnabled) return
         val downloadSources = arrayOf(
             getString(R.string.download_source_github_official),
             getString(R.string.download_source_mirror_ghproxy),
@@ -844,6 +855,7 @@ class SettingsActivity : AppCompatActivity() {
      * 清理旧的 APK 安装包
      */
     private fun cleanOldApkFiles() {
+        if (!updatesEnabled) return
         try {
             ApkDownloadService.cleanOldApks(this)
             Log.d(TAG, "Old APK files cleaned")
