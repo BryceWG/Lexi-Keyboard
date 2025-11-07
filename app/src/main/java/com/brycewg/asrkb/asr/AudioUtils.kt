@@ -52,3 +52,28 @@ internal fun computeFrameStats16le(buf: ByteArray, len: Int, threshold: Int = 30
     }
     return FrameStats(maxAbs, sumSquares, count, samples)
 }
+
+/**
+ * 计算音频块的归一化振幅（0.0-1.0）用于波形动画
+ *
+ * 使用 RMS（均方根）算法计算音频能量，并归一化到 [0.0, 1.0] 范围。
+ *
+ * @param audioChunk PCM 16-bit little-endian 音频数据
+ * @return 归一化的振幅值（0.0-1.0）
+ */
+fun calculateNormalizedAmplitude(audioChunk: ByteArray): Float {
+    if (audioChunk.isEmpty()) return 0f
+
+    val stats = computeFrameStats16le(audioChunk, audioChunk.size)
+    if (stats.sampleCount == 0) return 0f
+
+    // 计算 RMS
+    val rms = kotlin.math.sqrt(stats.sumSquares.toDouble() / stats.sampleCount)
+
+    // 归一化到 0.0-1.0 范围
+    // 16-bit PCM 最大值为 32768，RMS 典型范围约 0-10000
+    // 使用 3000 作为参考值以获得良好的视觉效果（正常说话音量约 1000-5000）
+    val normalized = (rms / 3000.0).coerceIn(0.0, 1.0).toFloat()
+
+    return normalized
+}

@@ -33,8 +33,14 @@ interface StreamingAsrEngine : AsrEngine {
 
         /**
          * 录音阶段结束（例如用户松手或静音自动判停）。
-         * 默认空实现；用于让 UI 在上传/识别阶段将麦克风按钮恢复为“就绪”。
+         * 默认空实现；用于让 UI 在上传/识别阶段将麦克风按钮恢复为"就绪"。
          */
         fun onStopped() { /* default no-op */ }
+
+        /**
+         * 接收实时音频振幅（用于波形动画）
+         * @param amplitude 归一化的振幅值（0.0-1.0）
+         */
+        fun onAmplitude(amplitude: Float) { /* default no-op */ }
     }
 }

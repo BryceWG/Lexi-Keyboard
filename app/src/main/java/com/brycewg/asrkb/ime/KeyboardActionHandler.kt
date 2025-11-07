@@ -46,6 +46,7 @@ class KeyboardActionHandler(
         fun onHideClipboardPreview()
         fun onShowRetryChip(label: String)
         fun onHideRetryChip()
+        fun onAmplitude(amplitude: Float) { /* 默认空实现 */ }
     }
 
     private var uiListener: UiListener? = null
@@ -768,6 +769,10 @@ class KeyboardActionHandler(
         } else {
             uiListener?.onStatusMessage(context.getString(R.string.sv_model_ready))
         }
+    }
+
+    override fun onAmplitude(amplitude: Float) {
+        uiListener?.onAmplitude(amplitude)
     }
 
     // ========== 私有方法：状态转换 ==========

@@ -70,6 +70,12 @@ class AsrSessionManager(
          * 本地模型加载完成
          */
         fun onLocalModelLoadDone()
+
+        /**
+         * 实时音频振幅回调（用于波形动画）
+         * @param amplitude 归一化的振幅值（0.0-1.0）
+         */
+        fun onAmplitude(amplitude: Float) { /* 默认空实现 */ }
     }
 
     private var listener: Listener? = null
@@ -486,6 +492,10 @@ class AsrSessionManager(
             )
         } catch (_: Throwable) { }
         listener?.onAsrStopped()
+    }
+
+    override fun onAmplitude(amplitude: Float) {
+        listener?.onAmplitude(amplitude)
     }
 
     // ========== SenseVoiceFileAsrEngine.LocalModelLoadUi 实现 ==========

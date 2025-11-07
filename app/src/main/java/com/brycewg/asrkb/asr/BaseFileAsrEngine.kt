@@ -196,6 +196,14 @@ abstract class BaseFileAsrEngine(
             audioManager.startCapture().collect { audioChunk ->
                 if (!running.get()) return@collect
 
+                // 计算并发送音频振幅（用于波形动画）
+                try {
+                    val amplitude = calculateNormalizedAmplitude(audioChunk)
+                    listener.onAmplitude(amplitude)
+                } catch (t: Throwable) {
+                    Log.w(TAG, "Failed to calculate amplitude", t)
+                }
+
                 currentSeg.write(audioChunk)
 
                 // VAD 自动判停：结束录音，推送最后一段

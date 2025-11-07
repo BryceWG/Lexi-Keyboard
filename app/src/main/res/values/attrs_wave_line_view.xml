@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- WaveLineView 自定义属性（来自 dev_docs/WaveLineView/library） -->
+    <declare-styleable name="WaveLineView">
+        <attr name="wlvBackgroundColor" format="color"/>
+        <attr name="wlvLineColor" format="color"/>
+        <attr name="wlvThickLineWidth" format="dimension"/>
+        <attr name="wlvFineLineWidth" format="dimension"/>
+        <attr name="wlvMoveSpeed" format="float"/>
+        <attr name="wlvSamplingSize" format="integer"/>
+        <attr name="wlvSensibility" format="integer"/>
+    </declare-styleable>
+</resources>
+

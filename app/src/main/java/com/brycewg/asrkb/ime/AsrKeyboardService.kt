@@ -119,9 +119,11 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
     private var btnExt2: ImageButton? = null
     private var btnExt3: ImageButton? = null
     private var btnExt4: ImageButton? = null
-    private var btnExtCenter1: TextView? = null  // 改为TextView用于显示状态
+    private var btnExtCenter1: View? = null  // 容器（FrameLayout），包含文字和波形视图
+    private var txtStatusText: TextView? = null  // 状态文字显示
+    private var waveformView: com.brycewg.asrkb.ui.widgets.WaveformView? = null  // 实时波形动画
     private var btnExtCenter2: Button? = null
-    private var txtStatus: TextView? = null  // 已隐藏，状态改用btnExtCenter1显示
+    private var txtStatus: TextView? = null  // 已隐藏，状态改用txtStatusText显示
     private var groupMicStatus: View? = null
     // 记录麦克风按下的原始Y坐标，用于检测上滑手势
     private var micDownRawY: Float = 0f
@@ -412,11 +414,15 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     override fun onStatusMessage(message: String) {
         clearStatusTextStyle()
-        btnExtCenter1?.text = message
+        txtStatusText?.text = message
     }
 
     override fun onVibrate() {
         vibrateTick()
+    }
+
+    override fun onAmplitude(amplitude: Float) {
+        waveformView?.updateAmplitude(amplitude)
     }
 
     override fun onShowClipboardPreview(preview: ClipboardPreview) {
@@ -527,9 +533,16 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         btnExt3 = view.findViewById(R.id.btnExt3)
         btnExt4 = view.findViewById(R.id.btnExt4)
         btnExtCenter1 = view.findViewById(R.id.btnExtCenter1)
+        txtStatusText = view.findViewById(R.id.txtStatusText)
+        waveformView = view.findViewById(R.id.waveformView)
         btnExtCenter2 = view.findViewById(R.id.btnExtCenter2)
         txtStatus = view.findViewById(R.id.txtStatus)
         groupMicStatus = view.findViewById(R.id.groupMicStatus)
+
+        // 为波形视图应用动态颜色（通过 UiColors 统一获取主色）
+        try {
+            waveformView?.setWaveformColor(UiColors.primary(view))
+        } catch (_: Throwable) { }
 
         // 修复麦克风垂直位置
         var micBaseGroupHeight = -1
@@ -756,12 +769,12 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
             }
             if (!prefs.hasAsrKeys()) {
                 clearStatusTextStyle()
-                btnExtCenter1?.text = getString(R.string.hint_need_keys)
+                txtStatusText?.text = getString(R.string.hint_need_keys)
                 return@setOnClickListener
             }
             if (!prefs.hasLlmKeys()) {
                 clearStatusTextStyle()
-                btnExtCenter1?.text = getString(R.string.hint_need_llm_keys)
+                txtStatusText?.text = getString(R.string.hint_need_llm_keys)
                 return@setOnClickListener
             }
             showAiEditPanel()
@@ -898,7 +911,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         }
         btnExtCenter2?.setOnClickListener { v ->
             performKeyHaptic(v)
-            // TODO: 添加具体功能
+            actionHandler.commitText(currentInputConnection, " ")
         }
     }
 
@@ -968,7 +981,12 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiIdle() {
         clearStatusTextStyle()
-        btnExtCenter1?.text = getString(R.string.status_idle)
+        // 显示文字，隐藏波形
+        txtStatusText?.visibility = View.VISIBLE
+        txtStatusText?.text = getString(R.string.status_idle)
+        waveformView?.visibility = View.GONE
+        waveformView?.stop()
+
         btnMic?.isSelected = false
         try { btnMic?.setImageResource(R.drawable.microphone) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (idle)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (idle)", e) }
@@ -977,7 +995,11 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiListening() {
         clearStatusTextStyle()
-        btnExtCenter1?.text = getString(R.string.status_listening)
+        // 隐藏文字，显示波形动画
+        txtStatusText?.visibility = View.GONE
+        waveformView?.visibility = View.VISIBLE
+        waveformView?.start()
+
         btnMic?.isSelected = true
         try { btnMic?.setImageResource(R.drawable.microphone_fill) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (listening)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (listening)", e) }
@@ -985,7 +1007,12 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiProcessing() {
         clearStatusTextStyle()
-        btnExtCenter1?.text = getString(R.string.status_recognizing)
+        // 显示文字，隐藏波形
+        txtStatusText?.visibility = View.VISIBLE
+        txtStatusText?.text = getString(R.string.status_recognizing)
+        waveformView?.visibility = View.GONE
+        waveformView?.stop()
+
         btnMic?.isSelected = false
         try { btnMic?.setImageResource(R.drawable.microphone) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (processing)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (processing)", e) }
@@ -993,7 +1020,12 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiAiProcessing() {
         clearStatusTextStyle()
-        btnExtCenter1?.text = getString(R.string.status_ai_processing)
+        // 显示文字，隐藏波形
+        txtStatusText?.visibility = View.VISIBLE
+        txtStatusText?.text = getString(R.string.status_ai_processing)
+        waveformView?.visibility = View.GONE
+        waveformView?.stop()
+
         btnMic?.isSelected = false
         try { btnMic?.setImageResource(R.drawable.microphone) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (ai processing)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (ai processing)", e) }
@@ -1001,7 +1033,12 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiAiEditListening() {
         clearStatusTextStyle()
-        btnExtCenter1?.text = getString(R.string.status_ai_edit_listening)
+        // AI Edit 录音状态也使用文字显示（避免与普通录音混淆）
+        txtStatusText?.visibility = View.VISIBLE
+        txtStatusText?.text = getString(R.string.status_ai_edit_listening)
+        waveformView?.visibility = View.GONE
+        waveformView?.stop()
+
         btnMic?.isSelected = false
         try { btnMic?.setImageResource(R.drawable.microphone_fill) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (ai edit listening)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line_fill) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (ai edit listening)", e) }
@@ -1009,7 +1046,12 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
 
     private fun updateUiAiEditProcessing() {
         clearStatusTextStyle()
-        btnExtCenter1?.text = getString(R.string.status_ai_editing)
+        // 显示文字，隐藏波形
+        txtStatusText?.visibility = View.VISIBLE
+        txtStatusText?.text = getString(R.string.status_ai_editing)
+        waveformView?.visibility = View.GONE
+        waveformView?.stop()
+
         btnMic?.isSelected = false
         try { btnMic?.setImageResource(R.drawable.microphone) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set mic icon (ai edit processing)", e) }
         try { btnPromptPicker?.setImageResource(R.drawable.pencil_simple_line_fill) } catch (e: Throwable) { android.util.Log.w("AsrKeyboardService", "Failed to set AI edit icon (ai edit processing)", e) }
@@ -1374,7 +1416,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                     ?: com.brycewg.asrkb.asr.findSvModelDir(probeRoot)
                 if (found == null) {
                     clearStatusTextStyle()
-                    btnExtCenter1?.text = getString(R.string.error_sensevoice_model_missing)
+                    txtStatusText?.text = getString(R.string.error_sensevoice_model_missing)
                     return false
                 }
             }
@@ -1390,13 +1432,13 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         val hasKeys = prefs.hasAsrKeys()
         if (!granted) {
             btnMic?.isEnabled = false
-            btnExtCenter1?.text = getString(R.string.hint_need_permission)
+            txtStatusText?.text = getString(R.string.hint_need_permission)
         } else if (!hasKeys) {
             btnMic?.isEnabled = false
-            btnExtCenter1?.text = getString(R.string.hint_need_keys)
+            txtStatusText?.text = getString(R.string.hint_need_keys)
         } else {
             btnMic?.isEnabled = true
-            btnExtCenter1?.text = getString(R.string.status_idle)
+            txtStatusText?.text = getString(R.string.status_idle)
         }
     }
 
@@ -1469,7 +1511,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                 val preset = presets.getOrNull(position) ?: return@setOnMenuItemClickListener false
                 prefs.activePromptId = preset.id
                 clearStatusTextStyle()
-                btnExtCenter1?.text = getString(R.string.switched_preset, preset.title)
+                txtStatusText?.text = getString(R.string.switched_preset, preset.title)
                 true
             }
             popup.show()
@@ -1488,10 +1530,10 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         if (!enabled) return
         if (com.brycewg.asrkb.asr.isLocalAsrPrepared(p)) { localPreloadTriggered = true; return }
 
-        // 信息栏显示“加载中…”，完成后回退状态
+        // 信息栏显示"加载中…"，完成后回退状态
         rootView?.post {
             clearStatusTextStyle()
-            btnExtCenter1?.text = getString(R.string.sv_loading_model)
+            txtStatusText?.text = getString(R.string.sv_loading_model)
         }
         localPreloadTriggered = true
 
@@ -1505,10 +1547,10 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                     val dt = (android.os.SystemClock.uptimeMillis() - t0).coerceAtLeast(0)
                     rootView?.post {
                         clearStatusTextStyle()
-                        btnExtCenter1?.text = getString(R.string.sv_model_ready_with_ms, dt)
+                        txtStatusText?.text = getString(R.string.sv_model_ready_with_ms, dt)
                         rootView?.postDelayed({
                             clearStatusTextStyle()
-                            btnExtCenter1?.text = if (asrManager.isRunning()) getString(R.string.status_listening) else getString(R.string.status_idle)
+                            txtStatusText?.text = if (asrManager.isRunning()) getString(R.string.status_listening) else getString(R.string.status_idle)
                         }, 1200)
                     }
                 },
@@ -1536,7 +1578,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                                 try {
                                     rootView?.post {
                                         clearStatusTextStyle()
-                                        btnExtCenter1?.text = getString(R.string.sc_status_uploaded)
+                                        txtStatusText?.text = getString(R.string.sc_status_uploaded)
                                     }
                                 } catch (_: Throwable) { }
                             }

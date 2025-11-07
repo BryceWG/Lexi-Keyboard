@@ -277,6 +277,14 @@ class VolcStreamAsrEngine(
                 audioManager.startCapture().collect { audioChunk ->
                     if (!isActive || !running.get()) return@collect
 
+                    // 计算并发送音频振幅（用于波形动画）
+                    try {
+                        val amplitude = com.brycewg.asrkb.asr.calculateNormalizedAmplitude(audioChunk)
+                        listener.onAmplitude(amplitude)
+                    } catch (t: Throwable) {
+                        Log.w(TAG, "Failed to calculate amplitude", t)
+                    }
+
                     // VAD 自动判停
                     if (vadDetector?.shouldStop(audioChunk, audioChunk.size) == true) {
                         Log.d(TAG, "Silence detected, stopping recording")

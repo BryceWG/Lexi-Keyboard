@@ -92,8 +92,8 @@
             app:layout_constraintTop_toTopOf="parent"
             android:tint="?attr/colorOnSurfaceVariant" />
 
-        <!-- 中央按钮 - 状态显示区域 -->
-        <TextView
+        <!-- 中央按钮 - 状态显示/波形动画区域 -->
+        <FrameLayout
             android:id="@+id/btnExtCenter1"
             android:layout_width="0dp"
             android:layout_height="40dp"
@@ -105,16 +105,31 @@
             android:focusable="true"
             android:foreground="?attr/selectableItemBackgroundBorderless"
             android:stateListAnimator="@animator/key_button_state_list"
-            android:gravity="center"
-            android:textSize="14sp"
-            android:textColor="?attr/colorOnSurface"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:includeFontPadding="false"
+            android:clipChildren="true"
+            android:clipToPadding="true"
             app:layout_constraintStart_toEndOf="@id/btnExt2"
             app:layout_constraintEnd_toStartOf="@id/btnExt3"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/txtStatusText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnSurface"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:includeFontPadding="false" />
+
+            <com.brycewg.asrkb.ui.widgets.WaveformView
+                android:id="@+id/waveformView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:visibility="gone" />
+        </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -181,6 +181,14 @@ class DashscopeStreamAsrEngine(
         audioManager.startCapture().collect { audioChunk ->
           if (!running.get()) return@collect
 
+          // Calculate and send audio amplitude (for waveform animation)
+          try {
+            val amplitude = com.brycewg.asrkb.asr.calculateNormalizedAmplitude(audioChunk)
+            listener.onAmplitude(amplitude)
+          } catch (t: Throwable) {
+            Log.w(TAG, "Failed to calculate amplitude", t)
+          }
+
           if (vadDetector?.shouldStop(audioChunk, audioChunk.size) == true) {
             Log.d(TAG, "Silence detected, stopping recording")
             try { listener.onStopped() } catch (t: Throwable) { Log.e(TAG, "notify stopped failed", t) }
