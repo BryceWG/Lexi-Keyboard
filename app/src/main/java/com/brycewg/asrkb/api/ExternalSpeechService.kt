@@ -130,11 +130,9 @@ class ExternalSpeechService : Service() {
         var engine: StreamingAsrEngine? = null
 
         fun prepare(): Boolean {
-            val vendor = try {
-                val v = cfg?.vendorId
-                if (v.isNullOrBlank()) prefs.asrVendor else AsrVendor.fromId(v)
-            } catch (t: Throwable) { Log.w(TAG, "vendor parse failed", t); prefs.asrVendor }
-            val streamingPref = cfg?.streamingPreferred ?: true
+            // 完全跟随应用内当前设置：供应商与是否流式均以 Prefs 为准
+            val vendor = prefs.asrVendor
+            val streamingPref = resolveStreamingBySettings(vendor)
             engine = buildEngine(vendor, streamingPref)
             return engine != null
         }
@@ -152,6 +150,19 @@ class ExternalSpeechService : Service() {
         fun cancel() {
             try { engine?.stop() } catch (_: Throwable) {}
             safe { cb.onState(id, STATE_IDLE, "canceled") }
+        }
+
+        private fun resolveStreamingBySettings(vendor: AsrVendor): Boolean {
+            return when (vendor) {
+                AsrVendor.Volc -> prefs.volcStreamingEnabled
+                AsrVendor.DashScope -> prefs.dashStreamingEnabled
+                AsrVendor.Soniox -> prefs.sonioxStreamingEnabled
+                // 本地 sherpa-onnx：Paraformer/Zipformer 仅流式；SenseVoice 仅非流式
+                AsrVendor.Paraformer, AsrVendor.Zipformer -> true
+                AsrVendor.SenseVoice -> false
+                // 其他云厂商（OpenAI/Gemini/Eleven/SiliconFlow）仅非流式
+                AsrVendor.OpenAI, AsrVendor.Gemini, AsrVendor.ElevenLabs, AsrVendor.SiliconFlow -> false
+            }
         }
 
         private fun buildEngine(vendor: AsrVendor, streamingPreferred: Boolean): StreamingAsrEngine? {
