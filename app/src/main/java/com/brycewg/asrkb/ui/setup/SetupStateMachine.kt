@@ -44,9 +44,11 @@ class SetupStateMachine(private val context: Context) {
         currentState = when (val state = currentState) {
             is SetupState.NotStarted -> {
                 // 优化：将“选择输入法”作为最后一步；权限优先
+                val needOptional = hasMissingOptionalPermissions()
                 if (!isOurImeEnabled()) {
                     SetupState.EnablingIme()
-                } else if (!hasAllRequiredPermissions()) {
+                } else if (!hasAllRequiredPermissions() || needOptional) {
+                    // 必需权限或可选权限（如通知权限）缺失，先请求权限
                     SetupState.RequestingPermissions()
                 } else if (!isOurImeCurrent()) {
                     SetupState.SelectingIme()
@@ -59,7 +61,8 @@ class SetupStateMachine(private val context: Context) {
                 if (isOurImeEnabled()) {
                     // 输入法已启用，下一步优先补齐权限，再进行“选择输入法”
                     Log.d(TAG, "IME enabled; prioritizing permissions before selecting IME")
-                    if (!hasAllRequiredPermissions()) {
+                    val needOptional = hasMissingOptionalPermissions()
+                    if (!hasAllRequiredPermissions() || needOptional) {
                         SetupState.RequestingPermissions()
                     } else if (!isOurImeCurrent()) {
                         SetupState.SelectingIme()
@@ -76,7 +79,8 @@ class SetupStateMachine(private val context: Context) {
                 if (isOurImeCurrent()) {
                     // 已选择为当前输入法，进入权限请求阶段
                     Log.d(TAG, "IME selected, moving to RequestingPermissions")
-                    if (!hasAllRequiredPermissions()) {
+                    val needOptional = hasMissingOptionalPermissions()
+                    if (!hasAllRequiredPermissions() || needOptional) {
                         SetupState.RequestingPermissions()
                     } else {
                         SetupState.Completed
@@ -302,6 +306,14 @@ class SetupStateMachine(private val context: Context) {
 
         // Android 13+ 通知权限仅作为增强项，缺失不阻塞核心功能
         return micGranted && overlayGranted && a11yGranted
+    }
+
+    /**
+     * 是否存在缺失的“可选权限”。
+     * 目前仅包含 Android 13+ 的通知权限，用于在一键设置中补询。
+     */
+    private fun hasMissingOptionalPermissions(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission()
     }
 
     private fun hasMicrophonePermission(): Boolean {
