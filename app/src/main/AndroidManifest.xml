@@ -160,7 +160,18 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!-- 外部输入法联动（AIDL）：对外服务（OSS/Pro 通用） -->
+        <service
+            android:name=".api.ExternalSpeechService"
+            android:exported="true"
+            android:permission="com.brycewg.asrkb.EXTERNAL_SPEECH" />
+
     </application>
+
+    <!-- 自定义权限：第三方（如小企鹅）声明后方可绑定服务（normal 级别，便于集成） -->
+    <permission
+        android:name="com.brycewg.asrkb.EXTERNAL_SPEECH"
+        android:protectionLevel="normal" />
 
     <queries>
         <intent>

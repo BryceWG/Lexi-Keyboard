@@ -148,6 +148,8 @@
   <!-- ============================================== -->
   <string name="label_audio_ducking_on_record">録音中のオーディオダッキング</string>
   <string name="label_headset_mic_priority">ヘッドセットマイクを優先（実験的）</string>
+  <!-- 外部IME連携（AIDL） -->
+  <string name="label_external_ime_link_aidl">外部IME連携（AIDL）を許可</string>
   <string name="label_return_prev_ime_on_hide">非表示時に前のIMEに切り替える</string>
   <string name="toast_bt_connect_permission_required">ヘッドセットマイクを使用するにはBluetooth接続権限が必要です</string>
   <string name="toast_bt_connect_permission_denied">Bluetooth接続権限が拒否されました。ヘッドセット優先が無効になりました。</string>

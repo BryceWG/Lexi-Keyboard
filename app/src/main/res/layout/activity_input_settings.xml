@@ -104,6 +104,13 @@
           android:layout_marginTop="8dp"
           android:text="@string/label_headset_mic_priority" />
 
+        <com.google.android.material.materialswitch.MaterialSwitch
+          android:id="@+id/switchExternalImeAidl"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:text="@string/label_external_ime_link_aidl" />
+
         <!-- Pro 注入插槽：输入设置 -->
         <ViewStub
           android:id="@+id/pro_inject_stub_input"

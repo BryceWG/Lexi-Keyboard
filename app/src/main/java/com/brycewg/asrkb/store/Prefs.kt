@@ -103,6 +103,11 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_HEADSET_MIC_PRIORITY_ENABLED, false)
         set(value) = sp.edit { putBoolean(KEY_HEADSET_MIC_PRIORITY_ENABLED, value) }
 
+    // 允许外部输入法（如小企鹅）通过 AIDL 联动，默认关闭
+    var externalAidlEnabled: Boolean
+        get() = sp.getBoolean(KEY_EXTERNAL_AIDL_ENABLED, false)
+        set(value) = sp.edit { putBoolean(KEY_EXTERNAL_AIDL_ENABLED, value) }
+
     // 静音自动判停：开关
     var autoStopOnSilenceEnabled: Boolean
         get() = sp.getBoolean(KEY_AUTO_STOP_ON_SILENCE_ENABLED, false)
@@ -1120,6 +1125,8 @@ class Prefs(context: Context) {
         private const val KEY_ZF_USE_ITN = "zf_use_itn"
         private const val KEY_AI_EDIT_DEFAULT_TO_LAST_ASR = "ai_edit_default_to_last_asr"
         private const val KEY_HEADSET_MIC_PRIORITY_ENABLED = "headset_mic_priority_enabled"
+        // 允许外部输入法联动（AIDL）
+        const val KEY_EXTERNAL_AIDL_ENABLED = "external_aidl_enabled"
         private const val KEY_USAGE_STATS_JSON = "usage_stats"
         // ASR 历史（JSON 数组字符串），用于备份/恢复
         private const val KEY_ASR_HISTORY_JSON = "asr_history"
@@ -1316,6 +1323,8 @@ class Prefs(context: Context) {
         o.put(KEY_FLOATING_WRITE_COMPAT_PACKAGES, floatingWriteCompatPackages)
         o.put(KEY_FLOATING_WRITE_PASTE_ENABLED, floatingWriteTextPasteEnabled)
         o.put(KEY_FLOATING_WRITE_PASTE_PACKAGES, floatingWritePastePackages)
+        // 允许外部输入法联动（AIDL）
+        o.put(KEY_EXTERNAL_AIDL_ENABLED, externalAidlEnabled)
         // SenseVoice（本地 ASR）
         o.put(KEY_SV_MODEL_DIR, svModelDir)
         o.put(KEY_SV_MODEL_VARIANT, svModelVariant)
@@ -1388,6 +1397,8 @@ class Prefs(context: Context) {
             optString(KEY_APP_LANGUAGE_TAG)?.let { appLanguageTag = it }
             optBool(KEY_POSTPROC_ENABLED)?.let { postProcessEnabled = it }
             optBool(KEY_HEADSET_MIC_PRIORITY_ENABLED)?.let { headsetMicPriorityEnabled = it }
+            // 外部输入法联动（AIDL）
+            optBool(KEY_EXTERNAL_AIDL_ENABLED)?.let { externalAidlEnabled = it }
             optBool(KEY_FLOATING_SWITCHER_ENABLED)?.let { floatingSwitcherEnabled = it }
             optFloat(KEY_FLOATING_SWITCHER_ALPHA)?.let { floatingSwitcherAlpha = it.coerceIn(0.2f, 1.0f) }
             optInt(KEY_FLOATING_BALL_SIZE_DP)?.let { floatingBallSizeDp = it.coerceIn(28, 96) }

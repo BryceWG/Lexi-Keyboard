@@ -147,6 +147,8 @@
   <!-- ============================================== -->
   <string name="label_audio_ducking_on_record">录音时音频避让</string>
   <string name="label_headset_mic_priority">优先尝试使用耳机的麦克风(实验性)</string>
+  <!-- 外部输入法联动（AIDL） -->
+  <string name="label_external_ime_link_aidl">允许外部输入法联动（AIDL）</string>
   <string name="label_return_prev_ime_on_hide">键盘收起后切回上一个输入法</string>
   <string name="toast_bt_connect_permission_required">需要蓝牙连接权限以使用耳机麦克风</string>
   <string name="toast_bt_connect_permission_denied">已拒绝蓝牙连接权限，将停用耳机麦克风优先</string>

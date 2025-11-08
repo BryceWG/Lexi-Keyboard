@@ -49,6 +49,7 @@ class InputSettingsActivity : AppCompatActivity() {
         val switchHideRecentTasks = findViewById<MaterialSwitch>(R.id.switchHideRecentTasks)
         val switchDuckMediaOnRecord = findViewById<MaterialSwitch>(R.id.switchDuckMediaOnRecord)
         val switchHeadsetMicPriority = findViewById<MaterialSwitch>(R.id.switchHeadsetMicPriority)
+        val switchExternalImeAidl = findViewById<MaterialSwitch>(R.id.switchExternalImeAidl)
         val tvKeyboardHeight = findViewById<TextView>(R.id.tvKeyboardHeightValue)
         val tvLanguage = findViewById<TextView>(R.id.tvLanguageValue)
         val sliderBottomPadding = findViewById<com.google.android.material.slider.Slider>(R.id.sliderBottomPadding)
@@ -64,6 +65,7 @@ class InputSettingsActivity : AppCompatActivity() {
             switchHideRecentTasks.isChecked = prefs.hideRecentTaskCard
             switchDuckMediaOnRecord.isChecked = prefs.duckMediaOnRecordEnabled
             switchHeadsetMicPriority.isChecked = prefs.headsetMicPriorityEnabled
+            switchExternalImeAidl.isChecked = prefs.externalAidlEnabled
             switchMicSwipeUpAutoEnter.isChecked = prefs.micSwipeUpAutoEnterEnabled
             switchAutoStartRecordingOnShow.isChecked = prefs.autoStartRecordingOnShow
         }
@@ -93,6 +95,10 @@ class InputSettingsActivity : AppCompatActivity() {
             } catch (e: Throwable) {
                 Log.w(TAG, "Failed to perform haptic feedback for mic haptic switch", e)
             }
+        }
+        switchExternalImeAidl.setOnCheckedChangeListener { btn, isChecked ->
+            hapticTapIfEnabled(btn)
+            prefs.externalAidlEnabled = isChecked
         }
         switchMicTapToggle.setOnCheckedChangeListener { btn, isChecked ->
             hapticTapIfEnabled(btn)

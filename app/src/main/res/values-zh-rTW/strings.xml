@@ -147,6 +147,8 @@
   <!-- ============================================== -->
   <string name="label_audio_ducking_on_record">錄音時音訊避讓</string>
   <string name="label_headset_mic_priority">優先嘗試使用耳機的麥克風（實驗性）</string>
+  <!-- 外部輸入法聯動（AIDL） -->
+  <string name="label_external_ime_link_aidl">允許外部輸入法聯動（AIDL）</string>
   <string name="label_return_prev_ime_on_hide">鍵盤收起後切回上一個輸入法</string>
   <string name="toast_bt_connect_permission_required">需要藍牙連線權限以使用耳機麥克風</string>
   <string name="toast_bt_connect_permission_denied">已拒絕藍牙連線權限，將停用耳機麥克風優先</string>

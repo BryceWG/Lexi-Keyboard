@@ -12,7 +12,7 @@ android {
         applicationId = "com.brycewg.asrkb"
         minSdk =29
         targetSdk = 35
-        versionCode = 99
+        versionCode = 100
         versionName = "3.6.1"
 
         // 仅打包 arm64-v8a 以控制体积；可按需扩展
@@ -89,6 +89,13 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+    }
+
+    // 显式声明 AIDL 源目录，确保各变体均能解析 AIDL 接口
+    sourceSets {
+        getByName("main") {
+            aidl.srcDirs("src/main/aidl")
+        }
     }
 
     // 由于应用在运行时支持手动切换语言，禁用 App Bundle 的按语言拆分，
