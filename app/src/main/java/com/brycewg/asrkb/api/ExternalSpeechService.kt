@@ -41,8 +41,8 @@ class ExternalSpeechService : Service() {
                     val cbBinder = data.readStrongBinder()
                     val cb = CallbackProxy(cbBinder)
 
-                    // 开关与权限检查：要求同时开启外部联动 + 悬浮球功能
-                    if (!prefs.externalAidlEnabled || !prefs.floatingAsrEnabled) {
+                    // 开关与权限检查：仅要求开启外部联动
+                    if (!prefs.externalAidlEnabled) {
                         safe { cb.onError(-1, 403, "feature disabled") }
                         reply?.apply { writeNoException(); writeInt(-3) }
                         return true
