@@ -6,11 +6,13 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.view.ContextThemeWrapper
 import android.graphics.PixelFormat
+import android.os.Build
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.view.WindowInsets
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.core.graphics.toColorInt
@@ -543,9 +545,7 @@ class FloatingBallViewManager(
         try {
             val sx = prefs.floatingBallPosX
             val sy = prefs.floatingBallPosY
-            val dm = context.resources.displayMetrics
-            val screenW = dm.widthPixels
-            val screenH = dm.heightPixels
+            val (screenW, screenH) = getUsableScreenSize()
             val vw = params.width
             val vh = params.height
             if (sx >= 0 && sy >= 0) {
@@ -586,9 +586,7 @@ class FloatingBallViewManager(
 
     private fun calculateSnapTarget(v: View): Pair<Int, Int> {
         val p = lp ?: return 0 to 0
-        val dm = context.resources.displayMetrics
-        val screenW = dm.widthPixels
-        val screenH = dm.heightPixels
+        val (screenW, screenH) = getUsableScreenSize()
         val def = try {
             prefs.floatingBallSizeDp
         } catch (e: Throwable) {
@@ -601,7 +599,7 @@ class FloatingBallViewManager(
         val margin = dp(0)
 
         val bottomSnapThreshold = dp(64)
-        val bottomY = (screenH - vh - margin)
+        val bottomY = (screenH - vh - margin).coerceAtLeast(0)
         val bottomDist = bottomY - p.y
 
         return if (bottomDist <= bottomSnapThreshold) {
@@ -609,7 +607,10 @@ class FloatingBallViewManager(
             val minX = margin
             val maxX = (screenW - vw - margin).coerceAtLeast(minX)
             val targetX = p.x.coerceIn(minX, maxX)
-            targetX to targetY
+            // 再次保护，避免任何计算差异导致越界
+            val safeX = targetX.coerceIn(minX, maxX)
+            val safeY = targetY.coerceIn(0, (screenH - vh - margin).coerceAtLeast(0))
+            safeX to safeY
         } else {
             val centerX = p.x + vw / 2
             val targetX = if (centerX < screenW / 2) margin else (screenW - vw - margin)
@@ -629,14 +630,12 @@ class FloatingBallViewManager(
      */
     private fun detectDockSide(allowChooseNearest: Boolean = false): DockSide {
         val p = lp ?: return DockSide.NONE
-        val dm = context.resources.displayMetrics
-        val screenW = dm.widthPixels
-        val screenH = dm.heightPixels
+        val (screenW, screenH) = getUsableScreenSize()
         val vw = (ballView?.width?.takeIf { it > 0 }) ?: (p.width)
         val vh = (ballView?.height?.takeIf { it > 0 }) ?: (p.height)
         val margin = dp(0)
 
-        val bottomY = (screenH - vh - margin)
+        val bottomY = (screenH - vh - margin).coerceAtLeast(0)
         val bottomDist = bottomY - p.y
         val bottomSnapThreshold = dp(64)
         if (bottomDist <= bottomSnapThreshold || p.y >= bottomY) return DockSide.BOTTOM
@@ -658,9 +657,7 @@ class FloatingBallViewManager(
     /** 左/右侧完全可见位置 */
     private fun fullyVisiblePositionForSide(side: DockSide): Pair<Int, Int> {
         val p = lp ?: return 0 to 0
-        val dm = context.resources.displayMetrics
-        val screenW = dm.widthPixels
-        val screenH = dm.heightPixels
+        val (screenW, screenH) = getUsableScreenSize()
         val vw = (ballView?.width?.takeIf { it > 0 }) ?: (p.width)
         val vh = (ballView?.height?.takeIf { it > 0 }) ?: (p.height)
         val margin = dp(0)
@@ -678,9 +675,7 @@ class FloatingBallViewManager(
     /** 左/右侧半隐位置（仅显示一定比例的宽度） */
     private fun partiallyHiddenPositionForSide(side: DockSide): Pair<Int, Int> {
         val p = lp ?: return 0 to 0
-        val dm = context.resources.displayMetrics
-        val screenW = dm.widthPixels
-        val screenH = dm.heightPixels
+        val (screenW, screenH) = getUsableScreenSize()
         val vw = (ballView?.width?.takeIf { it > 0 }) ?: (p.width)
         val vh = (ballView?.height?.takeIf { it > 0 }) ?: (p.height)
         val margin = dp(0)
@@ -695,6 +690,32 @@ class FloatingBallViewManager(
         val maxY = (screenH - vh - margin).coerceAtLeast(minY)
         val y = p.y.coerceIn(minY, maxY)
         return x to y
+    }
+
+    /**
+     * 获取可用的屏幕宽高（排除系统状态栏/导航栏/切口），用于限制悬浮球不被放置到不可见区域。
+     * 说明：横向半隐依赖 FLAG_LAYOUT_NO_LIMITS，仅在 X 轴允许越界；Y 轴一律限制在可见范围内。
+     */
+    private fun getUsableScreenSize(): Pair<Int, Int> {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val metrics = windowManager.currentWindowMetrics
+                val bounds = metrics.bounds
+                val insets = metrics.windowInsets.getInsetsIgnoringVisibility(
+                    WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout()
+                )
+                val w = (bounds.width() - insets.left - insets.right).coerceAtLeast(0)
+                val h = (bounds.height() - insets.top - insets.bottom).coerceAtLeast(0)
+                w to h
+            } else {
+                val dm = context.resources.displayMetrics
+                dm.widthPixels to dm.heightPixels
+            }
+        } catch (e: Throwable) {
+            Log.w(TAG, "Failed to get usable screen size, fallback to displayMetrics", e)
+            val dm = context.resources.displayMetrics
+            dm.widthPixels to dm.heightPixels
+        }
     }
 
     private fun persistBallPosition() {

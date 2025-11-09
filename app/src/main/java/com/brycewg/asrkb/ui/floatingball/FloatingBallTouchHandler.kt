@@ -9,6 +9,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.WindowManager
+import android.view.WindowInsets
+import android.os.Build
 import com.brycewg.asrkb.store.Prefs
 
 /**
@@ -164,9 +166,7 @@ class FloatingBallTouchHandler(
         }
 
         // 拖动中：更新位置
-        val dm = context.resources.displayMetrics
-        val screenW = dm.widthPixels
-        val screenH = dm.heightPixels
+        val (screenW, screenH) = getUsableScreenSize()
         val root = viewManager.getBallView() ?: v
         val vw = if (root.width > 0) root.width else lp.width
         val vh = if (root.height > 0) root.height else lp.height
@@ -241,5 +241,30 @@ class FloatingBallTouchHandler(
     private fun dp(v: Int): Int {
         val d = context.resources.displayMetrics.density
         return (v * d + 0.5f).toInt()
+    }
+
+    /**
+     * 与 ViewManager 保持一致：获取可用屏幕宽高，排除系统栏/切口区域，避免 Y 轴越界。
+     */
+    private fun getUsableScreenSize(): Pair<Int, Int> {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val metrics = windowManager.currentWindowMetrics
+                val bounds = metrics.bounds
+                val insets = metrics.windowInsets.getInsetsIgnoringVisibility(
+                    WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout()
+                )
+                val w = (bounds.width() - insets.left - insets.right).coerceAtLeast(0)
+                val h = (bounds.height() - insets.top - insets.bottom).coerceAtLeast(0)
+                w to h
+            } else {
+                val dm = context.resources.displayMetrics
+                dm.widthPixels to dm.heightPixels
+            }
+        } catch (e: Throwable) {
+            android.util.Log.w(TAG, "Failed to get usable screen size, fallback to displayMetrics", e)
+            val dm = context.resources.displayMetrics
+            dm.widthPixels to dm.heightPixels
+        }
     }
 }
