@@ -1,10 +1,10 @@
 {
-  "version": "3.6.3",
-  "version_code": 102,
-  "download_url": "https://github.com/BryceWG/LexiSharp-Keyboard/releases/tag/v3.6.3",
-  "release_notes": "本次更新包含 7 个提交:\n- fix(ime): 修复键盘缩放时麦克风位置偏移和底部裁剪问题\n- refactor(ime): 移除冗余的异常捕获并优化代码结构\n- fix(ime): 修复AI编辑面板的麦克风交互\n- fix(asr): 修复阿里云百炼流式语音识别停止时的资源竞争问题\n- refactor(manifest): 移除外部语音服务权限声明\n- feat(setup): 在一键设置流程中添加通知权限检查\n- fix(version): 更新重要通知以支持小企鹅输入法的语音识别能力",
+  "version": "3.6.4",
+  "version_code": 103,
+  "download_url": "https://github.com/BryceWG/LexiSharp-Keyboard/releases/tag/v3.6.4",
+  "release_notes": "本次更新包含 7 个提交:\n- feat(ime): 重构标点按钮布局并添加供应商切换功能\n- feat(ime): 支持三级撤销功能\n- feat(ui): 新增悬浮球位置重置功能\n- fix(setup): 移除外部语音服务对无障碍权限的依赖\n- feat(api): 新增外部语音服务 PCM 推送模式支持\n- fix(api): 移除外部语音服务对悬浮球功能的依赖\n- fix(ui): 优化软键盘弹出时的界面适配",
   "important_notice": "本次更新支持了从小企鹅输入法调用言犀的语音识别能力。使用方式：\n1. 下载修改版的Fcitx(0.1.2beta3)：https://github.com/BryceWG/fcitx5-android-lexi-keyboard/releases，需要卸载之前的Fcitx，注意数据备份\n 2. 打开Fcitx设置-虚拟键盘-空格键长按行为-语音输入（AIDL）\n 3. 在Lexi Keyboard设置(3.6.2以上)-输入设置-允许外部输入法联动（AIDL），新版无需启用悬浮球和无障碍功能\n 4. 在小企鹅输入法面板，长按空格键即可语音输入",
   "notice_level": "info",
   "min_supported_version": "2.6.5",
-  "update_time": "2025-11-08T14:39:58Z"
+  "update_time": "2025-11-09T08:52:13Z"
 }
