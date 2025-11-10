@@ -314,7 +314,10 @@ class ExternalSpeechService : Service() {
             return when (vendor) {
                 // 火山引擎：该流式就流式，该非流式就非流式
                 AsrVendor.Volc -> if (streamingPreferred) {
-                    com.brycewg.asrkb.asr.VolcStreamAsrEngine(context, scope, prefs, this, externalPcmMode = true)
+                    // Pro: 走双重识别（推送PCM版本）；OSS: 回落到原始流式（externalPcmMode=true）
+                    com.brycewg.asrkb.asr.ProAsrHelper.createVolcStreamingEngineForPushPcm(
+                        context, scope, prefs, this
+                    )
                 } else {
                     com.brycewg.asrkb.asr.GenericPushFileAsrAdapter(
                         context, scope, prefs, this,

@@ -34,4 +34,16 @@ object ProAsrHelper {
     ): StreamingAsrEngine {
         return VolcStreamAsrEngine(context, scope, prefs, listener)
     }
+
+    /**
+     * 推送PCM版本（OSS：直接回落到原始流式 externalPcmMode=true）。
+     */
+    fun createVolcStreamingEngineForPushPcm(
+        context: Context,
+        scope: kotlinx.coroutines.CoroutineScope,
+        prefs: com.brycewg.asrkb.store.Prefs,
+        listener: StreamingAsrEngine.Listener
+    ): StreamingAsrEngine {
+        return VolcStreamAsrEngine(context, scope, prefs, listener, externalPcmMode = true)
+    }
 }
