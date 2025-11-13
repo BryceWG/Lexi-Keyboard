@@ -7,6 +7,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.HapticFeedbackConstants
 import android.view.View
+import android.view.MotionEvent
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
@@ -192,15 +193,22 @@ class AsrSettingsActivity : AppCompatActivity() {
         sliderSilenceWindow.value = prefs.autoStopSilenceWindowMs.toFloat()
         sliderSilenceSensitivity.value = prefs.autoStopSilenceSensitivity.toFloat()
 
-        // Switch listener
-        switchAutoStopSilence.setOnCheckedChangeListener { btn, isChecked ->
-            hapticTapIfEnabled(btn)
-            viewModel.updateAutoStopSilence(isChecked)
-            // 若开启，则立即预加载全局 VAD，避免下次录音首次加载
-            if (isChecked) {
-                try { VadDetector.preload(applicationContext, 16000, prefs.autoStopSilenceSensitivity) } catch (_: Throwable) { }
+        // Switch listener with explainer dialog
+        installExplainedSwitch(
+            switch = switchAutoStopSilence,
+            titleRes = R.string.label_auto_stop_silence,
+            offDescRes = R.string.feature_auto_stop_silence_off_desc,
+            onDescRes = R.string.feature_auto_stop_silence_on_desc,
+            preferenceKey = "auto_stop_silence_explained",
+            readPref = { prefs.autoStopOnSilenceEnabled },
+            writePref = { v -> viewModel.updateAutoStopSilence(v) },
+            onChanged = { enabled ->
+                // 若开启，则立即预加载全局 VAD，避免下次录音首次加载
+                if (enabled) {
+                    try { VadDetector.preload(applicationContext, 16000, prefs.autoStopSilenceSensitivity) } catch (_: Throwable) { }
+                }
             }
-        }
+        )
 
         // Sliders
         setupSlider(sliderSilenceWindow) { value ->
@@ -256,61 +264,93 @@ class AsrSettingsActivity : AppCompatActivity() {
             bindString { prefs.accessKey = it }
         }
 
-        // Switches
+        // Switches with explainer dialogs
         findViewById<MaterialSwitch>(R.id.switchVolcStreaming).apply {
             isChecked = prefs.volcStreamingEnabled
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateVolcStreaming(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_volc_streaming,
+                offDescRes = R.string.feature_volc_streaming_off_desc,
+                onDescRes = R.string.feature_volc_streaming_on_desc,
+                preferenceKey = "volc_streaming_explained",
+                readPref = { prefs.volcStreamingEnabled },
+                writePref = { v -> viewModel.updateVolcStreaming(v) }
+            )
         }
 
         findViewById<MaterialSwitch>(R.id.switchVolcBidiStreaming).apply {
             isChecked = prefs.volcBidiStreamingEnabled
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateVolcBidiStreaming(isChecked)
-                // 若关闭双向流式，自动关闭并隐藏“二遍识别”
-                if (!isChecked) {
-                    try {
-                        findViewById<MaterialSwitch>(R.id.switchVolcNonstream).isChecked = false
-                    } catch (e: Throwable) {
-                        android.util.Log.e(TAG, "Failed to turn off two-pass switch when bidi disabled", e)
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_volc_bidi_streaming,
+                offDescRes = R.string.feature_volc_bidi_streaming_off_desc,
+                onDescRes = R.string.feature_volc_bidi_streaming_on_desc,
+                preferenceKey = "volc_bidi_streaming_explained",
+                readPref = { prefs.volcBidiStreamingEnabled },
+                writePref = { v -> viewModel.updateVolcBidiStreaming(v) },
+                onChanged = { enabled ->
+                    // 若关闭双向流式，自动关闭并隐藏"二遍识别"
+                    if (!enabled) {
+                        try {
+                            findViewById<MaterialSwitch>(R.id.switchVolcNonstream).isChecked = false
+                        } catch (e: Throwable) {
+                            android.util.Log.e(TAG, "Failed to turn off two-pass switch when bidi disabled", e)
+                        }
                     }
                 }
-            }
+            )
         }
 
         findViewById<MaterialSwitch>(R.id.switchVolcDdc).apply {
             isChecked = prefs.volcDdcEnabled
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateVolcDdc(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_volc_ddc,
+                offDescRes = R.string.feature_volc_ddc_off_desc,
+                onDescRes = R.string.feature_volc_ddc_on_desc,
+                preferenceKey = "volc_ddc_explained",
+                readPref = { prefs.volcDdcEnabled },
+                writePref = { v -> viewModel.updateVolcDdc(v) }
+            )
         }
 
         findViewById<MaterialSwitch>(R.id.switchVolcVad).apply {
             isChecked = prefs.volcVadEnabled
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateVolcVad(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_volc_vad,
+                offDescRes = R.string.feature_volc_vad_off_desc,
+                onDescRes = R.string.feature_volc_vad_on_desc,
+                preferenceKey = "volc_vad_explained",
+                readPref = { prefs.volcVadEnabled },
+                writePref = { v -> viewModel.updateVolcVad(v) }
+            )
         }
 
         findViewById<MaterialSwitch>(R.id.switchVolcNonstream).apply {
             isChecked = prefs.volcNonstreamEnabled
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateVolcNonstream(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_volc_nonstream,
+                offDescRes = R.string.feature_volc_nonstream_off_desc,
+                onDescRes = R.string.feature_volc_nonstream_on_desc,
+                preferenceKey = "volc_nonstream_explained",
+                readPref = { prefs.volcNonstreamEnabled },
+                writePref = { v -> viewModel.updateVolcNonstream(v) }
+            )
         }
 
         findViewById<MaterialSwitch>(R.id.switchVolcFirstCharAccel).apply {
             isChecked = prefs.volcFirstCharAccelEnabled
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateVolcFirstCharAccel(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_volc_first_char_accel,
+                offDescRes = R.string.feature_volc_first_char_accel_off_desc,
+                onDescRes = R.string.feature_volc_first_char_accel_on_desc,
+                preferenceKey = "volc_first_char_accel_explained",
+                readPref = { prefs.volcFirstCharAccelEnabled },
+                writePref = { v -> viewModel.updateVolcFirstCharAccel(v) }
+            )
         }
 
         // Language selection
@@ -481,10 +521,15 @@ class AsrSettingsActivity : AppCompatActivity() {
 
         findViewById<MaterialSwitch>(R.id.switchOpenAiUsePrompt).apply {
             isChecked = prefs.oaAsrUsePrompt
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateOpenAiUsePrompt(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_openai_use_prompt,
+                offDescRes = R.string.feature_openai_use_prompt_off_desc,
+                onDescRes = R.string.feature_openai_use_prompt_on_desc,
+                preferenceKey = "openai_use_prompt_explained",
+                readPref = { prefs.oaAsrUsePrompt },
+                writePref = { v -> viewModel.updateOpenAiUsePrompt(v) }
+            )
         }
 
         setupOpenAILanguageSelection()
@@ -540,10 +585,15 @@ class AsrSettingsActivity : AppCompatActivity() {
 
         findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchDashStreaming).apply {
             isChecked = prefs.dashStreamingEnabled
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateDashStreaming(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_dash_streaming,
+                offDescRes = R.string.feature_dash_streaming_off_desc,
+                onDescRes = R.string.feature_dash_streaming_on_desc,
+                preferenceKey = "dash_streaming_explained",
+                readPref = { prefs.dashStreamingEnabled },
+                writePref = { v -> viewModel.updateDashStreaming(v) }
+            )
         }
 
         // Key guide link
@@ -623,10 +673,15 @@ class AsrSettingsActivity : AppCompatActivity() {
 
         findViewById<MaterialSwitch>(R.id.switchGeminiDisableThinking).apply {
             isChecked = prefs.geminiDisableThinking
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                prefs.geminiDisableThinking = isChecked
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_gemini_disable_thinking,
+                offDescRes = R.string.feature_gemini_disable_thinking_off_desc,
+                onDescRes = R.string.feature_gemini_disable_thinking_on_desc,
+                preferenceKey = "gemini_disable_thinking_explained",
+                readPref = { prefs.geminiDisableThinking },
+                writePref = { v -> prefs.geminiDisableThinking = v }
+            )
         }
 
         // Key guide link
@@ -644,10 +699,15 @@ class AsrSettingsActivity : AppCompatActivity() {
 
         findViewById<MaterialSwitch>(R.id.switchSonioxStreaming).apply {
             isChecked = prefs.sonioxStreamingEnabled
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateSonioxStreaming(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_soniox_streaming,
+                offDescRes = R.string.feature_soniox_streaming_off_desc,
+                onDescRes = R.string.feature_soniox_streaming_on_desc,
+                preferenceKey = "soniox_streaming_explained",
+                readPref = { prefs.sonioxStreamingEnabled },
+                writePref = { v -> viewModel.updateSonioxStreaming(v) }
+            )
         }
 
         setupSonioxLanguageSelection()
@@ -751,21 +811,31 @@ class AsrSettingsActivity : AppCompatActivity() {
             })
         }
 
-        // Switches
+        // Switches with explainer dialogs
         findViewById<MaterialSwitch>(R.id.switchSvUseItn).apply {
             isChecked = prefs.svUseItn
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateSvUseItn(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_sv_use_itn,
+                offDescRes = R.string.feature_sv_use_itn_off_desc,
+                onDescRes = R.string.feature_sv_use_itn_on_desc,
+                preferenceKey = "sv_use_itn_explained",
+                readPref = { prefs.svUseItn },
+                writePref = { v -> viewModel.updateSvUseItn(v) }
+            )
         }
 
         findViewById<MaterialSwitch>(R.id.switchSvPreload).apply {
             isChecked = prefs.svPreloadEnabled
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateSvPreload(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_sv_preload,
+                offDescRes = R.string.feature_sv_preload_off_desc,
+                onDescRes = R.string.feature_sv_preload_on_desc,
+                preferenceKey = "sv_preload_explained",
+                readPref = { prefs.svPreloadEnabled },
+                writePref = { v -> viewModel.updateSvPreload(v) }
+            )
         }
 
         // Keep alive
@@ -861,19 +931,29 @@ class AsrSettingsActivity : AppCompatActivity() {
         // 首次显示时加载模型
         findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchPfPreload).apply {
             isChecked = prefs.pfPreloadEnabled
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updatePfPreload(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_pf_preload,
+                offDescRes = R.string.feature_pf_preload_off_desc,
+                onDescRes = R.string.feature_pf_preload_on_desc,
+                preferenceKey = "pf_preload_explained",
+                readPref = { prefs.pfPreloadEnabled },
+                writePref = { v -> viewModel.updatePfPreload(v) }
+            )
         }
 
         // ITN 开关
         findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchPfItn).apply {
             isChecked = try { prefs.pfUseItn } catch (_: Throwable) { false }
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updatePfUseItn(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_pf_use_itn,
+                offDescRes = R.string.feature_pf_use_itn_off_desc,
+                onDescRes = R.string.feature_pf_use_itn_on_desc,
+                preferenceKey = "pf_use_itn_explained",
+                readPref = { try { prefs.pfUseItn } catch (_: Throwable) { false } },
+                writePref = { v -> viewModel.updatePfUseItn(v) }
+            )
         }
 
         // 下载/清理
@@ -1076,19 +1156,29 @@ class AsrSettingsActivity : AppCompatActivity() {
         // 首次显示时加载模型
         findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchZfPreload).apply {
             isChecked = prefs.zfPreloadEnabled
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateZfPreload(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_zf_preload,
+                offDescRes = R.string.feature_zf_preload_off_desc,
+                onDescRes = R.string.feature_zf_preload_on_desc,
+                preferenceKey = "zf_preload_explained",
+                readPref = { prefs.zfPreloadEnabled },
+                writePref = { v -> viewModel.updateZfPreload(v) }
+            )
         }
 
         // ITN 开关
         findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchZfItn).apply {
             isChecked = prefs.zfUseItn
-            setOnCheckedChangeListener { btn, isChecked ->
-                hapticTapIfEnabled(btn)
-                viewModel.updateZfUseItn(isChecked)
-            }
+            installExplainedSwitch(
+                switch = this,
+                titleRes = R.string.label_zf_use_itn,
+                offDescRes = R.string.feature_zf_use_itn_off_desc,
+                onDescRes = R.string.feature_zf_use_itn_on_desc,
+                preferenceKey = "zf_use_itn_explained",
+                readPref = { prefs.zfUseItn },
+                writePref = { v -> viewModel.updateZfUseItn(v) }
+            )
         }
 
         setupZfDownloadButtons()
@@ -1617,6 +1707,63 @@ class AsrSettingsActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 为开关安装"说明弹窗 + 拦截"逻辑：
+     * - 首次点击显示说明弹窗，由弹窗确认决定是否切换
+     * - 勾选"不再提醒"后，后续点击直接切换
+     * - 过程中不出现"先切换再撤回"的闪烁
+     */
+    private fun installExplainedSwitch(
+        switch: MaterialSwitch,
+        titleRes: Int,
+        offDescRes: Int,
+        onDescRes: Int,
+        preferenceKey: String,
+        readPref: () -> Boolean,
+        writePref: (Boolean) -> Unit,
+        onChanged: ((Boolean) -> Unit)? = null,
+        preCheck: ((Boolean) -> Boolean)? = null,
+    ) {
+        // 通过触摸事件拦截系统默认切换，改为由弹窗控制
+        switch.setOnTouchListener { v, event ->
+            if (event?.action == MotionEvent.ACTION_UP) {
+                v?.isPressed = false
+                v?.cancelPendingInputEvents()
+                hapticTapIfEnabled(v)
+
+                val current = readPref()
+                val target = !current
+
+                com.brycewg.asrkb.ui.FeatureExplainerDialog.Builder(this)
+                    .setTitle(titleRes)
+                    .setOffDescription(offDescRes)
+                    .setOnDescription(onDescRes)
+                    .setCurrentState(current)
+                    .setPreferenceKey(preferenceKey)
+                    .setOnConfirm {
+                        // 额外前置校验（如权限）
+                        if (preCheck != null && !preCheck(target)) {
+                            return@setOnConfirm
+                        }
+
+                        // 真正提交：写入偏好并更新 UI
+                        writePref(target)
+                        switch.isChecked = target
+                        switch.isPressed = false
+                        onChanged?.invoke(target)
+                    }
+                    .setOnCancel {
+                        // 取消时不修改当前状态
+                    }
+                    .showIfNeeded()
+
+                // 消耗事件，阻止系统默认切换造成的闪烁
+                return@setOnTouchListener true
+            }
+            // 其他事件不拦截，交给系统用于按压态等效果
+            false
+        }
+    }
 
     companion object {
         private const val TAG = "AsrSettingsActivity"

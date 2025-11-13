@@ -230,4 +230,76 @@
   <!-- 耳機麥克風優先 -->
   <string name="feature_headset_mic_priority_off_desc">使用裝置內建麥克風進行錄音。</string>
   <string name="feature_headset_mic_priority_on_desc">優先使用耳機麥克風（如果可用）。實驗性功能，需要藍牙權限和取得附近裝置權限。</string>
+
+  <!-- ============================================== -->
+  <!-- ASR 設定 - 功能說明 -->
+  <!-- ============================================== -->
+
+  <!-- 無人說話自動停止錄音 -->
+  <string name="feature_auto_stop_silence_off_desc">錄音會持續到你手動停止。適合錄製較長的語音或者停頓是內容一部分的場景。</string>
+  <string name="feature_auto_stop_silence_on_desc">偵測到指定時長的靜音時自動停止錄音，節省時間和流量。你可以調整靈敏度和視窗時長。</string>
+
+  <!-- 火山引擎 - 串流識別 -->
+  <string name="feature_volc_streaming_off_desc">使用短音訊識別模式。錄音結束後整段處理，可能有延遲但網路占用更少。</string>
+  <string name="feature_volc_streaming_on_desc">使用 WebSocket 串流識別。邊說話邊即時轉寫，反饋更快。需要穩定的網路連線。</string>
+
+  <!-- 火山引擎 - 雙向串流 -->
+  <string name="feature_volc_bidi_streaming_off_desc">使用單向串流。錄音結束後才回傳最終識別結果。</string>
+  <string name="feature_volc_bidi_streaming_on_desc">使用雙向串流。說話時即時顯示中間結果，回應更快。</string>
+
+  <!-- 火山引擎 - 語義順滑 -->
+  <string name="feature_volc_ddc_off_desc">輸出原始識別結果，不做額外處理。</string>
+  <string name="feature_volc_ddc_on_desc">啟用語義順滑，自動最佳化識別結果的表達和格式。實驗性功能。</string>
+
+  <!-- 火山引擎 - VAD 分句 -->
+  <string name="feature_volc_vad_off_desc">整段音訊作為一個句子識別。</string>
+  <string name="feature_volc_vad_on_desc">使用語音活動偵測自動將長語音分成多個句子識別，效果更好。實驗性功能。</string>
+
+  <!-- 火山引擎 - 二遍識別 -->
+  <string name="feature_volc_nonstream_off_desc">僅使用串流識別結果。</string>
+  <string name="feature_volc_nonstream_on_desc">串流識別完成後，再次使用高精度非串流識別，獲得更準確的最終結果。</string>
+
+  <!-- 火山引擎 - 首字快速顯示 -->
+  <string name="feature_volc_first_char_accel_off_desc">等待識別結果穩定後再顯示文字。</string>
+  <string name="feature_volc_first_char_accel_on_desc">優先快速顯示首個字元，降低延遲感。</string>
+
+  <!-- OpenAI - 使用提示詞 -->
+  <string name="feature_openai_use_prompt_off_desc">直接轉寫音訊，不使用引導。</string>
+  <string name="feature_openai_use_prompt_on_desc">使用提示詞引導識別結果，可以提高特定術語或場景的識別準確率。</string>
+
+  <!-- 通義千問 - 串流識別 -->
+  <string name="feature_dash_streaming_off_desc">使用非串流識別。錄音結束後開始處理，可能有延遲。</string>
+  <string name="feature_dash_streaming_on_desc">使用串流識別。邊說話邊即時顯示轉寫結果。</string>
+
+  <!-- Gemini - 停用思考模式 -->
+  <string name="feature_gemini_disable_thinking_off_desc">使用思考模式，可能產生更準確但也可能改寫原意的結果。</string>
+  <string name="feature_gemini_disable_thinking_on_desc">停用思考模式，更快回傳更接近原始音訊的轉寫結果。</string>
+
+  <!-- Soniox - 串流識別 -->
+  <string name="feature_soniox_streaming_off_desc">使用非串流識別。錄音結束後開始處理。</string>
+  <string name="feature_soniox_streaming_on_desc">使用串流識別，邊說話邊即時轉寫。</string>
+
+  <!-- SenseVoice - 使用 ITN -->
+  <string name="feature_sv_use_itn_off_desc">輸出口語化文字，如「一千兩百三十四」。</string>
+  <string name="feature_sv_use_itn_on_desc">使用逆文字歸一化，自動轉換為書面形式，如「1234」。</string>
+
+  <!-- SenseVoice - 預載入模型 -->
+  <string name="feature_sv_preload_off_desc">僅在需要時載入模型，首次使用可能有延遲。</string>
+  <string name="feature_sv_preload_on_desc">鍵盤顯示時預載入模型，減少首次使用延遲。</string>
+
+  <!-- Paraformer - 預載入模型 -->
+  <string name="feature_pf_preload_off_desc">僅在需要時載入模型，首次使用可能有延遲。</string>
+  <string name="feature_pf_preload_on_desc">鍵盤顯示時預載入模型，減少首次使用延遲。</string>
+
+  <!-- Paraformer - 使用 ITN -->
+  <string name="feature_pf_use_itn_off_desc">輸出口語化文字。</string>
+  <string name="feature_pf_use_itn_on_desc">使用逆文字歸一化，自動轉換為書面形式。</string>
+
+  <!-- Zipformer - 預載入模型 -->
+  <string name="feature_zf_preload_off_desc">僅在需要時載入模型，首次使用可能有延遲。</string>
+  <string name="feature_zf_preload_on_desc">鍵盤顯示時預載入模型，減少首次使用延遲。</string>
+
+  <!-- Zipformer - 使用 ITN -->
+  <string name="feature_zf_use_itn_off_desc">輸出口語化文字。</string>
+  <string name="feature_zf_use_itn_on_desc">使用逆文字歸一化，自動轉換為書面形式。</string>
 </resources>
