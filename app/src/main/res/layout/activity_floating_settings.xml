@@ -90,13 +90,6 @@
         android:layout_marginTop="12dp"
         android:text="@string/label_floating_write_compat" />
 
-      <TextView
-          android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="@android:color/darker_gray"
-        android:text="@string/desc_floating_write_compat" />
-
       <com.google.android.material.textfield.TextInputLayout
           android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -122,13 +115,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="@string/label_floating_write_paste" />
-
-      <TextView
-          android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="@android:color/darker_gray"
-        android:text="@string/desc_floating_write_paste" />
 
       <com.google.android.material.textfield.TextInputLayout
           android:layout_width="match_parent"

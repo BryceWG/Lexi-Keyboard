@@ -302,4 +302,24 @@
   <!-- Zipformer - 使用 ITN -->
   <string name="feature_zf_use_itn_off_desc">輸出口語化文字，如「一千兩百三十四」。</string>
   <string name="feature_zf_use_itn_on_desc">使用逆文字歸一化，自動轉換為書面形式，如「1234」。</string>
+
+  <!-- ============================================== -->
+  <!-- AI 後處理設定 - 功能說明 -->
+  <!-- ============================================== -->
+
+  <!-- AI 編輯預設使用上次識別結果 -->
+  <string name="feature_ai_edit_default_use_last_asr_off_desc">AI 編輯將預設針對整個輸入欄位進行操作。</string>
+  <string name="feature_ai_edit_default_use_last_asr_on_desc">AI 編輯將預設操作上次識別結果，方便在語音輸入後快速編輯。</string>
+
+  <!-- ============================================== -->
+  <!-- 其他設定 - 功能說明 -->
+  <!-- ============================================== -->
+
+  <!-- 關閉識別歷史 -->
+  <string name="feature_disable_asr_history_off_desc">識別歷史記錄將被儲存，以便稍後檢視和管理。</string>
+  <string name="feature_disable_asr_history_on_desc">識別歷史記錄將不會被儲存。啟用此選項將清除所有現有歷史。用於保護你的隱私。</string>
+
+  <!-- 關閉資料統計 -->
+  <string name="feature_disable_usage_stats_off_desc">使用統計（總字元數和彙總資料）將被收集以供你參考。</string>
+  <string name="feature_disable_usage_stats_on_desc">使用統計將不會被收集。啟用此選項將清除所有現有統計資料。用於保護你的隱私。</string>
 </resources>

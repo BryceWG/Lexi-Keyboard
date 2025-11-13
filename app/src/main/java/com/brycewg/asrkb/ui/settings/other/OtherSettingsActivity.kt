@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.widget.EditText
 import android.widget.TextView
 import com.google.android.material.button.MaterialButton
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.brycewg.asrkb.R
 import com.brycewg.asrkb.store.Prefs
+import com.brycewg.asrkb.ui.installExplainedSwitch
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
@@ -59,8 +61,6 @@ class OtherSettingsActivity : AppCompatActivity() {
 
     // ========== Privacy Toggles ==========
 
-    private var updatingPrivacySwitches = false
-
     private fun setupPrivacyToggles() {
         val swDisableHistory = findViewById<MaterialSwitch>(R.id.switchDisableAsrHistory)
         val swDisableStats = findViewById<MaterialSwitch>(R.id.switchDisableUsageStats)
@@ -69,66 +69,67 @@ class OtherSettingsActivity : AppCompatActivity() {
         swDisableHistory.isChecked = prefs.disableAsrHistory
         swDisableStats.isChecked = prefs.disableUsageStats
 
-        fun revertSwitch(s: MaterialSwitch, checked: Boolean) {
-            updatingPrivacySwitches = true
-            try {
-                s.isChecked = checked
-            } finally {
-                updatingPrivacySwitches = false
-            }
-        }
+        // 关闭识别历史记录
+        swDisableHistory.installExplainedSwitch(
+            context = this,
+            titleRes = R.string.label_disable_asr_history,
+            offDescRes = R.string.feature_disable_asr_history_off_desc,
+            onDescRes = R.string.feature_disable_asr_history_on_desc,
+            preferenceKey = "disable_asr_history_explained",
+            readPref = { prefs.disableAsrHistory },
+            writePref = { v ->
+                if (v) {
+                    // 开启时需要确认并清空历史
+                    prefs.disableAsrHistory = true
+                } else {
+                    // 关闭时直接更新
+                    prefs.disableAsrHistory = false
+                }
+            },
+            onChanged = { enabled ->
+                if (enabled) {
+                    // 清空历史
+                    try {
+                        com.brycewg.asrkb.store.AsrHistoryStore(this).clearAll()
+                        Toast.makeText(this, R.string.toast_cleared_history, Toast.LENGTH_SHORT).show()
+                    } catch (e: Throwable) {
+                        Log.e(TAG, "Failed to clear ASR history", e)
+                    }
+                }
+            },
+            hapticFeedback = { hapticTapIfEnabled(it) }
+        )
 
-        swDisableHistory.setOnCheckedChangeListener { _, isChecked ->
-            if (updatingPrivacySwitches) return@setOnCheckedChangeListener
-            if (isChecked) {
-                // 弹窗确认并清空历史
-                com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.dialog_disable_asr_history_title)
-                    .setMessage(R.string.dialog_disable_asr_history_message)
-                    .setPositiveButton(R.string.btn_confirm) { _, _ ->
-                        prefs.disableAsrHistory = true
-                        try {
-                            com.brycewg.asrkb.store.AsrHistoryStore(this).clearAll()
-                            Toast.makeText(this, R.string.toast_cleared_history, Toast.LENGTH_SHORT).show()
-                        } catch (e: Throwable) {
-                            android.util.Log.e(TAG, "Failed to clear ASR history", e)
-                        }
+        // 关闭数据统计记录
+        swDisableStats.installExplainedSwitch(
+            context = this,
+            titleRes = R.string.label_disable_usage_stats,
+            offDescRes = R.string.feature_disable_usage_stats_off_desc,
+            onDescRes = R.string.feature_disable_usage_stats_on_desc,
+            preferenceKey = "disable_usage_stats_explained",
+            readPref = { prefs.disableUsageStats },
+            writePref = { v ->
+                if (v) {
+                    // 开启时需要确认并清空统计
+                    prefs.disableUsageStats = true
+                } else {
+                    // 关闭时直接更新
+                    prefs.disableUsageStats = false
+                }
+            },
+            onChanged = { enabled ->
+                if (enabled) {
+                    // 清空统计
+                    try {
+                        prefs.resetUsageStats()
+                        Toast.makeText(this, R.string.toast_cleared_stats, Toast.LENGTH_SHORT).show()
+                    } catch (e: Throwable) {
+                        Log.e(TAG, "Failed to reset usage stats", e)
                     }
-                    .setNegativeButton(R.string.btn_cancel) { _, _ ->
-                        revertSwitch(swDisableHistory, false)
-                    }
-                    .setOnCancelListener { revertSwitch(swDisableHistory, false) }
-                    .show()
-            } else {
-                prefs.disableAsrHistory = false
-            }
-        }
-
-        swDisableStats.setOnCheckedChangeListener { _, isChecked ->
-            if (updatingPrivacySwitches) return@setOnCheckedChangeListener
-            if (isChecked) {
-                // 弹窗确认并清空统计
-                com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.dialog_disable_usage_stats_title)
-                    .setMessage(R.string.dialog_disable_usage_stats_message)
-                    .setPositiveButton(R.string.btn_confirm) { _, _ ->
-                        prefs.disableUsageStats = true
-                        try {
-                            prefs.resetUsageStats()
-                            Toast.makeText(this, R.string.toast_cleared_stats, Toast.LENGTH_SHORT).show()
-                        } catch (e: Throwable) {
-                            android.util.Log.e(TAG, "Failed to reset usage stats", e)
-                        }
-                    }
-                    .setNegativeButton(R.string.btn_cancel) { _, _ ->
-                        revertSwitch(swDisableStats, false)
-                    }
-                    .setOnCancelListener { revertSwitch(swDisableStats, false) }
-                    .show()
-            } else {
-                prefs.disableUsageStats = false
-            }
-        }
+                }
+            },
+            hapticFeedback = { hapticTapIfEnabled(it) }
+        )
     }
 
     // ========== Punctuation Buttons ==========
@@ -439,6 +440,19 @@ class OtherSettingsActivity : AppCompatActivity() {
                 getString(R.string.sc_open_browser_failed),
                 Toast.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    /**
+     * Performs haptic feedback if enabled in preferences
+     */
+    private fun hapticTapIfEnabled(view: View?) {
+        try {
+            if (prefs.micHapticEnabled) {
+                view?.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            }
+        } catch (e: Throwable) {
+            Log.e(TAG, "Failed to perform haptic feedback", e)
         }
     }
 }

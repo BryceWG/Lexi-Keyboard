@@ -37,4 +37,24 @@
     <string name="toast_move_mode_on">已進入移動模式，再次點擊懸浮球退出</string>
     <string name="label_reset_floating_position">重置懸浮球位置</string>
     <string name="toast_floating_position_reset">已重置懸浮球位置</string>
+
+    <!-- ============================================== -->
+    <!-- 懸浮球設定 - 功能說明 -->
+    <!-- ============================================== -->
+
+    <!-- 使用懸浮球進行語音識別 -->
+    <string name="feature_floating_asr_off_desc">懸浮球將不會顯示。語音識別只能透過鍵盤存取。</string>
+    <string name="feature_floating_asr_on_desc">啟用語音識別懸浮球。你可以在任何地方使用語音輸入，即使鍵盤處於隱藏狀態。需要懸浮窗和無障礙權限。</string>
+
+    <!-- 僅在鍵盤顯示時顯示懸浮球 -->
+    <string name="feature_floating_only_when_ime_visible_off_desc">即使鍵盤隱藏，懸浮球仍保持可見。</string>
+    <string name="feature_floating_only_when_ime_visible_on_desc">鍵盤隱藏時懸浮球自動隱藏，鍵盤出現時自動顯示。需要無障礙權限以偵測鍵盤狀態。</string>
+
+    <!-- 懸浮球寫入文字相容性模式 -->
+    <string name="feature_floating_write_compat_off_desc">使用標準無障礙 API 插入文字。適用於大多數應用程式。</string>
+    <string name="feature_floating_write_compat_on_desc">針對目標應用程式，使用「全選+貼上」方法來避免背景預留位置文字污染。可能會暫時使用剪貼簿（盡力恢復）。適用於 Telegram 和抖音等應用程式。</string>
+
+    <!-- 懸浮球識別結果僅寫入剪貼簿 -->
+    <string name="feature_floating_write_paste_off_desc">識別結果透過無障礙 API 直接插入到輸入欄位中。</string>
+    <string name="feature_floating_write_paste_on_desc">針對目標套件名稱，識別結果僅複製到剪貼簿，不自動插入。適用於直接插入無法正常運作的應用程式。</string>
 </resources>

@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.brycewg.asrkb.R
 import com.brycewg.asrkb.store.Prefs
 import com.brycewg.asrkb.ui.floating.FloatingServiceManager
+import com.brycewg.asrkb.ui.installExplainedSwitch
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.slider.Slider
@@ -160,10 +161,30 @@ class FloatingSettingsActivity : AppCompatActivity() {
      */
     private fun setupListeners() {
         // 仅在键盘显示时显示悬浮球
-        switchFloatingOnlyWhenImeVisible.setOnCheckedChangeListener { btn, isChecked ->
-            hapticTapIfEnabled(btn)
-            handleOnlyWhenImeVisibleToggle(isChecked)
-        }
+        switchFloatingOnlyWhenImeVisible.installExplainedSwitch(
+            context = this,
+            titleRes = R.string.label_floating_only_when_ime_visible,
+            offDescRes = R.string.feature_floating_only_when_ime_visible_off_desc,
+            onDescRes = R.string.feature_floating_only_when_ime_visible_on_desc,
+            preferenceKey = "floating_only_when_ime_visible_explained",
+            readPref = { viewModel.onlyWhenImeVisible.value },
+            writePref = { v -> /* handled in onChanged */ },
+            preCheck = { target ->
+                // 检查权限
+                val permissionRequest = viewModel.handleOnlyWhenImeVisibleToggle(this, target, serviceManager)
+                if (permissionRequest == FloatingSettingsViewModel.PermissionRequest.ACCESSIBILITY) {
+                    showAccessibilityPermissionToast()
+                    requestAccessibilityPermission()
+                    false // 阻止切换
+                } else {
+                    true // 权限已授予，允许切换
+                }
+            },
+            onChanged = { enabled ->
+                // 权限检查通过后的额外处理已在 preCheck 中的 handleOnlyWhenImeVisibleToggle 完成
+            },
+            hapticFeedback = { hapticTapIfEnabled(it) }
+        )
 
         // 悬浮窗透明度
         sliderFloatingAlpha.addOnChangeListener { _, value, fromUser ->
@@ -198,22 +219,60 @@ class FloatingSettingsActivity : AppCompatActivity() {
         })
 
         // 语音识别悬浮球开关
-        switchFloatingAsr.setOnCheckedChangeListener { btn, isChecked ->
-            hapticTapIfEnabled(btn)
-            handleAsrToggle(isChecked)
-        }
+        switchFloatingAsr.installExplainedSwitch(
+            context = this,
+            titleRes = R.string.label_floating_asr,
+            offDescRes = R.string.feature_floating_asr_off_desc,
+            onDescRes = R.string.feature_floating_asr_on_desc,
+            preferenceKey = "floating_asr_explained",
+            readPref = { viewModel.asrEnabled.value },
+            writePref = { v -> /* handled in onChanged */ },
+            preCheck = { target ->
+                // 检查权限
+                val permissionRequest = viewModel.handleAsrToggle(this, target, serviceManager)
+                when (permissionRequest) {
+                    FloatingSettingsViewModel.PermissionRequest.OVERLAY -> {
+                        showOverlayPermissionToast()
+                        requestOverlayPermission()
+                        false // 阻止切换
+                    }
+                    FloatingSettingsViewModel.PermissionRequest.ACCESSIBILITY -> {
+                        showAccessibilityPermissionToast()
+                        requestAccessibilityPermission()
+                        false // 阻止切换
+                    }
+                    null -> true // 权限已授予，允许切换
+                }
+            },
+            onChanged = { enabled ->
+                // 权限检查通过后的额外处理已在 preCheck 中的 handleAsrToggle 完成
+            },
+            hapticFeedback = { hapticTapIfEnabled(it) }
+        )
 
         // 悬浮球写入文字兼容性模式
-        switchFloatingWriteCompat.setOnCheckedChangeListener { btn, isChecked ->
-            hapticTapIfEnabled(btn)
-            viewModel.handleWriteCompatToggle(this, isChecked)
-        }
+        switchFloatingWriteCompat.installExplainedSwitch(
+            context = this,
+            titleRes = R.string.label_floating_write_compat,
+            offDescRes = R.string.feature_floating_write_compat_off_desc,
+            onDescRes = R.string.feature_floating_write_compat_on_desc,
+            preferenceKey = "floating_write_compat_explained",
+            readPref = { viewModel.writeCompatEnabled.value },
+            writePref = { v -> viewModel.handleWriteCompatToggle(this, v) },
+            hapticFeedback = { hapticTapIfEnabled(it) }
+        )
 
         // 悬浮球写入文字采取粘贴方案
-        switchFloatingWritePaste.setOnCheckedChangeListener { btn, isChecked ->
-            hapticTapIfEnabled(btn)
-            viewModel.handleWritePasteToggle(this, isChecked)
-        }
+        switchFloatingWritePaste.installExplainedSwitch(
+            context = this,
+            titleRes = R.string.label_floating_write_paste,
+            offDescRes = R.string.feature_floating_write_paste_off_desc,
+            onDescRes = R.string.feature_floating_write_paste_on_desc,
+            preferenceKey = "floating_write_paste_explained",
+            readPref = { viewModel.writePasteEnabled.value },
+            writePref = { v -> viewModel.handleWritePasteToggle(this, v) },
+            hapticFeedback = { hapticTapIfEnabled(it) }
+        )
 
         // 重置悬浮球位置
         btnResetFloatingPos.setOnClickListener { v ->

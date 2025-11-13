@@ -37,4 +37,24 @@
     <string name="toast_move_mode_on">Move mode enabled. Tap the ball to exit.</string>
     <string name="label_reset_floating_position">Reset floating ball position</string>
     <string name="toast_floating_position_reset">Floating ball position reset</string>
+
+    <!-- ============================================== -->
+    <!-- Floating Settings - Feature Explanations -->
+    <!-- ============================================== -->
+
+    <!-- Floating ASR -->
+    <string name="feature_floating_asr_off_desc">The floating ball will not be displayed. Voice recognition can only be accessed through the keyboard.</string>
+    <string name="feature_floating_asr_on_desc">Enables the floating ball for voice recognition. You can use voice input from anywhere, even when the keyboard is hidden. Requires display overlay and accessibility permissions.</string>
+
+    <!-- Floating only when IME visible -->
+    <string name="feature_floating_only_when_ime_visible_off_desc">The floating ball remains visible even when the keyboard is hidden.</string>
+    <string name="feature_floating_only_when_ime_visible_on_desc">The floating ball is automatically hidden when the keyboard is hidden and shown when the keyboard appears. Requires accessibility permission to detect keyboard state.</string>
+
+    <!-- Floating write compatibility mode -->
+    <string name="feature_floating_write_compat_off_desc">Uses standard Accessibility API to insert text. Works for most apps.</string>
+    <string name="feature_floating_write_compat_on_desc">For target apps, uses Select-All + Paste method to avoid background placeholder text contamination. The clipboard may be temporarily used (best-effort restore). Useful for apps like Telegram and Douyin.</string>
+
+    <!-- Floating write paste -->
+    <string name="feature_floating_write_paste_off_desc">Recognition results are inserted directly into the input field via Accessibility API.</string>
+    <string name="feature_floating_write_paste_on_desc">For target packages, recognition results are copied to clipboard only, without automatic insertion. Useful for apps where direct insertion doesn\'t work properly.</string>
 </resources>

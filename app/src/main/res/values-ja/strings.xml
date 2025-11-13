@@ -303,4 +303,24 @@
   <!-- Zipformer - ITNを使用 -->
   <string name="feature_zf_use_itn_off_desc">「千二百三十四」のような音声形式のテキストを出力します。</string>
   <string name="feature_zf_use_itn_on_desc">逆テキスト正規化を使用して、「1234」のような書面形式に自動変換します。</string>
+
+  <!-- ============================================== -->
+  <!-- AI後処理設定 - 機能説明 -->
+  <!-- ============================================== -->
+
+  <!-- AI編集で最後のASR結果をデフォルト使用 -->
+  <string name="feature_ai_edit_default_use_last_asr_off_desc">AI編集はデフォルトで入力フィールド全体を対象とします。</string>
+  <string name="feature_ai_edit_default_use_last_asr_on_desc">AI編集は最後の認識結果をデフォルトで操作し、音声入力後の迅速な編集に便利です。</string>
+
+  <!-- ============================================== -->
+  <!-- その他の設定 - 機能説明 -->
+  <!-- ============================================== -->
+
+  <!-- ASR履歴を無効化 -->
+  <string name="feature_disable_asr_history_off_desc">認識履歴が保存され、後で確認・管理できます。</string>
+  <string name="feature_disable_asr_history_on_desc">認識履歴は保存されません。有効にすると既存の履歴がすべて削除されます。プライバシー保護に使用します。</string>
+
+  <!-- 使用統計を無効化 -->
+  <string name="feature_disable_usage_stats_off_desc">使用統計（総文字数と集計データ）が参考用に収集されます。</string>
+  <string name="feature_disable_usage_stats_on_desc">使用統計は収集されません。有効にすると既存の統計データがすべて削除されます。プライバシー保護に使用します。</string>
 </resources>

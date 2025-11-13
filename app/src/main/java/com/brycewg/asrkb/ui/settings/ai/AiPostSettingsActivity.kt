@@ -3,6 +3,8 @@ package com.brycewg.asrkb.ui.settings.ai
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.HapticFeedbackConstants
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -14,6 +16,7 @@ import com.brycewg.asrkb.R
 import com.brycewg.asrkb.asr.LlmPostProcessor
 import com.brycewg.asrkb.store.Prefs
 import com.brycewg.asrkb.store.PromptPreset
+import com.brycewg.asrkb.ui.installExplainedSwitch
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -103,9 +106,16 @@ class AiPostSettingsActivity : AppCompatActivity() {
         // AI 编辑默认范围开关：使用上次识别结果
         switchAiEditPreferLastAsr = findViewById(R.id.switchAiEditPreferLastAsr)
         switchAiEditPreferLastAsr.isChecked = prefs.aiEditDefaultToLastAsr
-        switchAiEditPreferLastAsr.setOnCheckedChangeListener { _, isChecked ->
-            prefs.aiEditDefaultToLastAsr = isChecked
-        }
+        switchAiEditPreferLastAsr.installExplainedSwitch(
+            context = this,
+            titleRes = R.string.label_ai_edit_default_use_last_asr,
+            offDescRes = R.string.feature_ai_edit_default_use_last_asr_off_desc,
+            onDescRes = R.string.feature_ai_edit_default_use_last_asr_on_desc,
+            preferenceKey = "ai_edit_default_use_last_asr_explained",
+            readPref = { prefs.aiEditDefaultToLastAsr },
+            writePref = { v -> prefs.aiEditDefaultToLastAsr = v },
+            hapticFeedback = { hapticTapIfEnabled(it) }
+        )
 
         // 少于特定字数跳过 AI 后处理
         etSkipAiUnderChars = findViewById(R.id.etSkipAiUnderChars)
@@ -446,6 +456,15 @@ class AiPostSettingsActivity : AppCompatActivity() {
         val currentText = this.text?.toString() ?: ""
         if (currentText != newText) {
             setText(newText)
+        }
+    }
+
+    /**
+     * Performs haptic feedback if enabled in preferences
+     */
+    private fun hapticTapIfEnabled(view: View?) {
+        if (prefs.micHapticEnabled) {
+            view?.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }
 }

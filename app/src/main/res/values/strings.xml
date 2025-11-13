@@ -232,6 +232,26 @@
   <string name="feature_headset_mic_priority_on_desc">Prioritizes the headset microphone when available. Experimental feature, requires Bluetooth permission and nearby devices permission.</string>
 
   <!-- ============================================== -->
+  <!-- AI Post-processing Settings - Feature Explanations -->
+  <!-- ============================================== -->
+
+  <!-- AI edit default use last ASR -->
+  <string name="feature_ai_edit_default_use_last_asr_off_desc">AI edit will target the entire input field by default.</string>
+  <string name="feature_ai_edit_default_use_last_asr_on_desc">AI edit will default to operating on the last recognition result, convenient for quick edits after voice input.</string>
+
+  <!-- ============================================== -->
+  <!-- Other Settings - Feature Explanations -->
+  <!-- ============================================== -->
+
+  <!-- Disable ASR history -->
+  <string name="feature_disable_asr_history_off_desc">Recognition history will be saved for later review and management.</string>
+  <string name="feature_disable_asr_history_on_desc">Recognition history will not be saved. Enabling this will clear all existing history. Use this to protect your privacy.</string>
+
+  <!-- Disable usage statistics -->
+  <string name="feature_disable_usage_stats_off_desc">Usage statistics (total characters and aggregated data) will be collected for your reference.</string>
+  <string name="feature_disable_usage_stats_on_desc">Usage statistics will not be collected. Enabling this will clear all existing statistics. Use this to protect your privacy.</string>
+
+  <!-- ============================================== -->
   <!-- ASR Settings - Feature Explanations -->
   <!-- ============================================== -->
 

@@ -38,4 +38,24 @@
     <string name="toast_move_mode_on">移動モードが有効になりました。ボールをタップして終了します。</string>
     <string name="label_reset_floating_position">フローティングボール位置をリセット</string>
     <string name="toast_floating_position_reset">フローティングボールの位置をリセットしました</string>
+
+    <!-- ============================================== -->
+    <!-- フローティング設定 - 機能説明 -->
+    <!-- ============================================== -->
+
+    <!-- フローティングASR -->
+    <string name="feature_floating_asr_off_desc">フローティングボールは表示されません。音声認識はキーボードからのみアクセスできます。</string>
+    <string name="feature_floating_asr_on_desc">音声認識用のフローティングボールを有効にします。キーボードが非表示の状態でも、どこからでも音声入力を使用できます。表示オーバーレイとアクセシビリティ権限が必要です。</string>
+
+    <!-- キーボード表示時のみフローティングボールを表示 -->
+    <string name="feature_floating_only_when_ime_visible_off_desc">キーボードが非表示でもフローティングボールは表示されたままになります。</string>
+    <string name="feature_floating_only_when_ime_visible_on_desc">キーボードが非表示のときにフローティングボールが自動的に非表示になり、キーボードが表示されると表示されます。キーボードの状態を検出するにはアクセシビリティ権限が必要です。</string>
+
+    <!-- フローティング書き込み互換モード -->
+    <string name="feature_floating_write_compat_off_desc">標準のアクセシビリティAPIを使用してテキストを挿入します。ほとんどのアプリで動作します。</string>
+    <string name="feature_floating_write_compat_on_desc">対象アプリでは、背景プレースホルダーテキストの混入を避けるために「全選択+貼り付け」方式を使用します。クリップボードが一時的に使用される場合があります（最善努力で復元）。TelegramやDouyinなどのアプリに役立ちます。</string>
+
+    <!-- フローティング書き込み貼り付け -->
+    <string name="feature_floating_write_paste_off_desc">認識結果はアクセシビリティAPI経由で入力フィールドに直接挿入されます。</string>
+    <string name="feature_floating_write_paste_on_desc">対象パッケージでは、認識結果はクリップボードにのみコピーされ、自動挿入されません。直接挿入が正しく機能しないアプリに役立ちます。</string>
 </resources>
