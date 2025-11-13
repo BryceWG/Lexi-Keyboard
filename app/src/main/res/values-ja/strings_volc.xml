@@ -32,4 +32,32 @@
     <string name="volc_lang_ms_my">マレー語 (ms-MY)</string>
     <string name="volc_lang_th_th">タイ語 (th-TH)</string>
     <string name="volc_lang_ar_sa">アラビア語 (ar-SA)</string>
+
+    <!-- ============================================== -->
+    <!-- Volcengine設定 - 機能説明 -->
+    <!-- ============================================== -->
+
+    <!-- 火山引擎 - ストリーミング認識 -->
+    <string name="feature_volc_streaming_off_desc">ファイル認識モードを使用します。録音完了後に全体を一度に送信して処理します。ネットワークが不安定な環境に適しています。</string>
+    <string name="feature_volc_streaming_on_desc">WebSocketストリーミング認識を使用します。話しながらリアルタイムで文字起こしを開始し、より速いフィードバックを提供します。安定したネットワーク接続が必要です。</string>
+
+    <!-- 火山引擎 - 双方向ストリーミング -->
+    <string name="feature_volc_bidi_streaming_off_desc">録音中にリアルタイムで音声をアップロードしますが、結果は録音終了後に返されます。ファイルモードより速く、双方向モードよりわずかに精度が高くなります。</string>
+    <string name="feature_volc_bidi_streaming_on_desc">双方向ストリーミングを使用します。話している間に中間結果がリアルタイムで表示され、応答時間が速くなります。</string>
+
+    <!-- 火山引擎 - DDC（意味スムージング） -->
+    <string name="feature_volc_ddc_off_desc">追加処理なしで生の認識結果を出力します。</string>
+    <string name="feature_volc_ddc_on_desc">意味スムージングを有効にして、認識結果の表現と書式設定を自動的に最適化します。実験的機能です。</string>
+
+    <!-- 火山引擎 - VADセグメンテーション -->
+    <string name="feature_volc_vad_off_desc">音声全体が1つの文として認識されます。</string>
+    <string name="feature_volc_vad_on_desc">音声活動検出を使用して、長い音声を自動的に複数の文にセグメント化します。効果は今後の検証が必要です。</string>
+
+    <!-- 火山引擎 - 二重パス認識 -->
+    <string name="feature_volc_nonstream_off_desc">標準的なストリーミング認識精度です。</string>
+    <string name="feature_volc_nonstream_on_desc">ストリーミング認識中にリアルタイムで文字起こし結果を最適化します。</string>
+
+    <!-- 火山引擎 - 最初の文字の高速化 -->
+    <string name="feature_volc_first_char_accel_off_desc">テキストを表示する前に、安定した認識結果を待ちます。</string>
+    <string name="feature_volc_first_char_accel_on_desc">最初の文字を素早く表示することを優先し、知覚される遅延を減らします。</string>
 </resources>

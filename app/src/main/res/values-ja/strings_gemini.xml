@@ -5,4 +5,12 @@
     <string name="label_gemini_model">モデル（例：gemini-2.5-flash）</string>
     <string name="label_gemini_prompt">文字起こしプロンプト</string>
     <string name="label_gemini_disable_thinking">思考を無効化（レイテンシーを削減）</string>
+
+    <!-- ============================================== -->
+    <!-- Gemini設定 - 機能説明 -->
+    <!-- ============================================== -->
+
+    <!-- Gemini - 思考モードを無効化 -->
+    <string name="feature_gemini_disable_thinking_off_desc">思考モードを使用します。より正確な結果が得られる可能性がありますが、言い換えられる可能性もあります。</string>
+    <string name="feature_gemini_disable_thinking_on_desc">思考モードを無効にして、元の音声により近い文字起こしを高速で返します。</string>
 </resources>

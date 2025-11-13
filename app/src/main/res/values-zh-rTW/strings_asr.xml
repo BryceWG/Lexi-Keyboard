@@ -1,4 +1,12 @@
 <resources>
     <string name="hint_need_keys">需要在設定中填寫金鑰以啟用語音輸入</string>
     <string name="error_only_zip_supported">僅支援匯入 .zip 檔案</string>
+
+    <!-- ============================================== -->
+    <!-- ASR 設定 - 功能說明 -->
+    <!-- ============================================== -->
+
+    <!-- 無人說話自動停止錄音 -->
+    <string name="feature_auto_stop_silence_off_desc">錄音會持續到你手動停止。適合錄製較長的語音或者停頓是內容一部分的場景。</string>
+    <string name="feature_auto_stop_silence_on_desc">偵測到指定時長的無人聲時自動停止錄音，節省時間和流量。你可以調整靈敏度和視窗時長。</string>
 </resources>

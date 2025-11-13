@@ -26,4 +26,13 @@
     <string name="dash_lang_ar">阿拉伯语 (ar)</string>
     <string name="dash_lang_it">意大利语 (it)</string>
     <string name="dash_lang_es">西班牙语 (es)</string>
+
+    <!-- ============================================== -->
+    <!-- 通义千问 ASR - 功能说明 -->
+    <!-- Feature Explanations for DashScope ASR -->
+    <!-- ============================================== -->
+
+    <!-- 流式识别 - Streaming recognition -->
+    <string name="feature_dash_streaming_off_desc">使用非流式识别。录音结束后开始处理，可能有延迟。使用Qwen-ASR-Flash模型。</string>
+    <string name="feature_dash_streaming_on_desc">使用流式识别。边说话边实时显示转写结果。使用Fun-ASR模型，效果略差。</string>
 </resources>

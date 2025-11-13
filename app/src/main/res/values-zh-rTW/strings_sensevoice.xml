@@ -53,4 +53,16 @@
     <!-- Model download notifications -->
     <string name="notif_model_title_int8">SenseVoice 模型（Small int8）</string>
     <string name="notif_model_title_full">SenseVoice 模型（Small fp32）</string>
+
+    <!-- ============================================== -->
+    <!-- SenseVoice - 功能說明 -->
+    <!-- ============================================== -->
+
+    <!-- SenseVoice - 使用 ITN -->
+    <string name="feature_sv_use_itn_off_desc">輸出口語化文字，如「一千兩百三十四」。</string>
+    <string name="feature_sv_use_itn_on_desc">使用逆文字歸一化，自動轉換為書面形式，如「1234」。</string>
+
+    <!-- SenseVoice - 預載入模型 -->
+    <string name="feature_sv_preload_off_desc">僅在需要時載入模型，首次使用可能有延遲。</string>
+    <string name="feature_sv_preload_on_desc">鍵盤顯示時預載入模型，減少首次使用延遲。</string>
 </resources>

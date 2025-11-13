@@ -26,4 +26,12 @@
     <string name="soniox_lang_th">泰語 (th)</string>
     <string name="soniox_lang_ms">馬來語 (ms)</string>
     <string name="soniox_lang_fil">菲律賓語 (fil)</string>
+
+    <!-- ============================================== -->
+    <!-- Soniox ASR - 功能說明 -->
+    <!-- ============================================== -->
+
+    <!-- Soniox - 串流識別 -->
+    <string name="feature_soniox_streaming_off_desc">使用非串流識別。錄音結束後開始處理。</string>
+    <string name="feature_soniox_streaming_on_desc">使用串流識別，邊說話邊即時轉寫。</string>
 </resources>

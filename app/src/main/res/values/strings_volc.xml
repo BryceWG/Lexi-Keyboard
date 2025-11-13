@@ -32,4 +32,32 @@
     <string name="volc_lang_ms_my">Malay (ms-MY)</string>
     <string name="volc_lang_th_th">Thai (th-TH)</string>
     <string name="volc_lang_ar_sa">Arabic (ar-SA)</string>
+
+    <!-- ============================================== -->
+    <!-- Volcengine Settings - Feature Descriptions -->
+    <!-- ============================================== -->
+
+    <!-- Volcengine - Streaming -->
+    <string name="feature_volc_streaming_off_desc">Uses file recognition mode. The entire recording is sent at once after completion. Suitable for unstable network conditions.</string>
+    <string name="feature_volc_streaming_on_desc">Uses WebSocket streaming recognition. Transcription starts in real-time as you speak, providing faster feedback. Requires stable network connection.</string>
+
+    <!-- Volcengine - Bidirectional streaming -->
+    <string name="feature_volc_bidi_streaming_off_desc">Audio is uploaded in real-time during recording, but results are returned only after recording ends. Faster than file mode; slightly better accuracy than bidirectional mode.</string>
+    <string name="feature_volc_bidi_streaming_on_desc">Uses bidirectional streaming. Intermediate results are displayed in real-time as you speak, with faster response times.</string>
+
+    <!-- Volcengine - DDC (semantic smoothing) -->
+    <string name="feature_volc_ddc_off_desc">Outputs raw recognition results without additional processing.</string>
+    <string name="feature_volc_ddc_on_desc">Enables semantic smoothing to automatically optimize expression and formatting of recognition results. Experimental feature.</string>
+
+    <!-- Volcengine - VAD segmentation -->
+    <string name="feature_volc_vad_off_desc">The entire audio is treated as one sentence for recognition.</string>
+    <string name="feature_volc_vad_on_desc">Uses Voice Activity Detection to automatically segment long audio into multiple sentences. Effect needs further testing.</string>
+
+    <!-- Volcengine - Two-pass recognition -->
+    <string name="feature_volc_nonstream_off_desc">Standard streaming recognition accuracy.</string>
+    <string name="feature_volc_nonstream_on_desc">Real-time optimization of transcription results during streaming recognition.</string>
+
+    <!-- Volcengine - First character acceleration -->
+    <string name="feature_volc_first_char_accel_off_desc">Waits for stable recognition results before displaying text.</string>
+    <string name="feature_volc_first_char_accel_on_desc">Prioritizes displaying the first character quickly to reduce perceived latency.</string>
 </resources>

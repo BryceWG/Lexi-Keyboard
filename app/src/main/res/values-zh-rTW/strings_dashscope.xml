@@ -26,4 +26,12 @@
     <string name="dash_lang_ar">阿拉伯語 (ar)</string>
     <string name="dash_lang_it">義大利語 (it)</string>
     <string name="dash_lang_es">西班牙語 (es)</string>
+
+    <!-- ============================================== -->
+    <!-- DashScope ASR - 功能說明 -->
+    <!-- ============================================== -->
+
+    <!-- 通義千問 - 串流識別 -->
+    <string name="feature_dash_streaming_off_desc">使用非串流識別。錄音結束後開始處理，可能有延遲。使用Qwen-ASR-Flash模型。</string>
+    <string name="feature_dash_streaming_on_desc">使用串流識別。邊說話邊即時顯示轉寫結果。使用Fun-ASR模型，效果略差。</string>
 </resources>

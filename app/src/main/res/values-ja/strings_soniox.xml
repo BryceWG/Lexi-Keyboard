@@ -26,4 +26,12 @@
     <string name="soniox_lang_th">タイ語（th）</string>
     <string name="soniox_lang_ms">マレー語（ms）</string>
     <string name="soniox_lang_fil">フィリピン語（fil）</string>
+
+    <!-- ============================================== -->
+    <!-- Soniox設定 - 機能説明 -->
+    <!-- ============================================== -->
+
+    <!-- Soniox - ストリーミング -->
+    <string name="feature_soniox_streaming_off_desc">非ストリーミング認識を使用します。録音終了後に処理が開始されます。</string>
+    <string name="feature_soniox_streaming_on_desc">ストリーミング認識を使用して、話しながらリアルタイムで文字起こしを行います。</string>
 </resources>

@@ -1,4 +1,13 @@
 <resources>
     <string name="hint_need_keys">需要在设置中填写密钥以启用语音输入</string>
     <string name="error_only_zip_supported">仅支持导入 .zip 文件</string>
+
+    <!-- ============================================== -->
+    <!-- ASR 设置 - 功能说明 -->
+    <!-- Feature Explanations for ASR Settings -->
+    <!-- ============================================== -->
+
+    <!-- 无人说话自动停止录音 - Auto-stop on silence -->
+    <string name="feature_auto_stop_silence_off_desc">录音会持续到你手动停止。适合录制较长的语音或者停顿是内容的一部分的场景。</string>
+    <string name="feature_auto_stop_silence_on_desc">检测到指定时长的无人声时自动停止录音，节省时间和流量。你可以调整灵敏度和窗口时长。</string>
 </resources>

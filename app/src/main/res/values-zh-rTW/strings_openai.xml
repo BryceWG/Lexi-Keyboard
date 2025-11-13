@@ -7,4 +7,12 @@
     <string name="label_openai_use_prompt">使用自訂 Prompt（部分模型不支援）</string>
     <string name="label_openai_prompt">自訂 Prompt（可選）</string>
     <string name="label_openai_language">識別語言（可選）</string>
+
+    <!-- ============================================== -->
+    <!-- OpenAI ASR - 功能說明 -->
+    <!-- ============================================== -->
+
+    <!-- OpenAI - 使用提示詞 -->
+    <string name="feature_openai_use_prompt_off_desc">直接轉寫音訊，不使用引導。</string>
+    <string name="feature_openai_use_prompt_on_desc">使用提示詞引導識別結果，可以提高特定術語或場景的識別準確率。</string>
 </resources>

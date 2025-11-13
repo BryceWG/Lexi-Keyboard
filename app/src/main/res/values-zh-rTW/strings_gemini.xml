@@ -5,4 +5,12 @@
     <string name="label_gemini_model">模型（如：gemini-2.5-flash）</string>
     <string name="label_gemini_prompt">轉錄提示詞（Prompt）</string>
     <string name="label_gemini_disable_thinking">關閉思考（減少延遲）</string>
+
+    <!-- ============================================== -->
+    <!-- Gemini ASR - 功能說明 -->
+    <!-- ============================================== -->
+
+    <!-- Gemini - 停用思考模式 -->
+    <string name="feature_gemini_disable_thinking_off_desc">使用思考模式，可能產生更準確但也可能改寫原意的結果。</string>
+    <string name="feature_gemini_disable_thinking_on_desc">停用思考模式，更快回傳更接近原始音訊的轉寫結果。</string>
 </resources>

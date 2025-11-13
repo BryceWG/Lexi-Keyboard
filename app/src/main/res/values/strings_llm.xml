@@ -32,4 +32,12 @@
     <string name="label_ai_skip_under_chars">Skip AI post-processing if shorter than</string>
     <string name="helper_ai_skip_under_chars">When effective length (CJK: characters, English: words) is below this number, skip AI post-processing. Set to 0 to disable.</string>
     <string name="title_ai_skip_under">Auto-skip threshold (effective count)</string>
+
+    <!-- ============================================== -->
+    <!-- AI Post-processing Settings - Feature Descriptions -->
+    <!-- ============================================== -->
+
+    <!-- AI edit default use last ASR -->
+    <string name="feature_ai_edit_default_use_last_asr_off_desc">AI edit will target the entire input field by default.</string>
+    <string name="feature_ai_edit_default_use_last_asr_on_desc">AI edit will default to operating on the last recognition result, convenient for quick edits after voice input.</string>
 </resources>

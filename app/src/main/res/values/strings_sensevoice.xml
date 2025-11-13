@@ -53,4 +53,16 @@
     <!-- Model download notifications -->
     <string name="notif_model_title_int8">SenseVoice Model (Small int8)</string>
     <string name="notif_model_title_full">SenseVoice Model (Small fp32)</string>
+
+    <!-- ============================================== -->
+    <!-- SenseVoice Settings - Feature Descriptions -->
+    <!-- ============================================== -->
+
+    <!-- SenseVoice - Use ITN -->
+    <string name="feature_sv_use_itn_off_desc">Outputs spoken-form text, such as \"one thousand two hundred thirty-four\".</string>
+    <string name="feature_sv_use_itn_on_desc">Uses Inverse Text Normalization to automatically convert to written form, such as \"1234\".</string>
+
+    <!-- SenseVoice - Preload model -->
+    <string name="feature_sv_preload_off_desc">Loads the model only when needed, which may cause delay on first use.</string>
+    <string name="feature_sv_preload_on_desc">Preloads the model when the keyboard appears to reduce first-use latency.</string>
 </resources>

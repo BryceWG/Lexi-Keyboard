@@ -44,4 +44,16 @@
     <string name="notif_zf_title_zh">Zipformer Chinese</string>
     <string name="notif_zf_title_bi">Zipformer Zh+En</string>
     <string name="notif_zf_title_small_bi">Zipformer Small Zh+En</string>
+
+    <!-- ============================================== -->
+    <!-- Zipformer Settings - Feature Descriptions -->
+    <!-- ============================================== -->
+
+    <!-- Zipformer - Preload model -->
+    <string name="feature_zf_preload_off_desc">Loads the model only when needed, which may cause delay on first use.</string>
+    <string name="feature_zf_preload_on_desc">Preloads the model when the keyboard appears to reduce first-use latency.</string>
+
+    <!-- Zipformer - Use ITN -->
+    <string name="feature_zf_use_itn_off_desc">Outputs spoken-form text, such as \"one thousand two hundred thirty-four\".</string>
+    <string name="feature_zf_use_itn_on_desc">Uses Inverse Text Normalization to automatically convert to written form, such as \"1234\".</string>
 </resources>

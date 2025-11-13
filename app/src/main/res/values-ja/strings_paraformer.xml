@@ -36,4 +36,16 @@
     <!-- Model download notifications -->
     <string name="notif_pf_title_bilingual">Paraformer モデル（中英）</string>
     <string name="notif_pf_title_trilingual">Paraformer モデル（中英+広東語）</string>
+
+    <!-- ============================================== -->
+    <!-- Paraformer設定 - 機能説明 -->
+    <!-- ============================================== -->
+
+    <!-- Paraformer - モデルの事前読み込み -->
+    <string name="feature_pf_preload_off_desc">必要なときにのみモデルを読み込むため、初回使用時に遅延が発生する可能性があります。</string>
+    <string name="feature_pf_preload_on_desc">キーボードが表示されたときにモデルを事前読み込みし、初回使用の遅延を減らします。</string>
+
+    <!-- Paraformer - ITNを使用 -->
+    <string name="feature_pf_use_itn_off_desc">「千二百三十四」のような音声形式のテキストを出力します。</string>
+    <string name="feature_pf_use_itn_on_desc">逆テキスト正規化を使用して、「1234」のような書面形式に自動変換します。</string>
 </resources>

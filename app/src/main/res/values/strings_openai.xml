@@ -7,4 +7,12 @@
     <string name="label_openai_use_prompt">Use custom prompt (some models unsupported)</string>
     <string name="label_openai_prompt">Custom prompt (optional)</string>
     <string name="label_openai_language">Language (optional)</string>
+
+    <!-- ============================================== -->
+    <!-- OpenAI Settings - Feature Descriptions -->
+    <!-- ============================================== -->
+
+    <!-- OpenAI - Use prompt -->
+    <string name="feature_openai_use_prompt_off_desc">Transcribes audio directly without guidance.</string>
+    <string name="feature_openai_use_prompt_on_desc">Uses a prompt to guide the recognition results, which can improve accuracy for specific terminology or contexts.</string>
 </resources>

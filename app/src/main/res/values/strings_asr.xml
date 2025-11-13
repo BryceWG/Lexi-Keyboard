@@ -1,4 +1,12 @@
 <resources>
     <string name="hint_need_keys">Fill in keys in Settings to enable voice input</string>
     <string name="error_only_zip_supported">Only .zip files are supported</string>
+
+    <!-- ============================================== -->
+    <!-- ASR Settings - Feature Descriptions -->
+    <!-- ============================================== -->
+
+    <!-- Auto stop on silence -->
+    <string name="feature_auto_stop_silence_off_desc">Recording continues until you manually stop it. Useful for capturing longer speech or when pauses are part of your content.</string>
+    <string name="feature_auto_stop_silence_on_desc">Automatically stops recording when no voice is detected for a specified duration, saving time and bandwidth. You can adjust the sensitivity and window settings.</string>
 </resources>

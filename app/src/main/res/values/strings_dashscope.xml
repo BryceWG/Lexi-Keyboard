@@ -26,4 +26,12 @@
     <string name="dash_lang_ar">Arabic (ar)</string>
     <string name="dash_lang_it">Italian (it)</string>
     <string name="dash_lang_es">Spanish (es)</string>
+
+    <!-- ============================================== -->
+    <!-- DashScope Settings - Feature Descriptions -->
+    <!-- ============================================== -->
+
+    <!-- DashScope - Streaming -->
+    <string name="feature_dash_streaming_off_desc">Uses non-streaming recognition. Processing starts after recording ends, which may cause delays. Uses Qwen-ASR-Flash model.</string>
+    <string name="feature_dash_streaming_on_desc">Uses streaming recognition. Transcription results are displayed in real-time as you speak. Uses Fun-ASR model, slightly lower accuracy.</string>
 </resources>

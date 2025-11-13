@@ -7,4 +7,12 @@
     <string name="label_openai_use_prompt">カスタムプロンプトを使用（一部のモデルでは非対応）</string>
     <string name="label_openai_prompt">カスタムプロンプト（オプション）</string>
     <string name="label_openai_language">言語（オプション）</string>
+
+    <!-- ============================================== -->
+    <!-- OpenAI設定 - 機能説明 -->
+    <!-- ============================================== -->
+
+    <!-- OpenAI - プロンプトを使用 -->
+    <string name="feature_openai_use_prompt_off_desc">ガイダンスなしで音声を直接文字起こしします。</string>
+    <string name="feature_openai_use_prompt_on_desc">プロンプトを使用して認識結果をガイドし、特定の用語やコンテキストの精度を向上させることができます。</string>
 </resources>

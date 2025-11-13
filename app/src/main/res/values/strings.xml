@@ -232,14 +232,6 @@
   <string name="feature_headset_mic_priority_on_desc">Prioritizes the headset microphone when available. Experimental feature, requires Bluetooth permission and nearby devices permission.</string>
 
   <!-- ============================================== -->
-  <!-- AI Post-processing Settings - Feature Explanations -->
-  <!-- ============================================== -->
-
-  <!-- AI edit default use last ASR -->
-  <string name="feature_ai_edit_default_use_last_asr_off_desc">AI edit will target the entire input field by default.</string>
-  <string name="feature_ai_edit_default_use_last_asr_on_desc">AI edit will default to operating on the last recognition result, convenient for quick edits after voice input.</string>
-
-  <!-- ============================================== -->
   <!-- Other Settings - Feature Explanations -->
   <!-- ============================================== -->
 
@@ -250,76 +242,4 @@
   <!-- Disable usage statistics -->
   <string name="feature_disable_usage_stats_off_desc">Usage statistics (total characters and aggregated data) will be collected for your reference.</string>
   <string name="feature_disable_usage_stats_on_desc">Usage statistics will not be collected. Enabling this will clear all existing statistics. Use this to protect your privacy.</string>
-
-  <!-- ============================================== -->
-  <!-- ASR Settings - Feature Explanations -->
-  <!-- ============================================== -->
-
-  <!-- Auto stop on silence -->
-  <string name="feature_auto_stop_silence_off_desc">Recording continues until you manually stop it. Useful for capturing longer speech or when pauses are part of your content.</string>
-  <string name="feature_auto_stop_silence_on_desc">Automatically stops recording when no voice is detected for a specified duration, saving time and bandwidth. You can adjust the sensitivity and window settings.</string>
-
-  <!-- Volcengine - Streaming -->
-  <string name="feature_volc_streaming_off_desc">Uses file recognition mode. The entire recording is sent at once after completion. Suitable for unstable network conditions.</string>
-  <string name="feature_volc_streaming_on_desc">Uses WebSocket streaming recognition. Transcription starts in real-time as you speak, providing faster feedback. Requires stable network connection.</string>
-
-  <!-- Volcengine - Bidirectional streaming -->
-  <string name="feature_volc_bidi_streaming_off_desc">Audio is uploaded in real-time during recording, but results are returned only after recording ends. Faster than file mode; slightly better accuracy than bidirectional mode.</string>
-  <string name="feature_volc_bidi_streaming_on_desc">Uses bidirectional streaming. Intermediate results are displayed in real-time as you speak, with faster response times.</string>
-
-  <!-- Volcengine - DDC (semantic smoothing) -->
-  <string name="feature_volc_ddc_off_desc">Outputs raw recognition results without additional processing.</string>
-  <string name="feature_volc_ddc_on_desc">Enables semantic smoothing to automatically optimize expression and formatting of recognition results. Experimental feature.</string>
-
-  <!-- Volcengine - VAD segmentation -->
-  <string name="feature_volc_vad_off_desc">The entire audio is treated as one sentence for recognition.</string>
-  <string name="feature_volc_vad_on_desc">Uses Voice Activity Detection to automatically segment long audio into multiple sentences. Effect needs further testing.</string>
-
-  <!-- Volcengine - Two-pass recognition -->
-  <string name="feature_volc_nonstream_off_desc">Standard streaming recognition accuracy.</string>
-  <string name="feature_volc_nonstream_on_desc">Real-time optimization of transcription results during streaming recognition.</string>
-
-  <!-- Volcengine - First character acceleration -->
-  <string name="feature_volc_first_char_accel_off_desc">Waits for stable recognition results before displaying text.</string>
-  <string name="feature_volc_first_char_accel_on_desc">Prioritizes displaying the first character quickly to reduce perceived latency.</string>
-
-  <!-- OpenAI - Use prompt -->
-  <string name="feature_openai_use_prompt_off_desc">Transcribes audio directly without guidance.</string>
-  <string name="feature_openai_use_prompt_on_desc">Uses a prompt to guide the recognition results, which can improve accuracy for specific terminology or contexts.</string>
-
-  <!-- DashScope - Streaming -->
-  <string name="feature_dash_streaming_off_desc">Uses non-streaming recognition. Processing starts after recording ends, which may cause delays. Uses Qwen-ASR-Flash model.</string>
-  <string name="feature_dash_streaming_on_desc">Uses streaming recognition. Transcription results are displayed in real-time as you speak. Uses Fun-ASR model, slightly lower accuracy.</string>
-
-  <!-- Gemini - Disable thinking mode -->
-  <string name="feature_gemini_disable_thinking_off_desc">Uses thinking mode, which may generate more accurate but potentially rephrased results.</string>
-  <string name="feature_gemini_disable_thinking_on_desc">Disables thinking mode for faster transcription that stays closer to the original audio.</string>
-
-  <!-- Soniox - Streaming -->
-  <string name="feature_soniox_streaming_off_desc">Uses non-streaming recognition. Processing starts after recording ends.</string>
-  <string name="feature_soniox_streaming_on_desc">Uses streaming recognition for real-time transcription as you speak.</string>
-
-  <!-- SenseVoice - Use ITN -->
-  <string name="feature_sv_use_itn_off_desc">Outputs spoken-form text, such as \"one thousand two hundred thirty-four\".</string>
-  <string name="feature_sv_use_itn_on_desc">Uses Inverse Text Normalization to automatically convert to written form, such as \"1234\".</string>
-
-  <!-- SenseVoice - Preload model -->
-  <string name="feature_sv_preload_off_desc">Loads the model only when needed, which may cause delay on first use.</string>
-  <string name="feature_sv_preload_on_desc">Preloads the model when the keyboard appears to reduce first-use latency.</string>
-
-  <!-- Paraformer - Preload model -->
-  <string name="feature_pf_preload_off_desc">Loads the model only when needed, which may cause delay on first use.</string>
-  <string name="feature_pf_preload_on_desc">Preloads the model when the keyboard appears to reduce first-use latency.</string>
-
-  <!-- Paraformer - Use ITN -->
-  <string name="feature_pf_use_itn_off_desc">Outputs spoken-form text, such as \"one thousand two hundred thirty-four\".</string>
-  <string name="feature_pf_use_itn_on_desc">Uses Inverse Text Normalization to automatically convert to written form, such as \"1234\".</string>
-
-  <!-- Zipformer - Preload model -->
-  <string name="feature_zf_preload_off_desc">Loads the model only when needed, which may cause delay on first use.</string>
-  <string name="feature_zf_preload_on_desc">Preloads the model when the keyboard appears to reduce first-use latency.</string>
-
-  <!-- Zipformer - Use ITN -->
-  <string name="feature_zf_use_itn_off_desc">Outputs spoken-form text, such as \"one thousand two hundred thirty-four\".</string>
-  <string name="feature_zf_use_itn_on_desc">Uses Inverse Text Normalization to automatically convert to written form, such as \"1234\".</string>
 </resources>

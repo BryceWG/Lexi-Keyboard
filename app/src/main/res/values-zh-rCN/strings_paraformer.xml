@@ -36,4 +36,17 @@
     <!-- Model download notifications -->
     <string name="notif_pf_title_bilingual">Paraformer 模型（中英）</string>
     <string name="notif_pf_title_trilingual">Paraformer 模型（中英+粤语）</string>
+
+    <!-- ============================================== -->
+    <!-- Paraformer - 功能说明 -->
+    <!-- Feature Explanations for Paraformer -->
+    <!-- ============================================== -->
+
+    <!-- 预加载模型 - Preload model -->
+    <string name="feature_pf_preload_off_desc">仅在需要时加载模型，首次使用可能有延迟。</string>
+    <string name="feature_pf_preload_on_desc">键盘显示时预加载模型，减少首次使用延迟。</string>
+
+    <!-- 使用 ITN - Use ITN -->
+    <string name="feature_pf_use_itn_off_desc">输出口语化文本，如"一千二百三十四"。</string>
+    <string name="feature_pf_use_itn_on_desc">使用逆文本归一化，自动转换为书面形式，如"1234"。</string>
 </resources>

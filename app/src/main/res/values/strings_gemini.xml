@@ -5,4 +5,12 @@
     <string name="label_gemini_model">Model (e.g., gemini-2.5-flash)</string>
     <string name="label_gemini_prompt">Transcription Prompt</string>
     <string name="label_gemini_disable_thinking">Disable thinking (reduce latency)</string>
+
+    <!-- ============================================== -->
+    <!-- Gemini Settings - Feature Descriptions -->
+    <!-- ============================================== -->
+
+    <!-- Gemini - Disable thinking mode -->
+    <string name="feature_gemini_disable_thinking_off_desc">Uses thinking mode, which may generate more accurate but potentially rephrased results.</string>
+    <string name="feature_gemini_disable_thinking_on_desc">Disables thinking mode for faster transcription that stays closer to the original audio.</string>
 </resources>

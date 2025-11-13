@@ -32,4 +32,32 @@
     <string name="volc_lang_ms_my">馬來語 (ms-MY)</string>
     <string name="volc_lang_th_th">泰語 (th-TH)</string>
     <string name="volc_lang_ar_sa">阿拉伯語 (ar-SA)</string>
+
+    <!-- ============================================== -->
+    <!-- Volcano Engine ASR - 功能說明 -->
+    <!-- ============================================== -->
+
+    <!-- 火山引擎 - 串流識別 -->
+    <string name="feature_volc_streaming_off_desc">使用檔案識別模式。錄音完成後一次傳送整段錄音進行處理，適合網路不穩定的場景。</string>
+    <string name="feature_volc_streaming_on_desc">使用 WebSocket 串流識別。邊說話邊即時轉寫，反饋更快。需要穩定的網路連線。</string>
+
+    <!-- 火山引擎 - 雙向串流 -->
+    <string name="feature_volc_bidi_streaming_off_desc">錄音中即時上傳音訊，但錄音結束後才回傳結果。相比關閉串流，回傳結果更快；相比開啟雙向，回傳結果略佳。</string>
+    <string name="feature_volc_bidi_streaming_on_desc">使用雙向串流。說話時即時顯示中間結果，回應更快。</string>
+
+    <!-- 火山引擎 - 語義順滑 -->
+    <string name="feature_volc_ddc_off_desc">輸出原始識別結果，不做額外處理。</string>
+    <string name="feature_volc_ddc_on_desc">啟用語義順滑，自動最佳化識別結果的表達和格式。實驗性功能。</string>
+
+    <!-- 火山引擎 - VAD 分句 -->
+    <string name="feature_volc_vad_off_desc">整段音訊作為一個句子識別。</string>
+    <string name="feature_volc_vad_on_desc">使用語音活動偵測自動將長語音分成多個句子識別。效果有待測試。</string>
+
+    <!-- 火山引擎 - 二遍識別 -->
+    <string name="feature_volc_nonstream_off_desc">普通的串流識別精度。</string>
+    <string name="feature_volc_nonstream_on_desc">串流識別過程中即時最佳化轉錄結果。</string>
+
+    <!-- 火山引擎 - 首字快速顯示 -->
+    <string name="feature_volc_first_char_accel_off_desc">等待識別結果穩定後再顯示文字。</string>
+    <string name="feature_volc_first_char_accel_on_desc">優先快速顯示首個字元，降低延遲感。</string>
 </resources>

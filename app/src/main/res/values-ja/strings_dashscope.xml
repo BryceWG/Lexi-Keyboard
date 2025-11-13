@@ -26,4 +26,12 @@
     <string name="dash_lang_ar">アラビア語（ar）</string>
     <string name="dash_lang_it">イタリア語（it）</string>
     <string name="dash_lang_es">スペイン語（es）</string>
+
+    <!-- ============================================== -->
+    <!-- DashScope設定 - 機能説明 -->
+    <!-- ============================================== -->
+
+    <!-- 通義千問 - ストリーミング -->
+    <string name="feature_dash_streaming_off_desc">非ストリーミング認識を使用します。録音終了後に処理が開始されるため、遅延が発生する可能性があります。Qwen-ASR-Flashモデルを使用します。</string>
+    <string name="feature_dash_streaming_on_desc">ストリーミング認識を使用します。話しながら文字起こし結果がリアルタイムで表示されます。Fun-ASRモデルを使用し、精度はやや低くなります。</string>
 </resources>

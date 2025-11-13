@@ -26,4 +26,12 @@
     <string name="soniox_lang_th">Thai (th)</string>
     <string name="soniox_lang_ms">Malay (ms)</string>
     <string name="soniox_lang_fil">Filipino (fil)</string>
+
+    <!-- ============================================== -->
+    <!-- Soniox Settings - Feature Descriptions -->
+    <!-- ============================================== -->
+
+    <!-- Soniox - Streaming -->
+    <string name="feature_soniox_streaming_off_desc">Uses non-streaming recognition. Processing starts after recording ends.</string>
+    <string name="feature_soniox_streaming_on_desc">Uses streaming recognition for real-time transcription as you speak.</string>
 </resources>

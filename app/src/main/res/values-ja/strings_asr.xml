@@ -1,4 +1,12 @@
 <resources>
     <string name="hint_need_keys">音声入力を有効にするには、設定でキーを入力してください</string>
     <string name="error_only_zip_supported">.zip ファイルのみ対応しています</string>
+
+    <!-- ============================================== -->
+    <!-- ASR設定 - 機能説明 -->
+    <!-- ============================================== -->
+
+    <!-- 無音時自動停止 -->
+    <string name="feature_auto_stop_silence_off_desc">録音は手動で停止するまで継続されます。長いスピーチや、休止がコンテンツの一部である場合に便利です。</string>
+    <string name="feature_auto_stop_silence_on_desc">指定した時間音声が検出されないと自動的に録音を停止し、時間と帯域幅を節約します。感度とウィンドウ設定を調整できます。</string>
 </resources>
