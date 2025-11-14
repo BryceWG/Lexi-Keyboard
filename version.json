@@ -1,10 +1,10 @@
 {
-  "version": "3.6.8",
-  "version_code": 111,
-  "download_url": "https://github.com/BryceWG/LexiSharp-Keyboard/releases/tag/v3.6.8",
-  "release_notes": "本次更新包含 10 个提交:\n- feat(clipboard): 添加云端剪贴板文件同步支持\n- feat(ime): 添加静音判停的扩展按钮功能\n- fix(asr): 改进本地模型文件解压检测逻辑并修复下载取消功能\n- feat(ime): 添加收起键盘扩展按钮并将粘贴板按钮进行固定\n- fix(ui): 修复颜色系统问题并添加使用规范文档\n- refactor(i18n): 将功能说明字符串按类别整理到对应的子字符串文件\n- feat(ui): 为后处理/悬浮球/其他设置开关添加统一的功能说明弹窗系统\n- feat(ui): 为ASR设置开关添加功能说明弹窗系统\n- fix(ime): 尝试修复弹出后处理提示词或供应商选择菜单导致输入法意外收起的问题\n- feat: 优化默认设置以改善用户体验",
+  "version": "3.7.0",
+  "version_code": 112,
+  "download_url": "https://github.com/BryceWG/LexiSharp-Keyboard/releases/tag/v3.7.0",
+  "release_notes": "本次更新包含 12 个提交:\n- feat(floating): 为识别记录文本面板添加分页加载功能\n- fix(floating): 修复常驻模式下部分场景不自动半隐\n- feat(clipboard): 添加云端剪贴板文件同步支持\n- feat(ime): 添加静音判停的扩展按钮功能\n- fix(asr): 改进本地模型文件解压检测逻辑并修复下载取消功能\n- feat(ime): 添加收起键盘扩展按钮并将粘贴板按钮进行固定\n- fix(ui): 修复颜色系统问题并添加使用规范文档\n- refactor(i18n): 将功能说明字符串按类别整理到对应的子字符串文件\n- feat(ui): 为后处理/悬浮球/其他设置开关添加统一的功能说明弹窗系统\n- feat(ui): 为ASR设置开关添加功能说明弹窗系统\n- fix(ime): 尝试修复弹出后处理提示词或供应商选择菜单导致输入法意外收起的问题\n- feat: 优化默认设置以改善用户体验",
   "important_notice": "本次更新支持了从小企鹅输入法调用言犀的语音识别能力。使用方式：\n1. 下载修改版的Fcitx(0.1.2beta3)：https://github.com/BryceWG/fcitx5-android-lexi-keyboard/releases，需要卸载之前的Fcitx，注意数据备份\n 2. 打开Fcitx设置-虚拟键盘-空格键长按行为-语音输入（AIDL）\n 3. 在Lexi Keyboard设置(3.6.2以上)-输入设置-允许外部输入法联动（AIDL），新版无需启用悬浮球和无障碍功能\n 4. 在小企鹅输入法面板，长按空格键即可语音输入",
   "notice_level": "info",
   "min_supported_version": "2.6.5",
-  "update_time": "2025-11-14T11:55:49Z"
+  "update_time": "2025-11-14T12:56:14Z"
 }
