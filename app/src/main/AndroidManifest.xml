@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" tools:ignore="MissingPermission" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 存储权限：用于剪贴板文件下载到 Download/Lexi 目录 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <!-- 允许从本应用安装 APK（配合未知来源安装权限引导） -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

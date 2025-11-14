@@ -43,12 +43,14 @@ class SyncClipboardManager(
   private val context: Context,
   private val prefs: Prefs,
   private val scope: CoroutineScope,
-  private val listener: Listener? = null
+  private val listener: Listener? = null,
+  private val clipboardStore: ClipboardHistoryStore? = null
 ) {
   interface Listener {
     fun onPulledNewContent(text: String)
     fun onUploadSuccess()
     fun onUploadFailed(reason: String? = null)
+    fun onFilePulled(type: EntryType, fileName: String, serverFileName: String)
   }
 
   private val clipboard by lazy { context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager }
@@ -60,6 +62,7 @@ class SyncClipboardManager(
       .build()
   }
   private val json by lazy { Json { ignoreUnknownKeys = true } }
+  private val fileManager by lazy { ClipboardFileManager(context) }
 
   companion object {
     private const val TAG = "SyncClipboardManager"
@@ -321,49 +324,29 @@ class SyncClipboardManager(
             return@executeRequestWithAuth null
           }
 
-          if (!TextUtils.equals(payload.Type, "Text")) {
-            Log.w(TAG, "Unsupported payload type: ${payload.Type}")
-            return@executeRequestWithAuth null
-          }
-
-          val text = payload.Clipboard
-          if (text.isBlank()) {
-            Log.w(TAG, "Clipboard text is blank")
-            return@executeRequestWithAuth null
-          }
-
-          // 计算服务端文本哈希并与上次拉取缓存对比，未变化则避免读取系统剪贴板
-          val newServerHash = try {
-            sha256Hex(text)
-          } catch (e: Throwable) {
-            Log.e(TAG, "Failed to compute hash for pulled text", e)
-            null
-          }
-          val prevServerHash = lastPulledServerHash
-          lastPulledServerHash = newServerHash
-
-          if (updateClipboard) {
-            if (newServerHash != null && newServerHash == prevServerHash) {
-              // 服务端内容未变化：跳过本地剪贴板读取以降低读取频率
-              return@executeRequestWithAuth text
+          // 根据类型处理不同的 payload
+          when (payload.Type) {
+            "Text" -> {
+              val text = payload.Clipboard
+              if (text.isBlank()) {
+                Log.w(TAG, "Clipboard text is blank")
+                return@executeRequestWithAuth null
+              }
+              return@executeRequestWithAuth handleTextPayload(text, updateClipboard)
             }
-            val cur = readClipboardText()
-            if (text.isNotEmpty() && text != cur) {
-              writeClipboardText(text)
-              // 将此次拉取的内容也记录到"最近一次上传哈希"，避免后续补上传（减少不必要的上传）
-              try {
-                prefs.syncClipboardLastUploadedHash = sha256Hex(text)
-              } catch (e: Throwable) {
-                Log.e(TAG, "Failed to save pulled hash", e)
+            "Image", "File" -> {
+              val fileName = payload.File
+              if (fileName.isBlank()) {
+                Log.w(TAG, "File name is blank for type: ${payload.Type}")
+                return@executeRequestWithAuth null
               }
-              try {
-                listener?.onPulledNewContent(text)
-              } catch (e: Throwable) {
-                Log.e(TAG, "Failed to notify pulled content listener", e)
-              }
+              return@executeRequestWithAuth handleFilePayload(payload.Type, fileName)
+            }
+            else -> {
+              Log.w(TAG, "Unsupported payload type: ${payload.Type}")
+              return@executeRequestWithAuth null
             }
           }
-          text
         }
       )
     } catch (e: Throwable) {
@@ -376,6 +359,182 @@ class SyncClipboardManager(
     } else {
       false to null
     }
+  }
+
+  /**
+   * 处理文本类型的 payload
+   */
+  private fun handleTextPayload(text: String, updateClipboard: Boolean): String {
+    // 计算服务端文本哈希并与上次拉取缓存对比，未变化则避免读取系统剪贴板
+    val newServerHash = try {
+      sha256Hex(text)
+    } catch (e: Throwable) {
+      Log.e(TAG, "Failed to compute hash for pulled text", e)
+      null
+    }
+    val prevServerHash = lastPulledServerHash
+    lastPulledServerHash = newServerHash
+
+    if (updateClipboard) {
+      if (newServerHash != null && newServerHash == prevServerHash) {
+        // 服务端内容未变化：跳过本地剪贴板读取以降低读取频率
+        return text
+      }
+      val cur = readClipboardText()
+      if (text.isNotEmpty() && text != cur) {
+        writeClipboardText(text)
+        // 将此次拉取的内容也记录到"最近一次上传哈希"，避免后续补上传（减少不必要的上传）
+        try {
+          prefs.syncClipboardLastUploadedHash = sha256Hex(text)
+        } catch (e: Throwable) {
+          Log.e(TAG, "Failed to save pulled hash", e)
+        }
+        try {
+          listener?.onPulledNewContent(text)
+        } catch (e: Throwable) {
+          Log.e(TAG, "Failed to notify pulled content listener", e)
+        }
+      }
+    }
+    return text
+  }
+
+  /**
+   * 处理文件类型的 payload
+   * 仅添加到历史记录，不自动下载
+   */
+  private fun handleFilePayload(type: String, fileName: String): String {
+    try {
+      val entryType = when (type) {
+        "Image" -> EntryType.IMAGE
+        "File" -> EntryType.FILE
+        else -> EntryType.FILE
+      }
+
+      // 检查文件是否已下载
+      val localFile = fileManager.getFile(fileName)
+      val downloadStatus = if (localFile.exists()) {
+        DownloadStatus.COMPLETED
+      } else {
+        DownloadStatus.NONE
+      }
+
+      val localPath = if (localFile.exists()) localFile.absolutePath else null
+
+      // 添加到历史记录（如果已存在则不重复添加）
+      clipboardStore?.addFileEntry(
+        type = entryType,
+        fileName = fileName,
+        serverFileName = fileName,
+        fileSize = if (localFile.exists()) localFile.length() else null,
+        localFilePath = localPath,
+        downloadStatus = downloadStatus
+      )
+
+      // 通知监听器有新文件
+      try {
+        listener?.onFilePulled(entryType, fileName, fileName)
+      } catch (e: Throwable) {
+        Log.e(TAG, "Failed to notify file pulled listener", e)
+      }
+
+      Log.d(TAG, "File payload handled: $fileName (type: $type, status: $downloadStatus)")
+      return fileName
+    } catch (e: Throwable) {
+      Log.e(TAG, "Failed to handle file payload: $fileName", e)
+      return fileName
+    }
+  }
+
+  /**
+   * 下载文件
+   * @param entryId 条目 ID
+   * @param progressCallback 进度回调
+   * @return 是否下载成功
+   */
+  fun downloadFile(
+    entryId: String,
+    progressCallback: ((Long, Long) -> Unit)? = null
+  ): Boolean {
+    val entry = clipboardStore?.getEntryById(entryId) ?: return false
+    val serverFileName = entry.serverFileName ?: entry.fileName ?: return false
+
+    // 检查是否已下载
+    if (fileManager.fileExists(serverFileName, entry.fileSize)) {
+      Log.d(TAG, "File already downloaded: $serverFileName")
+      clipboardStore?.updateFileEntry(
+        entryId,
+        fileManager.getFile(serverFileName).absolutePath,
+        DownloadStatus.COMPLETED
+      )
+      return true
+    }
+
+    // 更新状态为下载中
+    clipboardStore?.updateFileEntry(entryId, null, DownloadStatus.DOWNLOADING)
+
+    val fileUrl = buildFileUrl(serverFileName) ?: run {
+      clipboardStore?.updateFileEntry(entryId, null, DownloadStatus.FAILED)
+      return false
+    }
+
+    val authB64 = authHeaderB64() ?: run {
+      clipboardStore?.updateFileEntry(entryId, null, DownloadStatus.FAILED)
+      return false
+    }
+
+    return try {
+      val req = Request.Builder()
+        .url(fileUrl)
+        .header("Authorization", authB64)
+        .get()
+        .build()
+
+      client.newCall(req).execute().use { resp ->
+        if (!resp.isSuccessful) {
+          Log.w(TAG, "Download failed: ${resp.code}")
+          clipboardStore?.updateFileEntry(entryId, null, DownloadStatus.FAILED)
+          return false
+        }
+
+        val body = resp.body ?: run {
+          clipboardStore?.updateFileEntry(entryId, null, DownloadStatus.FAILED)
+          return false
+        }
+
+        val totalBytes = body.contentLength()
+        val localPath = fileManager.saveFile(
+          serverFileName,
+          body.byteStream(),
+          totalBytes,
+          progressCallback
+        )
+
+        if (localPath != null) {
+          clipboardStore?.updateFileEntry(entryId, localPath, DownloadStatus.COMPLETED)
+          Log.d(TAG, "File downloaded successfully: $serverFileName -> $localPath")
+          true
+        } else {
+          clipboardStore?.updateFileEntry(entryId, null, DownloadStatus.FAILED)
+          false
+        }
+      }
+    } catch (e: Exception) {
+      Log.e(TAG, "Download error: $serverFileName", e)
+      clipboardStore?.updateFileEntry(entryId, null, DownloadStatus.FAILED)
+      false
+    }
+  }
+
+  /**
+   * 构建文件下载 URL
+   */
+  private fun buildFileUrl(fileName: String): String? {
+    val raw = prefs.syncClipboardServerBase.trim()
+    if (raw.isBlank()) return null
+    val base = raw.trimEnd('/')
+    // 文件在服务器的 /file/ 目录下
+    return "$base/file/$fileName"
   }
 
   /**

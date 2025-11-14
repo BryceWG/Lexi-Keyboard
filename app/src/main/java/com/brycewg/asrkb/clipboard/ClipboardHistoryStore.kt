@@ -9,20 +9,48 @@ import kotlinx.serialization.json.Json
 import java.util.UUID
 
 /**
+ * 剪贴板条目类型
+ */
+@Serializable
+enum class EntryType {
+    TEXT, IMAGE, FILE
+}
+
+/**
+ * 下载状态
+ */
+@Serializable
+enum class DownloadStatus {
+    NONE,        // 未下载
+    DOWNLOADING, // 下载中
+    COMPLETED,   // 已完成
+    FAILED       // 失败
+}
+
+/**
  * 简单的剪贴板历史存储：
  * - 按时间倒序（最新在前）
  * - 支持固定（置顶）与普通记录分开存储
  * - 仅固定记录参与备份（存储于 KEY_CLIP_PINNED_JSON）
  * - 普通记录存储于 KEY_CLIP_HISTORY_JSON，不参与备份
+ * - 支持文本和文件类型
  */
 class ClipboardHistoryStore(private val context: Context, private val prefs: Prefs) {
 
     @Serializable
     data class Entry(
         val id: String,
-        val text: String,
+        val text: String = "",              // 文本内容（保持向后兼容）
         val ts: Long,
-        val pinned: Boolean
+        val pinned: Boolean,
+        // 新增字段：支持文件类型
+        val type: EntryType = EntryType.TEXT,
+        val fileName: String? = null,       // 文件名
+        val fileSize: Long? = null,         // 文件大小（字节）
+        val mimeType: String? = null,       // MIME类型
+        val localFilePath: String? = null,  // 本地文件路径
+        val downloadStatus: DownloadStatus = DownloadStatus.NONE,
+        val serverFileName: String? = null  // 服务器上的文件名（用于下载）
     )
 
     private val sp by lazy { context.getSharedPreferences("asr_prefs", Context.MODE_PRIVATE) }
@@ -163,5 +191,112 @@ class ClipboardHistoryStore(private val context: Context, private val prefs: Pre
         } catch (e: Throwable) {
             Log.e(TAG, "commitText failed", e)
         }
+    }
+
+    /**
+     * 添加文件条目到历史
+     * @param type 文件类型（IMAGE 或 FILE）
+     * @param fileName 显示的文件名
+     * @param serverFileName 服务器上的文件名（用于下载）
+     * @param fileSize 文件大小
+     * @param mimeType MIME 类型
+     * @param localFilePath 本地文件路径
+     * @param downloadStatus 下载状态
+     * @return 是否添加成功（如果已存在相同文件则返回 false）
+     */
+    fun addFileEntry(
+        type: EntryType,
+        fileName: String,
+        serverFileName: String,
+        fileSize: Long? = null,
+        mimeType: String? = null,
+        localFilePath: String? = null,
+        downloadStatus: DownloadStatus = DownloadStatus.NONE
+    ): Boolean {
+        try {
+            val his = getHistory().toMutableList()
+
+            // 检查是否已存在相同的文件（通过 serverFileName 判断）
+            val existing = his.firstOrNull {
+                it.type == type && it.serverFileName == serverFileName
+            }
+            if (existing != null) {
+                // 如果已存在，更新下载状态和本地路径
+                if (downloadStatus != DownloadStatus.NONE || localFilePath != null) {
+                    updateFileEntry(existing.id, localFilePath, downloadStatus)
+                }
+                return false
+            }
+
+            val entry = Entry(
+                id = UUID.randomUUID().toString(),
+                text = "",
+                ts = System.currentTimeMillis(),
+                pinned = false,
+                type = type,
+                fileName = fileName,
+                fileSize = fileSize,
+                mimeType = mimeType,
+                localFilePath = localFilePath,
+                downloadStatus = downloadStatus,
+                serverFileName = serverFileName
+            )
+
+            his.add(0, entry)
+            while (his.size > MAX_HISTORY) if (his.isNotEmpty()) his.removeAt(his.lastIndex) else break
+            sp.edit().putString(KEY_CLIP_HISTORY_JSON, json.encodeToString(his)).apply()
+            return true
+        } catch (t: Throwable) {
+            Log.e(TAG, "addFileEntry failed", t)
+            return false
+        }
+    }
+
+    /**
+     * 更新文件条目的下载状态和本地路径
+     */
+    fun updateFileEntry(
+        id: String,
+        localFilePath: String?,
+        downloadStatus: DownloadStatus
+    ): Boolean {
+        try {
+            val history = getHistory().toMutableList()
+            val idx = history.indexOfFirst { it.id == id }
+            if (idx >= 0) {
+                val old = history[idx]
+                history[idx] = old.copy(
+                    localFilePath = localFilePath ?: old.localFilePath,
+                    downloadStatus = downloadStatus
+                )
+                sp.edit().putString(KEY_CLIP_HISTORY_JSON, json.encodeToString(history)).apply()
+                return true
+            }
+
+            // 也检查固定列表
+            val pinned = getPinned().toMutableList()
+            val idxP = pinned.indexOfFirst { it.id == id }
+            if (idxP >= 0) {
+                val old = pinned[idxP]
+                pinned[idxP] = old.copy(
+                    localFilePath = localFilePath ?: old.localFilePath,
+                    downloadStatus = downloadStatus
+                )
+                sp.edit().putString(KEY_CLIP_PINNED_JSON, json.encodeToString(pinned)).apply()
+                return true
+            }
+
+            return false
+        } catch (t: Throwable) {
+            Log.e(TAG, "updateFileEntry failed", t)
+            return false
+        }
+    }
+
+    /**
+     * 根据 ID 获取条目
+     */
+    fun getEntryById(id: String): Entry? {
+        return getAll().firstOrNull { it.id == id }
     }
 }

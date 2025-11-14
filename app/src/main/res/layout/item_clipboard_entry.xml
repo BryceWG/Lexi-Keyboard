@@ -5,6 +5,18 @@
     android:layout_height="wrap_content"
     android:layout_marginVertical="0dp">
 
+    <ImageView
+        android:id="@+id/iconFile"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:visibility="gone"
+        android:scaleType="centerInside"
+        android:tint="?attr/colorOnSurfaceVariant"
+        android:layout_marginStart="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
     <TextView
         android:id="@+id/tvEntry"
         android:layout_width="0dp"
@@ -19,9 +31,23 @@
         android:paddingVertical="10dp"
         android:foreground="?attr/selectableItemBackgroundBorderless"
         android:clipToOutline="true"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iconFile"
+        app:layout_constraintEnd_toStartOf="@id/btnDownload"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnDownload"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:text="下载"
+        android:textSize="12sp"
+        android:visibility="gone"
+        android:paddingHorizontal="12dp"
+        android:minWidth="60dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <View
         android:id="@+id/viewPinned"
