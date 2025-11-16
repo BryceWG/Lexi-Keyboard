@@ -164,8 +164,12 @@ class AsrSessionManager(
             } else null
 
             AsrVendor.SenseVoice -> {
-                // 本地引擎无需鉴权；仅支持文件识别模式
+                // 本地 SenseVoice：仅支持文件识别模式
                 SenseVoiceFileAsrEngine(context, scope, prefs, this, ::onRequestDuration)
+            }
+            AsrVendor.Telespeech -> {
+                // 本地 TeleSpeech：仅支持文件识别模式
+                TelespeechFileAsrEngine(context, scope, prefs, this, ::onRequestDuration)
             }
             AsrVendor.Paraformer -> {
                 ParaformerStreamAsrEngine(context, scope, prefs, this)
@@ -228,6 +232,7 @@ class AsrSessionManager(
             }
 
             AsrVendor.SenseVoice -> if (current is SenseVoiceFileAsrEngine) current else null
+            AsrVendor.Telespeech -> if (current is TelespeechFileAsrEngine) current else null
             AsrVendor.Paraformer -> when (current) {
                 is ParaformerStreamAsrEngine -> current
                 else -> null
@@ -284,27 +289,42 @@ class AsrSessionManager(
         } else {
             Log.d(TAG, "Audio ducking disabled by user; skip audio focus request")
         }
-        // 若为本地 SenseVoice，在录音触发时后台开始加载模型
+        // 若为本地 SenseVoice / TeleSpeech，在录音触发时后台开始加载模型
         try {
-            if (prefs.asrVendor == AsrVendor.SenseVoice) {
+            if (prefs.asrVendor == AsrVendor.SenseVoice || prefs.asrVendor == AsrVendor.Telespeech) {
                 val prepared = try {
-                    com.brycewg.asrkb.asr.isSenseVoicePrepared()
+                    if (prefs.asrVendor == AsrVendor.SenseVoice) {
+                        com.brycewg.asrkb.asr.isSenseVoicePrepared()
+                    } else {
+                        com.brycewg.asrkb.asr.isTelespeechPrepared()
+                    }
                 } catch (t: Throwable) {
                     Log.e(TAG, "Failed to check local model prepared state", t)
                     false
                 }
                 if (!prepared) {
                     try {
-                        com.brycewg.asrkb.asr.preloadSenseVoiceIfConfigured(
-                            context,
-                            prefs,
-                            onLoadStart = { onLocalModelLoadStart() },
-                            onLoadDone = { onLocalModelLoadDone() },
-                            suppressToastOnStart = true,
-                            forImmediateUse = true
-                        )
+                        if (prefs.asrVendor == AsrVendor.SenseVoice) {
+                            com.brycewg.asrkb.asr.preloadSenseVoiceIfConfigured(
+                                context,
+                                prefs,
+                                onLoadStart = { onLocalModelLoadStart() },
+                                onLoadDone = { onLocalModelLoadDone() },
+                                suppressToastOnStart = true,
+                                forImmediateUse = true
+                            )
+                        } else {
+                            com.brycewg.asrkb.asr.preloadTelespeechIfConfigured(
+                                context,
+                                prefs,
+                                onLoadStart = { onLocalModelLoadStart() },
+                                onLoadDone = { onLocalModelLoadDone() },
+                                suppressToastOnStart = true,
+                                forImmediateUse = true
+                            )
+                        }
                     } catch (t: Throwable) {
-                        Log.e(TAG, "Failed to trigger SenseVoice preload on startRecording", t)
+                        Log.e(TAG, "Failed to trigger local model preload on startRecording", t)
                     }
                 }
             }

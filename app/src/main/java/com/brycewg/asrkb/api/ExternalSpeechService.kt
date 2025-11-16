@@ -229,9 +229,9 @@ class ExternalSpeechService : Service() {
                 AsrVendor.Volc -> prefs.volcStreamingEnabled
                 AsrVendor.DashScope -> prefs.dashStreamingEnabled
                 AsrVendor.Soniox -> prefs.sonioxStreamingEnabled
-                // 本地 sherpa-onnx：Paraformer/Zipformer 仅流式；SenseVoice 仅非流式
+                // 本地 sherpa-onnx：Paraformer/Zipformer 仅流式；SenseVoice/TeleSpeech 仅非流式
                 AsrVendor.Paraformer, AsrVendor.Zipformer -> true
-                AsrVendor.SenseVoice -> false
+                AsrVendor.SenseVoice, AsrVendor.Telespeech -> false
                 AsrVendor.ElevenLabs -> prefs.elevenStreamingEnabled
                 // 其他云厂商（OpenAI/Gemini/SiliconFlow）仅非流式
                 AsrVendor.OpenAI, AsrVendor.Gemini, AsrVendor.SiliconFlow -> false
@@ -303,6 +303,12 @@ class ExternalSpeechService : Service() {
                     )
                 }
                 AsrVendor.SenseVoice -> SenseVoiceFileAsrEngine(
+                    context, scope, prefs, this,
+                    onRequestDuration = { ms: Long ->
+                        try { lastRequestDurationMs = ms } catch (t: Throwable) { Log.w(TAG, "set proc ms failed", t) }
+                    }
+                )
+                AsrVendor.Telespeech -> TelespeechFileAsrEngine(
                     context, scope, prefs, this,
                     onRequestDuration = { ms: Long ->
                         try { lastRequestDurationMs = ms } catch (t: Throwable) { Log.w(TAG, "set proc ms failed", t) }
@@ -409,6 +415,16 @@ class ExternalSpeechService : Service() {
                 AsrVendor.SenseVoice -> com.brycewg.asrkb.asr.GenericPushFileAsrAdapter(
                     context, scope, prefs, this,
                     com.brycewg.asrkb.asr.SenseVoiceFileAsrEngine(
+                        context, scope, prefs, this,
+                        onRequestDuration = { ms: Long ->
+                            try { lastRequestDurationMs = ms } catch (t: Throwable) { Log.w(TAG, "set proc ms failed", t) }
+                        }
+                    )
+                )
+                // TeleSpeech：非流式 → 走文件引擎 + 通用适配器
+                AsrVendor.Telespeech -> com.brycewg.asrkb.asr.GenericPushFileAsrAdapter(
+                    context, scope, prefs, this,
+                    com.brycewg.asrkb.asr.TelespeechFileAsrEngine(
                         context, scope, prefs, this,
                         onRequestDuration = { ms: Long ->
                             try { lastRequestDurationMs = ms } catch (t: Throwable) { Log.w(TAG, "set proc ms failed", t) }

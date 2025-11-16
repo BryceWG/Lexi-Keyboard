@@ -2084,6 +2084,9 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                     if (old == com.brycewg.asrkb.asr.AsrVendor.SenseVoice && vendor != com.brycewg.asrkb.asr.AsrVendor.SenseVoice) {
                         com.brycewg.asrkb.asr.unloadSenseVoiceRecognizer()
                     }
+                    if (old == com.brycewg.asrkb.asr.AsrVendor.Telespeech && vendor != com.brycewg.asrkb.asr.AsrVendor.Telespeech) {
+                        com.brycewg.asrkb.asr.unloadTelespeechRecognizer()
+                    }
                     if (old == com.brycewg.asrkb.asr.AsrVendor.Paraformer && vendor != com.brycewg.asrkb.asr.AsrVendor.Paraformer) {
                         com.brycewg.asrkb.asr.unloadParaformerRecognizer()
                     }
@@ -2103,6 +2106,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
                 try {
                     when (vendor) {
                         com.brycewg.asrkb.asr.AsrVendor.SenseVoice -> if (prefs.svPreloadEnabled) com.brycewg.asrkb.asr.preloadSenseVoiceIfConfigured(this, prefs)
+                        com.brycewg.asrkb.asr.AsrVendor.Telespeech -> if (prefs.tsPreloadEnabled) com.brycewg.asrkb.asr.preloadTelespeechIfConfigured(this, prefs)
                         com.brycewg.asrkb.asr.AsrVendor.Paraformer -> if (prefs.pfPreloadEnabled) com.brycewg.asrkb.asr.preloadParaformerIfConfigured(this, prefs)
                         com.brycewg.asrkb.asr.AsrVendor.Zipformer -> if (prefs.zfPreloadEnabled) com.brycewg.asrkb.asr.preloadZipformerIfConfigured(this, prefs)
                         else -> {}
@@ -2126,6 +2130,7 @@ class AsrKeyboardService : InputMethodService(), KeyboardActionHandler.UiListene
         val p = prefs
         val enabled = when (p.asrVendor) {
             AsrVendor.SenseVoice -> p.svPreloadEnabled
+            AsrVendor.Telespeech -> p.tsPreloadEnabled
             AsrVendor.Paraformer -> p.pfPreloadEnabled
             AsrVendor.Zipformer -> p.zfPreloadEnabled
             else -> false

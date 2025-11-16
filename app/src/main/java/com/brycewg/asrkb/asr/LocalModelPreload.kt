@@ -6,7 +6,7 @@ import com.brycewg.asrkb.store.Prefs
 
 /**
  * 统一的本地 ASR 预加载入口：根据供应商调用对应实现。
- * - 目前支持 SenseVoice / Paraformer / Zipformer
+ * - 目前支持 SenseVoice / TeleSpeech / Paraformer / Zipformer
  */
 fun preloadLocalAsrIfConfigured(
     context: Context,
@@ -19,6 +19,9 @@ fun preloadLocalAsrIfConfigured(
     try {
         when (prefs.asrVendor) {
             AsrVendor.SenseVoice -> preloadSenseVoiceIfConfigured(
+                context, prefs, onLoadStart, onLoadDone, suppressToastOnStart, forImmediateUse
+            )
+            AsrVendor.Telespeech -> preloadTelespeechIfConfigured(
                 context, prefs, onLoadStart, onLoadDone, suppressToastOnStart, forImmediateUse
             )
             AsrVendor.Paraformer -> preloadParaformerIfConfigured(
@@ -43,6 +46,7 @@ fun isLocalAsrPrepared(prefs: Prefs): Boolean {
     return try {
         when (prefs.asrVendor) {
             AsrVendor.SenseVoice -> isSenseVoicePrepared()
+            AsrVendor.Telespeech -> isTelespeechPrepared()
             AsrVendor.Paraformer -> ParaformerOnnxManager.getInstance().isPrepared()
             AsrVendor.Zipformer -> ZipformerOnnxManager.getInstance().isPrepared()
             else -> false

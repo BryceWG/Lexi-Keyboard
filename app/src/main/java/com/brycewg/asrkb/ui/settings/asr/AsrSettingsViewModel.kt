@@ -67,6 +67,11 @@ class AsrSettingsViewModel : ViewModel() {
             svUseItn = prefs.svUseItn,
             svPreloadEnabled = prefs.svPreloadEnabled,
             svKeepAliveMinutes = prefs.svKeepAliveMinutes,
+            // TeleSpeech settings
+            tsModelVariant = prefs.tsModelVariant,
+            tsNumThreads = prefs.tsNumThreads,
+            tsKeepAliveMinutes = prefs.tsKeepAliveMinutes,
+            tsPreloadEnabled = prefs.tsPreloadEnabled,
             // Paraformer settings
             pfModelVariant = prefs.pfModelVariant,
             pfNumThreads = prefs.pfNumThreads,
@@ -91,6 +96,9 @@ class AsrSettingsViewModel : ViewModel() {
         if (oldVendor == AsrVendor.SenseVoice && vendor != AsrVendor.SenseVoice) {
             try { com.brycewg.asrkb.asr.unloadSenseVoiceRecognizer() } catch (e: Throwable) { Log.e(TAG, "Failed to unload SenseVoice recognizer", e) }
         }
+        if (oldVendor == AsrVendor.Telespeech && vendor != AsrVendor.Telespeech) {
+            try { com.brycewg.asrkb.asr.unloadTelespeechRecognizer() } catch (e: Throwable) { Log.e(TAG, "Failed to unload TeleSpeech recognizer", e) }
+        }
         if (oldVendor == AsrVendor.Paraformer && vendor != AsrVendor.Paraformer) {
             try { com.brycewg.asrkb.asr.unloadParaformerRecognizer() } catch (e: Throwable) { Log.e(TAG, "Failed to unload Paraformer recognizer", e) }
         }
@@ -107,6 +115,18 @@ class AsrSettingsViewModel : ViewModel() {
                     )
                 } catch (e: Throwable) {
                     Log.e(TAG, "Failed to preload SenseVoice model", e)
+                }
+            }
+        }
+        if (vendor == AsrVendor.Telespeech && prefs.tsPreloadEnabled) {
+            viewModelScope.launch(Dispatchers.Default) {
+                try {
+                    com.brycewg.asrkb.asr.preloadTelespeechIfConfigured(
+                        appContext,
+                        prefs
+                    )
+                } catch (e: Throwable) {
+                    Log.e(TAG, "Failed to preload TeleSpeech model", e)
                 }
             }
         }
@@ -297,6 +317,44 @@ class AsrSettingsViewModel : ViewModel() {
         }
     }
 
+    fun updateTsModelVariant(variant: String) {
+        prefs.tsModelVariant = variant
+        _uiState.value = _uiState.value.copy(tsModelVariant = variant)
+        try { com.brycewg.asrkb.asr.unloadTelespeechRecognizer() } catch (e: Throwable) { Log.e(TAG, "Failed to unload TeleSpeech recognizer after variant change", e) }
+        triggerTsPreloadIfEnabledAndActive("variant change")
+    }
+
+    fun updateTsKeepAlive(minutes: Int) {
+        prefs.tsKeepAliveMinutes = minutes
+        _uiState.value = _uiState.value.copy(tsKeepAliveMinutes = minutes)
+    }
+
+    fun updateTsNumThreads(v: Int) {
+        val vv = v.coerceIn(1, 8)
+        prefs.tsNumThreads = vv
+        _uiState.value = _uiState.value.copy(tsNumThreads = vv)
+        try { com.brycewg.asrkb.asr.unloadTelespeechRecognizer() } catch (e: Throwable) { Log.e(TAG, "Failed to unload TeleSpeech recognizer after threads change", e) }
+        triggerTsPreloadIfEnabledAndActive("threads change")
+    }
+
+    fun updateTsPreload(enabled: Boolean) {
+        prefs.tsPreloadEnabled = enabled
+        _uiState.value = _uiState.value.copy(tsPreloadEnabled = enabled)
+
+        if (enabled && prefs.asrVendor == AsrVendor.Telespeech) {
+            viewModelScope.launch(Dispatchers.Default) {
+                try {
+                    com.brycewg.asrkb.asr.preloadTelespeechIfConfigured(
+                        appContext,
+                        prefs
+                    )
+                } catch (e: Throwable) {
+                    Log.e(TAG, "Failed to preload TeleSpeech model", e)
+                }
+            }
+        }
+    }
+
     fun updateSvKeepAlive(minutes: Int) {
         prefs.svKeepAliveMinutes = minutes
         _uiState.value = _uiState.value.copy(svKeepAliveMinutes = minutes)
@@ -332,6 +390,18 @@ class AsrSettingsViewModel : ViewModel() {
                     com.brycewg.asrkb.asr.preloadSenseVoiceIfConfigured(appContext, prefs)
                 } catch (t: Throwable) {
                     Log.e(TAG, "Failed to preload SenseVoice after $reason", t)
+                }
+            }
+        }
+    }
+
+    private fun triggerTsPreloadIfEnabledAndActive(reason: String) {
+        if (prefs.tsPreloadEnabled && prefs.asrVendor == AsrVendor.Telespeech) {
+            viewModelScope.launch(Dispatchers.Default) {
+                try {
+                    com.brycewg.asrkb.asr.preloadTelespeechIfConfigured(appContext, prefs)
+                } catch (t: Throwable) {
+                    Log.e(TAG, "Failed to preload TeleSpeech after $reason", t)
                 }
             }
         }
@@ -445,6 +515,20 @@ class AsrSettingsViewModel : ViewModel() {
                 (File(modelDir, "model.int8.onnx").exists() || File(modelDir, "model.onnx").exists())
     }
 
+    fun checkTsModelDownloaded(context: Context): Boolean {
+        val base = context.getExternalFilesDir(null) ?: context.filesDir
+        val root = File(base, "telespeech")
+        val variant = prefs.tsModelVariant
+        val dir = when (variant) {
+            "full" -> File(root, "full")
+            else -> File(root, "int8")
+        }
+        val modelDir = findModelDir(dir)
+        return modelDir != null &&
+                File(modelDir, "tokens.txt").exists() &&
+                (File(modelDir, "model.int8.onnx").exists() || File(modelDir, "model.onnx").exists())
+    }
+
     fun checkZfModelDownloaded(context: Context): Boolean {
         val base = context.getExternalFilesDir(null) ?: context.filesDir
         val root = File(base, "zipformer")
@@ -519,6 +603,11 @@ data class AsrSettingsUiState(
     val svUseItn: Boolean = true,
     val svPreloadEnabled: Boolean = false,
     val svKeepAliveMinutes: Int = -1,
+    // TeleSpeech settings
+    val tsModelVariant: String = "int8",
+    val tsNumThreads: Int = 2,
+    val tsKeepAliveMinutes: Int = -1,
+    val tsPreloadEnabled: Boolean = false,
     // Paraformer settings
     val pfModelVariant: String = "bilingual-int8",
     val pfNumThreads: Int = 2,
@@ -541,6 +630,7 @@ data class AsrSettingsUiState(
     val isGeminiVisible: Boolean get() = selectedVendor == AsrVendor.Gemini
     val isSonioxVisible: Boolean get() = selectedVendor == AsrVendor.Soniox
     val isSenseVoiceVisible: Boolean get() = selectedVendor == AsrVendor.SenseVoice
+    val isTelespeechVisible: Boolean get() = selectedVendor == AsrVendor.Telespeech
     val isParaformerVisible: Boolean get() = selectedVendor == AsrVendor.Paraformer
     val isZipformerVisible: Boolean get() = selectedVendor == AsrVendor.Zipformer
 }

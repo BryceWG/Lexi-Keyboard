@@ -373,7 +373,7 @@ private data class RecognizerConfig(
 /**
  * 反射式音频流包装
  */
-private class ReflectiveStream(val instance: Any) {
+internal class ReflectiveStream(val instance: Any) {
     val streamClass: Class<*> = instance.javaClass
 
     fun acceptWaveform(samples: FloatArray, sampleRate: Int) {
@@ -401,7 +401,7 @@ private class ReflectiveStream(val instance: Any) {
  * 反射式识别器包装
  * 封装所有反射调用，对外提供类型安全的接口
  */
-private class ReflectiveRecognizer(
+internal class ReflectiveRecognizer(
     private val instance: Any,
     private val clsOfflineRecognizer: Class<*>
 ) {

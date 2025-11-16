@@ -63,6 +63,7 @@ class ModelDownloadService : Service() {
       val sourceId = when (modelType) {
         "paraformer" -> "download_paraformer"
         "zipformer" -> "download_zipformer"
+        "telespeech" -> "download_telespeech"
         else -> "download_sensevoice"
       }
       return DownloadKey(variant, sourceId)
@@ -229,6 +230,7 @@ class ModelDownloadService : Service() {
       val doneText = when (modelType) {
         "paraformer" -> getString(R.string.pf_download_status_done)
         "zipformer" -> getString(R.string.zf_download_status_done)
+        "telespeech" -> getString(R.string.ts_download_status_done)
         else -> getString(R.string.sv_download_status_done)
       }
       notificationHandler.notifySuccess(doneText)
@@ -239,6 +241,7 @@ class ModelDownloadService : Service() {
         t.message == onlyZipMsg -> onlyZipMsg
         modelType == "paraformer" -> getString(R.string.pf_download_status_failed)
         modelType == "zipformer" -> getString(R.string.zf_download_status_failed)
+        modelType == "telespeech" -> getString(R.string.ts_download_status_failed)
         else -> getString(R.string.sv_download_status_failed)
       }
       notificationHandler.notifyFailed(failText)
@@ -306,6 +309,8 @@ class ModelDownloadService : Service() {
         when (modelType) {
           // SenseVoice：二选一，直接同步用户选择
           "sensevoice" -> prefs.svModelVariant = detectedVariant
+          // TeleSpeech：离线 CTC，int8/full 二选一，直接同步用户选择
+          "telespeech" -> prefs.tsModelVariant = detectedVariant
           // Paraformer：单包含 int8+fp32，两者均可用，不覆盖用户当前偏好
           "paraformer" -> { /* no-op */ }
           // Zipformer：zh/zh-xl 为单量化包，同步；bilingual 系列包含双量化，不覆盖
@@ -404,6 +409,7 @@ class ModelDownloadService : Service() {
     return when {
       n.contains("paraformer") -> "paraformer"
       n.contains("zipformer") -> "zipformer"
+      n.contains("telespeech") -> "telespeech"
       n.contains("sense-voice") || n.contains("sensevoice") -> "sensevoice"
       else -> null
     }
@@ -426,6 +432,10 @@ class ModelDownloadService : Service() {
       "sherpa-onnx-streaming-paraformer-bilingual-zh-en" -> "paraformer" to "bilingual-int8"
       "sherpa-onnx-streaming-paraformer-trilingual-zh-cantonese-en" -> "paraformer" to "trilingual-int8"
 
+      // TeleSpeech（离线 CTC）
+      "sherpa-onnx-telespeech-ctc-int8-zh-2024-06-04" -> "telespeech" to "int8"
+      "sherpa-onnx-telespeech-ctc-zh-2024-06-04" -> "telespeech" to "full"
+
       // Zipformer（精确到量化/日期）
       "sherpa-onnx-streaming-zipformer-zh-xlarge-int8-2025-06-30" -> "zipformer" to "zh-xl-int8-20250630"
       "sherpa-onnx-streaming-zipformer-zh-xlarge-fp16-2025-06-30" -> "zipformer" to "zh-xl-fp16-20250630"
@@ -446,6 +456,10 @@ class ModelDownloadService : Service() {
       "sensevoice" -> {
         val versionName = if (variant == "small-full") "Small (fp32)" else "Small (int8)"
         "SenseVoice $versionName"
+      }
+      "telespeech" -> {
+        val versionName = if (variant == "full") "Zh (fp32)" else "Zh (int8)"
+        "TeleSpeech $versionName"
       }
       "paraformer" -> {
         val versionName = when (variant) {
@@ -546,6 +560,7 @@ class ModelDownloadService : Service() {
     val outRoot = when (modelType) {
       "paraformer" -> File(base, "paraformer")
       "zipformer" -> File(base, "zipformer")
+      "telespeech" -> File(base, "telespeech")
       else -> File(base, "sensevoice")
     }
     val tmpDir = File(outRoot, ".tmp_extract_${key.toSafeFileName()}_${System.currentTimeMillis()}")
@@ -603,6 +618,10 @@ class ModelDownloadService : Service() {
       if (!(hasTokens && hasEncoder && hasDecoder && hasJoiner)) {
         throw IllegalStateException("zipformer files missing after extract (pattern)")
       }
+    } else if (modelType == "telespeech") {
+      if (!(File(modelDir, "model.int8.onnx").exists() || File(modelDir, "model.onnx").exists())) {
+        throw IllegalStateException("telespeech files missing after extract")
+      }
     } else {
       if (!(File(modelDir, "model.int8.onnx").exists() || File(modelDir, "model.onnx").exists())) {
         throw IllegalStateException("sensevoice files missing after extract")
@@ -628,6 +647,10 @@ class ModelDownloadService : Service() {
           else -> "bilingual-zh-en-2023-02-20"
         }
         File(outRoot, groupDir)
+      }
+      "telespeech" -> {
+        val outRoot = File(base, "telespeech")
+        if (variant == "full") File(outRoot, "full") else File(outRoot, "int8")
       }
       else -> {
         val outRoot = File(base, "sensevoice")
@@ -1013,6 +1036,7 @@ class NotificationHandler(
     return when (modelType) {
       "paraformer" -> context.getString(R.string.pf_download_status_failed)
       "zipformer" -> context.getString(R.string.zf_download_status_failed)
+      "telespeech" -> context.getString(R.string.ts_download_status_failed)
       else -> context.getString(R.string.sv_download_status_failed)
     }
   }
@@ -1101,6 +1125,10 @@ class NotificationHandler(
           variant.startsWith("bi-small-") -> context.getString(R.string.notif_zf_title_small_bi)
           else -> context.getString(R.string.notif_zf_title_bi)
         }
+      }
+      "telespeech" -> {
+        if (variant == "full") context.getString(R.string.notif_ts_title_full)
+        else context.getString(R.string.notif_ts_title_int8)
       }
       else -> {
         when (variant) {

@@ -941,6 +941,133 @@
           android:text="" />
       </LinearLayout>
 
+      <!-- TeleSpeech (Local) -->
+      <TextView
+        android:id="@+id/titleTelespeech"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="?attr/colorOnSurface"
+        android:text="@string/telespeech_section_title"
+        android:textStyle="bold" />
+
+      <LinearLayout
+        android:id="@+id/groupTelespeech"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+          android:id="@+id/tvTsModelVariantValue"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingTop="8dp"
+          android:paddingBottom="8dp"
+          android:clickable="true"
+          android:focusable="true"
+          android:foreground="?attr/selectableItemBackground"
+          android:textColor="?attr/colorOnSurfaceVariant"
+          android:text="@string/ts_model_int8" />
+
+        <Spinner
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:visibility="gone" />
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:textColor="?attr/colorOnSurface"
+          android:text="@string/label_ts_keep_alive" />
+
+        <TextView
+          android:id="@+id/tvTsKeepAliveValue"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingTop="8dp"
+          android:paddingBottom="8dp"
+          android:clickable="true"
+          android:focusable="true"
+          android:foreground="?attr/selectableItemBackground"
+          android:textColor="?attr/colorOnSurfaceVariant"
+          android:text="@string/sv_keep_alive_always" />
+
+        <Spinner
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:visibility="gone" />
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:textColor="?attr/colorOnSurface"
+          android:text="@string/label_ts_threads" />
+
+        <com.google.android.material.slider.Slider
+          android:id="@+id/sliderTsThreads"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:valueFrom="1"
+          android:valueTo="8"
+          android:stepSize="1"
+          android:layout_marginTop="2dp" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+          android:id="@+id/switchTsPreload"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:text="@string/label_ts_preload" />
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal"
+          android:layout_marginTop="12dp"
+          android:gravity="center"
+          android:weightSum="2">
+
+          <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTsDownloadModel"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            app:shapeAppearanceOverlay="@style/AsrkbShapeOverlayCapsule"
+            android:text="@string/btn_ts_download_model" />
+
+          <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTsImportModel"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            app:shapeAppearanceOverlay="@style/AsrkbShapeOverlayCapsule"
+            android:text="@string/btn_ts_import_model" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+          android:id="@+id/btnTsClearModel"
+          style="@style/Widget.Material3.Button.TonalButton"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          app:shapeAppearanceOverlay="@style/AsrkbShapeOverlayCapsule"
+          android:text="@string/btn_ts_clear_model" />
+
+        <TextView
+          android:id="@+id/tvTsDownloadStatus"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="6dp"
+          android:textColor="?attr/colorOnSurfaceVariant"
+          android:text="" />
+      </LinearLayout>
+
       <!-- Paraformer (Local) -->
       <TextView
         android:id="@+id/titleParaformer"

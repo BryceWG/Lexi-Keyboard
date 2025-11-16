@@ -1,0 +1,41 @@
+<resources>
+    <!-- TeleSpeech local ASR configuration strings -->
+    <string name="telespeech_section_title">TeleSpeech (Local)</string>
+    <string name="vendor_telespeech">TeleSpeech (Local offline)</string>
+
+    <!-- TeleSpeech configuration -->
+    <string name="label_ts_model_variant">Model variant</string>
+    <string name="label_ts_threads">Threads (1-8)</string>
+    <string name="label_ts_keep_alive">Keep model in memory</string>
+    <string name="label_ts_preload">Load model on first show</string>
+    <string name="ts_model_int8">Zh (int8, ~325MB)</string>
+    <string name="ts_model_full">Zh (fp32)</string>
+    <string name="btn_ts_download_model">Download TeleSpeech model</string>
+    <string name="btn_ts_import_model">Import from local</string>
+    <string name="btn_ts_clear_model">Clear downloaded TeleSpeech model</string>
+    <string name="ts_download_status_downloading">Downloading… %1$d%%</string>
+    <string name="ts_download_status_extracting_progress">Extracting… %1$d%%</string>
+    <string name="ts_download_status_done">TeleSpeech model installed</string>
+    <string name="ts_download_status_failed">Download or extraction failed</string>
+    <string name="ts_download_started_in_bg">Started background download. See notification for progress</string>
+    <string name="ts_import_started_in_bg">Started background import. See notification for progress</string>
+    <string name="ts_import_success">Model imported successfully: %1$s</string>
+    <string name="ts_import_failed">Model import failed: %1$s</string>
+    <string name="ts_import_status_extracting">Importing… %1$d%%</string>
+    <string name="ts_clear_confirm_title">Clear TeleSpeech model?</string>
+    <string name="ts_clear_confirm_message">This will delete downloaded TeleSpeech model files. You can re-download later. Continue?</string>
+    <string name="ts_clear_done">TeleSpeech model cleared</string>
+    <string name="ts_clear_failed">Clear failed</string>
+
+    <!-- Error message -->
+    <string name="error_telespeech_model_missing">TeleSpeech model files are missing. Please configure or download later in Settings.</string>
+
+    <!-- Model download notifications -->
+    <string name="notif_ts_title_int8">TeleSpeech model (Zh · int8)</string>
+    <string name="notif_ts_title_full">TeleSpeech model (Zh · fp32)</string>
+
+    <!-- TeleSpeech Settings - Feature Descriptions -->
+    <string name="feature_ts_preload_off_desc">Loads the model only when needed, which may cause delay on first use.</string>
+    <string name="feature_ts_preload_on_desc">Preloads the model when the keyboard appears to reduce first-use latency.</string>
+</resources>
+

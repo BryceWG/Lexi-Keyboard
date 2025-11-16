@@ -18,6 +18,7 @@ object AsrVendorUi {
     AsrVendor.Gemini,
     AsrVendor.Soniox,
     AsrVendor.SenseVoice,
+    AsrVendor.Telespeech,
     AsrVendor.Paraformer,
     AsrVendor.Zipformer
   )
@@ -32,6 +33,7 @@ object AsrVendorUi {
     AsrVendor.Gemini -> context.getString(R.string.vendor_gemini)
     AsrVendor.Soniox -> context.getString(R.string.vendor_soniox)
     AsrVendor.SenseVoice -> context.getString(R.string.vendor_sensevoice)
+    AsrVendor.Telespeech -> context.getString(R.string.vendor_telespeech)
     AsrVendor.Paraformer -> context.getString(R.string.vendor_paraformer)
     AsrVendor.Zipformer -> context.getString(R.string.vendor_zipformer)
   }
@@ -42,4 +44,3 @@ object AsrVendorUi {
   /** 顺序化的显示名列表 */
   fun names(context: Context): List<String> = ordered().map { name(context, it) }
 }
-

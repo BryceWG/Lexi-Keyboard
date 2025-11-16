@@ -1,0 +1,41 @@
+<resources>
+    <!-- TeleSpeech ローカル ASR 設定文字列 -->
+    <string name="telespeech_section_title">TeleSpeech ローカル ASR</string>
+    <string name="vendor_telespeech">TeleSpeech（ローカル・オフライン）</string>
+
+    <!-- TeleSpeech configuration -->
+    <string name="label_ts_model_variant">モデルバリアント</string>
+    <string name="label_ts_threads">スレッド数（1〜8）</string>
+    <string name="label_ts_keep_alive">モデル保持時間</string>
+    <string name="label_ts_preload">初回表示時にモデルを読み込む</string>
+    <string name="ts_model_int8">中国語（int8、約325MB）</string>
+    <string name="ts_model_full">中国語（fp32）</string>
+    <string name="btn_ts_download_model">TeleSpeech モデルをダウンロード</string>
+    <string name="btn_ts_import_model">ローカルからインポート</string>
+    <string name="btn_ts_clear_model">ダウンロード済み TeleSpeech モデルを削除</string>
+    <string name="ts_download_status_downloading">ダウンロード中… %1$d%%</string>
+    <string name="ts_download_status_extracting_progress">展開中… %1$d%%</string>
+    <string name="ts_download_status_done">TeleSpeech モデルがインストールされました</string>
+    <string name="ts_download_status_failed">ダウンロードまたは展開に失敗しました</string>
+    <string name="ts_download_started_in_bg">バックグラウンドでダウンロードを開始しました。進捗は通知で確認できます。</string>
+    <string name="ts_import_started_in_bg">バックグラウンドでインポートを開始しました。進捗は通知で確認できます。</string>
+    <string name="ts_import_success">モデルのインポートに成功しました: %1$s</string>
+    <string name="ts_import_failed">モデルのインポートに失敗しました: %1$s</string>
+    <string name="ts_import_status_extracting">インポート中… %1$d%%</string>
+    <string name="ts_clear_confirm_title">TeleSpeech モデルを削除しますか？</string>
+    <string name="ts_clear_confirm_message">ダウンロード済みの TeleSpeech モデルファイルを削除します。後で再ダウンロードできます。続行しますか？</string>
+    <string name="ts_clear_done">TeleSpeech モデルを削除しました</string>
+    <string name="ts_clear_failed">削除に失敗しました</string>
+
+    <!-- Error message -->
+    <string name="error_telespeech_model_missing">TeleSpeech モデルファイルがありません。後で設定から構成またはダウンロードしてください。</string>
+
+    <!-- Model download notifications -->
+    <string name="notif_ts_title_int8">TeleSpeech モデル（中国語 · int8）</string>
+    <string name="notif_ts_title_full">TeleSpeech モデル（中国語 · fp32）</string>
+
+    <!-- TeleSpeech 設定 - 機能説明 -->
+    <string name="feature_ts_preload_off_desc">必要なときだけモデルを読み込みます。初回利用時に遅延が発生する可能性があります。</string>
+    <string name="feature_ts_preload_on_desc">キーボード表示時にモデルを事前読み込みし、初回利用時の待ち時間を短縮します。</string>
+</resources>
+

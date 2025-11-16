@@ -948,6 +948,13 @@ class FloatingAsrService : Service(),
                                 Log.e(TAG, "Failed to unload SenseVoice", e)
                             }
                         }
+                        if (old == AsrVendor.Telespeech && v != AsrVendor.Telespeech) {
+                            try {
+                                com.brycewg.asrkb.asr.unloadTelespeechRecognizer()
+                            } catch (e: Throwable) {
+                                Log.e(TAG, "Failed to unload TeleSpeech", e)
+                            }
+                        }
                         if (old == AsrVendor.Paraformer && v != AsrVendor.Paraformer) {
                             try {
                                 com.brycewg.asrkb.asr.unloadParaformerRecognizer()
@@ -969,6 +976,13 @@ class FloatingAsrService : Service(),
                                 com.brycewg.asrkb.asr.preloadSenseVoiceIfConfigured(this, prefs)
                             } catch (e: Throwable) {
                                 Log.e(TAG, "Failed to preload SenseVoice", e)
+                            }
+                        }
+                        if (v == AsrVendor.Telespeech && prefs.tsPreloadEnabled) {
+                            try {
+                                com.brycewg.asrkb.asr.preloadTelespeechIfConfigured(this, prefs)
+                            } catch (e: Throwable) {
+                                Log.e(TAG, "Failed to preload TeleSpeech", e)
                             }
                         }
                         if (v == AsrVendor.Paraformer && prefs.pfPreloadEnabled) {
@@ -1270,6 +1284,7 @@ class FloatingAsrService : Service(),
         if (localPreloadTriggered) return
         val enabled = when (prefs.asrVendor) {
             AsrVendor.SenseVoice -> prefs.svPreloadEnabled
+            AsrVendor.Telespeech -> prefs.tsPreloadEnabled
             AsrVendor.Paraformer -> prefs.pfPreloadEnabled
             AsrVendor.Zipformer -> prefs.zfPreloadEnabled
             else -> false

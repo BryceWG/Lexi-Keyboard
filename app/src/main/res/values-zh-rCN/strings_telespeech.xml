@@ -1,0 +1,41 @@
+<resources>
+    <!-- TeleSpeech 本地 ASR 配置字符串 -->
+    <string name="telespeech_section_title">TeleSpeech 本地 ASR</string>
+    <string name="vendor_telespeech">TeleSpeech（本地离线）</string>
+
+    <!-- TeleSpeech configuration -->
+    <string name="label_ts_model_variant">模型版本</string>
+    <string name="label_ts_threads">线程数（1-8）</string>
+    <string name="label_ts_keep_alive">模型内存保留时长</string>
+    <string name="label_ts_preload">首次显示时加载模型</string>
+    <string name="ts_model_int8">中文（int8，约 325MB）</string>
+    <string name="ts_model_full">中文（fp32）</string>
+    <string name="btn_ts_download_model">一键下载 TeleSpeech 模型</string>
+    <string name="btn_ts_import_model">从本地导入模型</string>
+    <string name="btn_ts_clear_model">清除已下载的 TeleSpeech 模型</string>
+    <string name="ts_download_status_downloading">下载中… %1$d%%</string>
+    <string name="ts_download_status_extracting_progress">解压中… %1$d%%</string>
+    <string name="ts_download_status_done">TeleSpeech 模型已安装</string>
+    <string name="ts_download_status_failed">下载或解压失败</string>
+    <string name="ts_download_started_in_bg">已开始后台下载，请到通知栏查看进度</string>
+    <string name="ts_import_started_in_bg">已开始后台导入，请到通知栏查看进度</string>
+    <string name="ts_import_success">模型导入成功：%1$s</string>
+    <string name="ts_import_failed">模型导入失败：%1$s</string>
+    <string name="ts_import_status_extracting">导入中… %1$d%%</string>
+    <string name="ts_clear_confirm_title">确认清除 TeleSpeech 模型？</string>
+    <string name="ts_clear_confirm_message">将删除已下载的 TeleSpeech 模型文件，可稍后重新下载。是否继续？</string>
+    <string name="ts_clear_done">已清除 TeleSpeech 模型</string>
+    <string name="ts_clear_failed">清除失败</string>
+
+    <!-- Error message -->
+    <string name="error_telespeech_model_missing">缺少 TeleSpeech 模型文件，请稍后在设置中配置或下载</string>
+
+    <!-- Model download notifications -->
+    <string name="notif_ts_title_int8">TeleSpeech 模型（中文 · int8）</string>
+    <string name="notif_ts_title_full">TeleSpeech 模型（中文 · fp32）</string>
+
+    <!-- TeleSpeech - 功能说明 -->
+    <string name="feature_ts_preload_off_desc">仅在需要时加载模型，首次使用可能有延迟。</string>
+    <string name="feature_ts_preload_on_desc">键盘显示时预加载模型，减少首次使用延迟。</string>
+</resources>
+

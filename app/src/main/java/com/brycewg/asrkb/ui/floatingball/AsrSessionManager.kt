@@ -357,12 +357,16 @@ class AsrSessionManager(
     // ==================== 私有辅助方法 ====================
 
     private fun checkSenseVoiceModel(): Boolean {
-        if (prefs.asrVendor != AsrVendor.SenseVoice) return true
+        if (prefs.asrVendor != AsrVendor.SenseVoice && prefs.asrVendor != AsrVendor.Telespeech) return true
 
         val prepared = try {
-            com.brycewg.asrkb.asr.isSenseVoicePrepared()
+            when (prefs.asrVendor) {
+                AsrVendor.SenseVoice -> com.brycewg.asrkb.asr.isSenseVoicePrepared()
+                AsrVendor.Telespeech -> com.brycewg.asrkb.asr.isTelespeechPrepared()
+                else -> true
+            }
         } catch (e: Throwable) {
-            Log.w(TAG, "Failed to check SenseVoice preparation", e)
+            Log.w(TAG, "Failed to check local model preparation", e)
             false
         }
         if (prepared) return true
@@ -374,21 +378,38 @@ class AsrSessionManager(
             Log.w(TAG, "Failed to get external files dir", e)
             context.filesDir
         }
-        val probeRoot = java.io.File(base, "sensevoice")
-        val variant = try {
-            prefs.svModelVariant
-        } catch (e: Throwable) {
-            Log.w(TAG, "Failed to get SenseVoice variant", e)
-            "small-int8"
-        }
-        val variantDir = if (variant == "small-full") {
-            java.io.File(probeRoot, "small-full")
+        return if (prefs.asrVendor == AsrVendor.SenseVoice) {
+            val probeRoot = java.io.File(base, "sensevoice")
+            val variant = try {
+                prefs.svModelVariant
+            } catch (e: Throwable) {
+                Log.w(TAG, "Failed to get SenseVoice variant", e)
+                "small-int8"
+            }
+            val variantDir = if (variant == "small-full") {
+                java.io.File(probeRoot, "small-full")
+            } else {
+                java.io.File(probeRoot, "small-int8")
+            }
+            val found = com.brycewg.asrkb.asr.findSvModelDir(variantDir)
+                ?: com.brycewg.asrkb.asr.findSvModelDir(probeRoot)
+            found != null
         } else {
-            java.io.File(probeRoot, "small-int8")
+            val probeRoot = java.io.File(base, "telespeech")
+            val variant = try {
+                prefs.tsModelVariant
+            } catch (e: Throwable) {
+                Log.w(TAG, "Failed to get TeleSpeech variant", e)
+                "int8"
+            }
+            val variantDir = when (variant) {
+                "full" -> java.io.File(probeRoot, "full")
+                else -> java.io.File(probeRoot, "int8")
+            }
+            val found = com.brycewg.asrkb.asr.findTsModelDir(variantDir)
+                ?: com.brycewg.asrkb.asr.findTsModelDir(probeRoot)
+            found != null
         }
-        val found = com.brycewg.asrkb.asr.findSvModelDir(variantDir)
-            ?: com.brycewg.asrkb.asr.findSvModelDir(probeRoot)
-        return found != null
     }
 
     private fun buildEngineForCurrentMode(): StreamingAsrEngine? {
@@ -434,6 +455,10 @@ class AsrSessionManager(
             AsrVendor.SenseVoice -> {
                 // 本地 SenseVoice：仅支持文件识别模式
                 SenseVoiceFileAsrEngine(context, serviceScope, prefs, this, onRequestDuration = ::onRequestDuration)
+            }
+            AsrVendor.Telespeech -> {
+                // 本地 TeleSpeech：仅支持文件识别模式
+                TelespeechFileAsrEngine(context, serviceScope, prefs, this, onRequestDuration = ::onRequestDuration)
             }
             AsrVendor.Paraformer -> {
                 ParaformerStreamAsrEngine(context, serviceScope, prefs, this)

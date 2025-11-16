@@ -50,6 +50,9 @@ class AsrSettingsActivity : AppCompatActivity() {
     private val modelFilePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { handleModelImport(it) }
     }
+    private val tsModelFilePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { handleTsModelImport(it) }
+    }
     private val pfModelFilePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { handlePfModelImport(it) }
     }
@@ -76,6 +79,7 @@ class AsrSettingsActivity : AppCompatActivity() {
     private lateinit var groupGemini: View
     private lateinit var groupSoniox: View
     private lateinit var groupSenseVoice: View
+    private lateinit var groupTelespeech: View
     private lateinit var groupParaformer: View
     private lateinit var groupZipformer: View
 
@@ -88,6 +92,7 @@ class AsrSettingsActivity : AppCompatActivity() {
     private lateinit var titleGemini: View
     private lateinit var titleSoniox: View
     private lateinit var titleSenseVoice: View
+    private lateinit var titleTelespeech: View
     private lateinit var titleParaformer: View
     private lateinit var titleZipformer: View
 
@@ -123,6 +128,7 @@ class AsrSettingsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateSvDownloadUiVisibility()
+        updateTsDownloadUiVisibility()
         updatePfDownloadUiVisibility()
         updateZfDownloadUiVisibility()
     }
@@ -153,6 +159,7 @@ class AsrSettingsActivity : AppCompatActivity() {
         groupGemini = findViewById(R.id.groupGemini)
         groupSoniox = findViewById(R.id.groupSoniox)
         groupSenseVoice = findViewById(R.id.groupSenseVoice)
+        groupTelespeech = findViewById(R.id.groupTelespeech)
         groupParaformer = findViewById(R.id.groupParaformer)
         groupZipformer = findViewById(R.id.groupZipformer)
 
@@ -165,6 +172,7 @@ class AsrSettingsActivity : AppCompatActivity() {
         titleGemini = findViewById(R.id.titleGemini)
         titleSoniox = findViewById(R.id.titleSoniox)
         titleSenseVoice = findViewById(R.id.titleSenseVoice)
+        titleTelespeech = findViewById(R.id.titleTelespeech)
         titleParaformer = findViewById(R.id.titleParaformer)
         titleZipformer = findViewById(R.id.titleZipformer)
     }
@@ -243,6 +251,7 @@ class AsrSettingsActivity : AppCompatActivity() {
         setupGeminiSettings()
         setupSonioxSettings()
         setupSenseVoiceSettings()
+        setupTelespeechSettings()
         setupParaformerSettings()
         setupZipformerSettings()
     }
@@ -1501,6 +1510,192 @@ class AsrSettingsActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupTsDownloadButtons() {
+        val btnDl = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnTsDownloadModel)
+        val btnImport = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnTsImportModel)
+        val btnClear = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnTsClearModel)
+        val tvStatus = findViewById<TextView>(R.id.tvTsDownloadStatus)
+
+        btnImport.setOnClickListener { v ->
+            hapticTapIfEnabled(v)
+            tsModelFilePicker.launch("application/zip")
+        }
+
+        btnDl.setOnClickListener { v ->
+            v.isEnabled = false
+            tvStatus.text = ""
+            val sources = arrayOf(
+                getString(R.string.download_source_github_official),
+                getString(R.string.download_source_mirror_ghproxy),
+                getString(R.string.download_source_mirror_gitmirror),
+                getString(R.string.download_source_mirror_gh_proxynet)
+            )
+            val variant = prefs.tsModelVariant
+            // TeleSpeech：int8/fp32 使用 GitHub 发布的官方 ZIP
+            val urlOfficial = when (variant) {
+                "full" -> "https://github.com/BryceWG/Lexi-Keyboard/releases/download/models/sherpa-onnx-telespeech-ctc-zh-2024-06-04.zip"
+                else -> "https://github.com/BryceWG/Lexi-Keyboard/releases/download/models/sherpa-onnx-telespeech-ctc-int8-zh-2024-06-04.zip"
+            }
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.download_source_title)
+                .setItems(sources) { dlg, which ->
+                    dlg.dismiss()
+                    val url = when (which) {
+                        1 -> "https://ghproxy.net/$urlOfficial"
+                        2 -> "https://hub.gitmirror.com/$urlOfficial"
+                        3 -> "https://gh-proxy.net/$urlOfficial"
+                        else -> urlOfficial
+                    }
+                    try {
+                        ModelDownloadService.startDownload(this, url, variant, "telespeech")
+                        tvStatus.text = getString(R.string.ts_download_started_in_bg)
+                    } catch (e: Throwable) {
+                        android.util.Log.e(TAG, "Failed to start telespeech model download", e)
+                        tvStatus.text = getString(R.string.ts_download_status_failed)
+                    } finally {
+                        v.isEnabled = true
+                    }
+                }
+                .setOnDismissListener { v.isEnabled = true }
+                .show()
+        }
+
+        btnClear.setOnClickListener { v ->
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.ts_clear_confirm_title)
+                .setMessage(R.string.ts_clear_confirm_message)
+                .setPositiveButton(android.R.string.ok) { d, _ ->
+                    d.dismiss()
+                    v.isEnabled = false
+                    lifecycleScope.launch {
+                        try {
+                            val base = getExternalFilesDir(null) ?: filesDir
+                            val variant = prefs.tsModelVariant
+                            val outDirRoot = File(base, "telespeech")
+                            val outDir = if (variant == "full") {
+                                File(outDirRoot, "full")
+                            } else {
+                                File(outDirRoot, "int8")
+                            }
+                            if (outDir.exists()) {
+                                withContext(Dispatchers.IO) { outDir.deleteRecursively() }
+                            }
+                            try {
+                                com.brycewg.asrkb.asr.unloadTelespeechRecognizer()
+                            } catch (e: Throwable) {
+                                android.util.Log.e(TAG, "Failed to unload TeleSpeech recognizer", e)
+                            }
+                            tvStatus.text = getString(R.string.ts_clear_done)
+                        } catch (e: Throwable) {
+                            android.util.Log.e(TAG, "Failed to clear telespeech model", e)
+                            tvStatus.text = getString(R.string.ts_clear_failed)
+                        } finally {
+                            v.isEnabled = true
+                            updateTsDownloadUiVisibility()
+                        }
+                    }
+                }
+                .setNegativeButton(R.string.btn_cancel, null)
+                .create()
+                .show()
+        }
+    }
+
+    private fun setupTelespeechSettings() {
+        val tvVariant = findViewById<TextView>(R.id.tvTsModelVariantValue)
+        val variantLabels = arrayOf(
+            getString(R.string.ts_model_int8),
+            getString(R.string.ts_model_full)
+        )
+        val variantCodes = arrayOf("int8", "full")
+        fun updateVariantSummary() {
+            val idx = variantCodes.indexOf(prefs.tsModelVariant).coerceAtLeast(0)
+            tvVariant.text = variantLabels[idx]
+        }
+        updateVariantSummary()
+        tvVariant.setOnClickListener { v ->
+            hapticTapIfEnabled(v)
+            val cur = variantCodes.indexOf(prefs.tsModelVariant).coerceAtLeast(0)
+            showSingleChoiceDialog(R.string.label_ts_model_variant, variantLabels, cur) { which ->
+                val code = variantCodes.getOrNull(which) ?: "int8"
+                if (code != prefs.tsModelVariant) {
+                    viewModel.updateTsModelVariant(code)
+                }
+                updateVariantSummary()
+                updateTsDownloadUiVisibility()
+            }
+        }
+
+        // 保留时长
+        val tvKeep = findViewById<TextView>(R.id.tvTsKeepAliveValue)
+        fun updateKeepAliveSummary() {
+            val values = listOf(0, 5, 15, 30, -1)
+            val labels = arrayOf(
+                getString(R.string.sv_keep_alive_immediate),
+                getString(R.string.sv_keep_alive_5m),
+                getString(R.string.sv_keep_alive_15m),
+                getString(R.string.sv_keep_alive_30m),
+                getString(R.string.sv_keep_alive_always)
+            )
+            val idx = values.indexOf(prefs.tsKeepAliveMinutes).let { if (it >= 0) it else values.size - 1 }
+            tvKeep.text = labels[idx]
+        }
+        updateKeepAliveSummary()
+        tvKeep.setOnClickListener { v ->
+            hapticTapIfEnabled(v)
+            val labels = arrayOf(
+                getString(R.string.sv_keep_alive_immediate),
+                getString(R.string.sv_keep_alive_5m),
+                getString(R.string.sv_keep_alive_15m),
+                getString(R.string.sv_keep_alive_30m),
+                getString(R.string.sv_keep_alive_always)
+            )
+            val values = listOf(0, 5, 15, 30, -1)
+            val cur = values.indexOf(prefs.tsKeepAliveMinutes).let { if (it >= 0) it else values.size - 1 }
+            showSingleChoiceDialog(R.string.label_ts_keep_alive, labels, cur) { which ->
+                val vv = values.getOrNull(which) ?: -1
+                if (vv != prefs.tsKeepAliveMinutes) {
+                    viewModel.updateTsKeepAlive(vv)
+                }
+                updateKeepAliveSummary()
+            }
+        }
+
+        // 线程数滑块（1-8）
+        findViewById<com.google.android.material.slider.Slider>(R.id.sliderTsThreads).apply {
+            value = prefs.tsNumThreads.coerceIn(1, 8).toFloat()
+            addOnChangeListener { _, value, fromUser ->
+                if (fromUser) {
+                    val v = value.toInt().coerceIn(1, 8)
+                    if (v != prefs.tsNumThreads) {
+                        viewModel.updateTsNumThreads(v)
+                    }
+                }
+            }
+            addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+                override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) = hapticTapIfEnabled(slider)
+                override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) = hapticTapIfEnabled(slider)
+            })
+        }
+
+        // 首次显示时加载模型
+        findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchTsPreload).apply {
+            isChecked = prefs.tsPreloadEnabled
+            installExplainedSwitch(
+                context = this@AsrSettingsActivity,
+                titleRes = R.string.label_ts_preload,
+                offDescRes = R.string.feature_ts_preload_off_desc,
+                onDescRes = R.string.feature_ts_preload_on_desc,
+                preferenceKey = "ts_preload_explained",
+                readPref = { prefs.tsPreloadEnabled },
+                writePref = { v -> viewModel.updateTsPreload(v) },
+                hapticFeedback = { hapticTapIfEnabled(it) }
+            )
+        }
+
+        setupTsDownloadButtons()
+    }
+
     private fun handleModelImport(uri: Uri) {
         val tvSvDownloadStatus = findViewById<TextView>(R.id.tvSvDownloadStatus)
         tvSvDownloadStatus.text = ""
@@ -1516,6 +1711,24 @@ class AsrSettingsActivity : AppCompatActivity() {
         } catch (e: Throwable) {
             android.util.Log.e(TAG, "Failed to start model import", e)
             tvSvDownloadStatus.text = getString(R.string.sv_import_failed, e.message ?: "Unknown error")
+        }
+    }
+
+    private fun handleTsModelImport(uri: Uri) {
+        val tvStatus = findViewById<TextView>(R.id.tvTsDownloadStatus)
+        tvStatus.text = ""
+
+        try {
+            if (!isZipUri(uri)) {
+                tvStatus.text = getString(R.string.ts_import_failed, getString(R.string.error_only_zip_supported))
+                return
+            }
+            val variant = prefs.tsModelVariant
+            ModelDownloadService.startImport(this, uri, variant)
+            tvStatus.text = getString(R.string.ts_import_started_in_bg)
+        } catch (e: Throwable) {
+            android.util.Log.e(TAG, "Failed to start telespeech model import", e)
+            tvStatus.text = getString(R.string.ts_import_failed, e.message ?: "Unknown error")
         }
     }
 
@@ -1601,6 +1814,7 @@ class AsrSettingsActivity : AppCompatActivity() {
             AsrVendor.Gemini to listOf(titleGemini, groupGemini),
             AsrVendor.Soniox to listOf(titleSoniox, groupSoniox),
             AsrVendor.SenseVoice to listOf(titleSenseVoice, groupSenseVoice),
+            AsrVendor.Telespeech to listOf(titleTelespeech, groupTelespeech),
             AsrVendor.Paraformer to listOf(titleParaformer, groupParaformer),
             AsrVendor.Zipformer to listOf(titleZipformer, groupZipformer)
         )
@@ -1659,6 +1873,20 @@ class AsrSettingsActivity : AppCompatActivity() {
         btnClear.visibility = if (ready) View.VISIBLE else View.GONE
         if (ready && tv.text.isNullOrBlank()) {
             tv.text = getString(R.string.sv_download_status_done)
+        }
+    }
+
+    private fun updateTsDownloadUiVisibility() {
+        val ready = viewModel.checkTsModelDownloaded(this)
+        val btn = findViewById<MaterialButton>(R.id.btnTsDownloadModel)
+        val btnImport = findViewById<MaterialButton>(R.id.btnTsImportModel)
+        val btnClear = findViewById<MaterialButton>(R.id.btnTsClearModel)
+        val tv = findViewById<TextView>(R.id.tvTsDownloadStatus)
+        btn.visibility = if (ready) View.GONE else View.VISIBLE
+        btnImport.visibility = if (ready) View.GONE else View.VISIBLE
+        btnClear.visibility = if (ready) View.VISIBLE else View.GONE
+        if (ready && tv.text.isNullOrBlank()) {
+            tv.text = getString(R.string.ts_download_status_done)
         }
     }
 
