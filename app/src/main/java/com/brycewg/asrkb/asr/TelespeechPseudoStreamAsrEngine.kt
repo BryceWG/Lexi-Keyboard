@@ -165,6 +165,14 @@ class TelespeechPseudoStreamAsrEngine(
             } catch (e: Throwable) {
                 Log.e(TAG, "Failed to notify final recognition error", e)
             }
+        } finally {
+            try {
+                previewMutex.withLock {
+                    previewSegments.clear()
+                }
+            } catch (t: Throwable) {
+                Log.e(TAG, "Failed to reset preview segments after session", t)
+            }
         }
     }
 
