@@ -1022,6 +1022,13 @@
           android:layout_marginTop="2dp" />
 
         <com.google.android.material.materialswitch.MaterialSwitch
+          android:id="@+id/switchTsUseItn"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:text="@string/label_ts_use_itn" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
           android:id="@+id/switchTsPreload"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"

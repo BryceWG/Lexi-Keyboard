@@ -269,6 +269,13 @@ class TelespeechPseudoStreamAsrEngine(
         val keepMs = if (keepMinutes <= 0) 0L else keepMinutes.toLong() * 60_000L
         val alwaysKeep = keepMinutes < 0
 
+        val ruleFsts = try {
+            if (prefs.tsUseItn) ItnAssets.ensureItnFstPath(context) else null
+        } catch (t: Throwable) {
+            Log.e(TAG, "Failed to resolve ITN FST path for pseudo-stream", t)
+            null
+        }
+
         val text = manager.decodeOffline(
             assetManager = null,
             tokens = tokensPath,
@@ -280,6 +287,7 @@ class TelespeechPseudoStreamAsrEngine(
                 Log.w(TAG, "Failed to get num threads", t)
                 2
             },
+            ruleFsts = ruleFsts,
             samples = samples,
             sampleRate = sampleRate,
             keepAliveMs = keepMs,

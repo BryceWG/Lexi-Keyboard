@@ -73,6 +73,7 @@ class AsrSettingsViewModel : ViewModel() {
             tsNumThreads = prefs.tsNumThreads,
             tsKeepAliveMinutes = prefs.tsKeepAliveMinutes,
             tsPreloadEnabled = prefs.tsPreloadEnabled,
+            tsUseItn = prefs.tsUseItn,
             tsPseudoStreamEnabled = prefs.tsPseudoStreamEnabled,
             // Paraformer settings
             pfModelVariant = prefs.pfModelVariant,
@@ -289,6 +290,19 @@ class AsrSettingsViewModel : ViewModel() {
                 Log.e(TAG, "Failed to unload SenseVoice recognizer after ITN change", e)
             }
             triggerSvPreloadIfEnabledAndActive("ITN change")
+        }
+    }
+
+    fun updateTsUseItn(enabled: Boolean) {
+        if (prefs.tsUseItn != enabled) {
+            prefs.tsUseItn = enabled
+            _uiState.value = _uiState.value.copy(tsUseItn = enabled)
+            try {
+                com.brycewg.asrkb.asr.unloadTelespeechRecognizer()
+            } catch (e: Throwable) {
+                Log.e(TAG, "Failed to unload TeleSpeech recognizer after ITN change", e)
+            }
+            triggerTsPreloadIfEnabledAndActive("ts ITN change")
         }
     }
 
@@ -621,6 +635,7 @@ data class AsrSettingsUiState(
     val tsNumThreads: Int = 2,
     val tsKeepAliveMinutes: Int = -1,
     val tsPreloadEnabled: Boolean = false,
+    val tsUseItn: Boolean = true,
     val tsPseudoStreamEnabled: Boolean = false,
     // Paraformer settings
     val pfModelVariant: String = "bilingual-int8",

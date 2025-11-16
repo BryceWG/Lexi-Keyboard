@@ -642,6 +642,11 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_TS_PRELOAD_ENABLED, true)
         set(value) = sp.edit { putBoolean(KEY_TS_PRELOAD_ENABLED, value) }
 
+    // TeleSpeech：ITN 开关（反向文本规范化）
+    var tsUseItn: Boolean
+        get() = sp.getBoolean(KEY_TS_USE_ITN, true)
+        set(value) = sp.edit { putBoolean(KEY_TS_USE_ITN, value) }
+
     // TeleSpeech：伪流式模式开关（基于 VAD 分句预览）
     var tsPseudoStreamEnabled: Boolean
         get() = sp.getBoolean(KEY_TS_PSEUDO_STREAM_ENABLED, false)
@@ -1169,6 +1174,7 @@ class Prefs(context: Context) {
         private const val KEY_TS_NUM_THREADS = "ts_num_threads"
         private const val KEY_TS_KEEP_ALIVE_MINUTES = "ts_keep_alive_minutes"
         private const val KEY_TS_PRELOAD_ENABLED = "ts_preload_enabled"
+        private const val KEY_TS_USE_ITN = "ts_use_itn"
         private const val KEY_TS_PSEUDO_STREAM_ENABLED = "ts_pseudo_stream_enabled"
         // Paraformer（本地 ASR）
         private const val KEY_PF_MODEL_VARIANT = "pf_model_variant"
@@ -1402,6 +1408,7 @@ class Prefs(context: Context) {
         o.put(KEY_TS_NUM_THREADS, tsNumThreads)
         o.put(KEY_TS_KEEP_ALIVE_MINUTES, tsKeepAliveMinutes)
         o.put(KEY_TS_PRELOAD_ENABLED, tsPreloadEnabled)
+        o.put(KEY_TS_USE_ITN, tsUseItn)
         o.put(KEY_TS_PSEUDO_STREAM_ENABLED, tsPseudoStreamEnabled)
         // Paraformer（本地 ASR）
         o.put(KEY_PF_MODEL_VARIANT, pfModelVariant)
@@ -1563,6 +1570,7 @@ class Prefs(context: Context) {
             optInt(KEY_TS_NUM_THREADS)?.let { tsNumThreads = it.coerceIn(1, 8) }
             optInt(KEY_TS_KEEP_ALIVE_MINUTES)?.let { tsKeepAliveMinutes = it }
             optBool(KEY_TS_PRELOAD_ENABLED)?.let { tsPreloadEnabled = it }
+            optBool(KEY_TS_USE_ITN)?.let { tsUseItn = it }
             optBool(KEY_TS_PSEUDO_STREAM_ENABLED)?.let { tsPseudoStreamEnabled = it }
             // Paraformer（本地 ASR）
             optString(KEY_PF_MODEL_VARIANT)?.let { pfModelVariant = it }

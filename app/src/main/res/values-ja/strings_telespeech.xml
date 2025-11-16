@@ -38,6 +38,11 @@
     <string name="feature_ts_preload_off_desc">必要なときだけモデルを読み込みます。初回利用時に遅延が発生する可能性があります。</string>
     <string name="feature_ts_preload_on_desc">キーボード表示時にモデルを事前読み込みし、初回利用時の待ち時間を短縮します。</string>
 
+    <!-- TeleSpeech - ITN を使用 -->
+    <string name="label_ts_use_itn">ITN を有効化（逆テキスト正規化）</string>
+    <string name="feature_ts_use_itn_off_desc">「千二百三十四」のような音声形式のテキストを出力します。</string>
+    <string name="feature_ts_use_itn_on_desc">逆テキスト正規化を使用して、「1234」のような書面形式に自動変換します。</string>
+
     <!-- TeleSpeech - 疑似ストリーミング -->
     <string name="label_ts_pseudo_stream">疑似ストリーミングプレビューを有効にする</string>
     <string name="feature_ts_pseudo_stream_off_desc">疑似ストリーミングを無効化します。録音終了後に一度だけ認識し、従来のローカル認識と同じ動作になります。</string>

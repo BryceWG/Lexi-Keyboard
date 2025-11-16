@@ -1707,6 +1707,20 @@ class AsrSettingsActivity : AppCompatActivity() {
             )
         }
 
+        findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchTsUseItn).apply {
+            isChecked = prefs.tsUseItn
+            installExplainedSwitch(
+                context = this@AsrSettingsActivity,
+                titleRes = R.string.label_ts_use_itn,
+                offDescRes = R.string.feature_ts_use_itn_off_desc,
+                onDescRes = R.string.feature_ts_use_itn_on_desc,
+                preferenceKey = "ts_use_itn_explained",
+                readPref = { prefs.tsUseItn },
+                writePref = { v -> viewModel.updateTsUseItn(v) },
+                hapticFeedback = { hapticTapIfEnabled(it) }
+            )
+        }
+
         findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchTsPseudoStream).apply {
             isChecked = prefs.tsPseudoStreamEnabled
             installExplainedSwitch(

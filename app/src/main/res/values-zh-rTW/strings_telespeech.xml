@@ -38,6 +38,11 @@
     <string name="feature_ts_preload_off_desc">僅在需要時載入模型，首次使用可能有延遲。</string>
     <string name="feature_ts_preload_on_desc">鍵盤顯示時預載模型，減少首次使用延遲。</string>
 
+    <!-- TeleSpeech - 使用 ITN -->
+    <string name="label_ts_use_itn">啟用 ITN（數字/標點規範化）</string>
+    <string name="feature_ts_use_itn_off_desc">輸出口語化文字，如「一千兩百三十四」。</string>
+    <string name="feature_ts_use_itn_on_desc">使用逆文字歸一化，自動轉換為書面形式，如「1234」。</string>
+
     <!-- TeleSpeech - 伺流式模式 -->
     <string name="label_ts_pseudo_stream">啟用伺流式預覽（依停頓分句）</string>
     <string name="feature_ts_pseudo_stream_off_desc">不啟用伺流式預覽，錄音結束後一次性辨識，行為與傳統本機辨識相同。</string>

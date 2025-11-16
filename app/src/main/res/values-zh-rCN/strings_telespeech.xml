@@ -38,6 +38,11 @@
     <string name="feature_ts_preload_off_desc">仅在需要时加载模型，首次使用可能有延迟。</string>
     <string name="feature_ts_preload_on_desc">键盘显示时预加载模型，减少首次使用延迟。</string>
 
+    <!-- TeleSpeech - 使用 ITN -->
+    <string name="label_ts_use_itn">启用 ITN（数字/标点规范化）</string>
+    <string name="feature_ts_use_itn_off_desc">输出口语化文本，如"一千二百三十四"。</string>
+    <string name="feature_ts_use_itn_on_desc">使用逆文本归一化，自动转换为书面形式，如"1234"。</string>
+
     <!-- TeleSpeech - 伪流式模式 -->
     <string name="label_ts_pseudo_stream">启用伪流式预览（按停顿分句）</string>
     <string name="feature_ts_pseudo_stream_off_desc">不进行分句预览，整段录音结束后一次性识别，效果与传统本地识别相同。</string>
