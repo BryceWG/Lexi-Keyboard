@@ -947,6 +947,7 @@ class NotificationHandler(
     val text = when (modelType) {
       "paraformer" -> context.getString(R.string.pf_download_status_downloading, progress)
       "zipformer" -> context.getString(R.string.zf_download_status_downloading, progress)
+      "telespeech" -> context.getString(R.string.ts_download_status_downloading, progress)
       else -> context.getString(R.string.sv_download_status_downloading, progress)
     }
     notifyProgress(
@@ -968,6 +969,7 @@ class NotificationHandler(
     val text = when (modelType) {
       "paraformer" -> context.getString(R.string.pf_download_status_extracting_progress, progress)
       "zipformer" -> context.getString(R.string.zf_download_status_extracting_progress, progress)
+      "telespeech" -> context.getString(R.string.ts_download_status_extracting_progress, progress)
       else -> context.getString(R.string.sv_download_status_extracting_progress, progress)
     }
     notifyProgress(
@@ -988,6 +990,7 @@ class NotificationHandler(
     val text = when (modelType) {
       "paraformer" -> context.getString(R.string.pf_download_status_extracting_progress, progress)
       "zipformer" -> context.getString(R.string.zf_download_status_extracting_progress, progress)
+      "telespeech" -> context.getString(R.string.ts_download_status_extracting_progress, progress)
       else -> context.getString(R.string.sv_download_status_extracting_progress, progress)
     }
     notifyProgress(
