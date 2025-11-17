@@ -1,5 +1,27 @@
 # Changelog
 
+## v3.7.1 (2025-11-17)
+
+### New Features
+
+- **TeleSpeech Offline Recognition**: Added TeleSpeech local ASR engine based on sherpa-onnx, supporting both int8 and fp32 models with complete model management, preloading, and automatic unloading capabilities
+- **TeleSpeech ITN Support**: Integrated Inverse Text Normalization (ITN) for TeleSpeech engine, converting spoken expressions like "one thousand and one" into written forms like "1001"
+- **Pseudo-streaming for Local Models**: Added pseudo-streaming recognition support for SenseVoice and TeleSpeech local models. Uses VAD to segment audio at pauses, providing preview results from small segments while performing final recognition on complete audio after session ends
+- **ElevenLabs Streaming Recognition**: Added real-time streaming speech recognition support for ElevenLabs, with options to choose between streaming and non-streaming modes in settings
+- **Keyboard Theme Enhancement**: Added dedicated button backgrounds for dark mode, unified colorSurface usage in light mode for better contrast, and improved keyboard container background using colorSurfaceVariant for enhanced visual hierarchy
+- **[Pro] Custom Color Themes**: Introduced some elegant preset color themes with support for system colorway following and custom colorway switching
+- **Scrolling Status Text**: Added marquee effect for long status messages to ensure complete information visibility
+- **Auto-copy Error Messages**: Automatically copies error messages to clipboard when detected, making it easier for users to report issues
+
+### Bug Fixes
+
+- Fixed missing progress notification during TeleSpeech model downloads
+- Fixed issue where pseudo-streaming engines didn't properly clear preview segments after session ends
+- Fixed ElevenLabs WebSocket URL construction issue and optimized transcription processing logic
+- Fixed inconsistent clipboard panel background color
+
+---
+
 ## v3.7.0 (2025-11-14)
 
 ### New Features
